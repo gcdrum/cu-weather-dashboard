@@ -9,6 +9,42 @@ import numpy as np
 import requests
 from eccodes import codes_grib_new_from_file, codes_get_array, codes_release
 
+
+
+def merge_model_records(path, model, fresh, min_count):
+    """Preserve other models, reject malformed or regressive same-cycle updates."""
+    if len(fresh) < min_count:
+        raise RuntimeError(f'{model}: only {len(fresh)} records, minimum {min_count}')
+    existing = json.loads(path.read_text()) if path.exists() else []
+    if not isinstance(existing, list):
+        raise RuntimeError('Existing reflectivity.json is not a list')
+    def check(r):
+        if not isinstance(r,dict) or not isinstance(r.get('time'),str) or not isinstance(r.get('model'),str):
+            raise RuntimeError('Malformed reflectivity record')
+        if r['model'] in ('gfs','hrrr'):
+            zones=r.get('zones')
+            if not isinstance(zones,dict) or not all(k in zones for k in ('upstream_west','approach_west','springfield_area','downstream_east')):
+                raise RuntimeError(f'Missing geographic zones in {r["model"]} record {r["time"]}')
+            if not isinstance(r.get('peak'),dict) or not all(k in r['peak'] for k in ('lat','lon')):
+                raise RuntimeError(f'Missing peak coordinates in {r["model"]} record {r["time"]}')
+    for r in fresh: check(r)
+    # Older files may contain legacy GFS records. Do not preserve them as if they were validated.
+    other=[r for r in existing if isinstance(r,dict) and r.get('model') != model]
+    for r in other: check(r)
+    old=[r for r in existing if isinstance(r,dict) and r.get('model') == model]
+    old_valid=[r for r in old if isinstance(r.get('zones'),dict) and isinstance(r.get('peak'),dict)]
+    # A same-cycle rerun may have fewer available forecast hours; retain the more complete dataset.
+    if old_valid and fresh[0]['time'] == old_valid[0]['time'] and len(fresh) < len(old_valid):
+        print(f'{model}: retaining {len(old_valid)} existing records rather than {len(fresh)} incomplete same-cycle records',flush=True)
+        fresh=old_valid
+    combined=sorted(other+fresh,key=lambda r:(r['time'],r['model']))
+    # Do not write until every model has passed validation.
+    for r in combined: check(r)
+    tmp=path.with_suffix('.json.tmp')
+    tmp.write_text(json.dumps(combined,indent=2)+'\n')
+    tmp.replace(path)
+    print(f'Merged {len(fresh)} {model} + {len(other)} other-model records',flush=True)
+
 ROOT='https://noaa-hrrr-bdp-pds.s3.amazonaws.com'
 ZONES={'upstream_west':(-95.5,-94.0,35.5,39.0),'approach_west':(-94.0,-93.3,36.2,38.3),'springfield_area':(-93.6,-92.9,36.9,37.6),'downstream_east':(-92.9,-91.5,35.5,39.0)}
 POINTS=[('NW / Willard side',37.258,-93.405),('North',37.290,-93.310),('NE / Strafford side',37.258,-93.190),('West',37.221,-93.395),('Central Springfield',37.209,-93.292),('East',37.215,-93.210),('SW / Republic side',37.170,-93.392),('South / Battlefield',37.150,-93.292),('SE',37.155,-93.220),('Far South / West',37.095,-93.405),('Far South / Central',37.088,-93.300),('Far South / East',37.095,-93.220)]
@@ -115,16 +151,13 @@ def main():
         except Exception as e:
             errors.append(f'f{lead:02d}: {e}');print('WARNING',errors[-1],flush=True)
     if len(pairs)<8:raise RuntimeError('Only '+str(len(pairs))+' HRRR forecast hours; existing published data retained')
-    # Never erase the GFS records; retain only fresh HRRR records for the chosen cycle.
     dest=Path('reflectivity.json')
-    existing=json.loads(dest.read_text()) if dest.exists() else []
-    gfs=[r for r in existing if r.get('model')!='hrrr']
-    dest.write_text(json.dumps(sorted(gfs+[a for a,b in pairs],key=lambda r:(r['time'],r['model'])),indent=2)+'\n')
+    merge_model_records(dest, 'hrrr', [a for a,b in pairs], 8)
     payload={'model':'hrrr','cycle':chosen.isoformat(),'updated':now.isoformat(),
              'source':'NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)',
              'points':[{'name':n,'lat':y,'lon':x} for n,y,x in POINTS],
              'hours':[b for a,b in pairs],'errors':errors}
     Path('hrrr_wind.json').write_text(json.dumps(payload,indent=2)+'\n')
     Path('hrrr_status.json').write_text(json.dumps({'cycle':chosen.isoformat(),'updated':now.isoformat(),'hours':len(pairs),'expected_hours':maxlead+1,'errors':errors},indent=2)+'\n')
-    print(f'Published {len(pairs)} HRRR forecast hours and {len(gfs)} preserved non-HRRR reflectivity records')
+    print(f'Published {len(pairs)} HRRR forecast hours with validated geographic reflectivity')
 if __name__=='__main__':main()
