@@ -173,7 +173,7 @@ body{max-width:1700px;padding:12px 16px 18px}
 <section id="cu-v20" style="padding:14px;margin:12px 0;border:1px solid #70a5b5;border-radius:9px;background:#0e2938;color:#e3f1f7;font-size:13px;line-height:1.55">
 <strong style="font-size:16px">V84 · Convective downdraft energy / wind sensitivity</strong>
 <p style="margin:7px 0;color:#c1d9e5">Retrieves <b>15-minute HRRR gust maxima and CAPE</b> at the same 12 CU sampling locations, alongside precipitation and weather codes. CAPE is a storm-environment diagnostic, not a wind-speed prediction. This is <b>not a separate thunderstorm downdraft gust model</b>. Storm context does not create a wind speed or inflate gusts.</p>
-<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:9px 0"><button type="button" id="cu-v20-load" style="background:#276481;color:white;border:1px solid #91bbd0;border-radius:6px;padding:9px 13px;font-weight:600">Load 15-minute HRRR wind</button><label>Day <select id="cu-v20-day" style="background:#24485b;color:white;padding:6px;border-radius:5px"></select></label></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:9px 0"><button type="button" id="cu-v20-load" style="background:#276481;color:white;border:1px solid #91bbd0;border-radius:6px;padding:9px 13px;font-weight:600">Retry / refresh 15-minute HRRR wind</button><label>Day <select id="cu-v20-day" style="background:#24485b;color:white;padding:6px;border-radius:5px"></select></label></div>
 <div id="cu-v20-status" aria-live="polite" style="color:#c1d9e5">Not loaded. Requires internet. Uses current available HRRR forecast hours only.</div>
 <div style="overflow-x:auto;margin:8px 0"><canvas id="cu-v20-chart" width="900" height="310" style="width:100%;min-width:550px;display:block"></canvas></div>
 <div id="cu-v20-results" style="line-height:1.65">No numerical wind data retrieved yet.</div><section id="cu-v22-panel" style="display:none;margin:12px 0;padding:13px;border:1px solid #b77f46;border-radius:8px;background:#192b35;line-height:1.65"><strong style="font-size:15px;color:#ffcb82">V22 · Convective downdraft wind-potential experiment</strong><p style="margin:6px 0;color:#d7e5ed">Compares actual HRRR 15-minute gusts with the <b>idealized parcel energy speed</b> calculated from existing HRRR/GFS DCAPE soundings. This is a <b>conditional physics sensitivity, not a validated surface-gust forecast</b>.</p><label for="cu-v22-eff">Illustrative fraction of DCAPE converted into horizontal kinetic energy: <b id="cu-v22-eff-label">10%</b></label><input id="cu-v22-eff" type="range" min="0" max="30" step="5" value="10" style="width:100%;accent-color:#f4bd70"><div style="font-size:11px;color:#f2cb91">0–30% is a user-controlled sensitivity range, NOT an empirically calibrated downdraft efficiency. No automatic change to operational outage curves.</div><div id="cu-v22-result" style="margin:10px 0;color:#e0edf6">Load 15-minute HRRR data and the atmospheric sounding profiles to compare coincident data.</div><div style="overflow-x:auto"><canvas id="cu-v22-chart" width="900" height="260" style="width:100%;min-width:550px;display:block"></canvas></div><div style="font-size:11px;color:#b9d0dd">Illustration: potential = √(GUST² + η × 2 × DCAPE × 2.23694²), with gust in mph and DCAPE in J/kg. This energy-combination assumption has not been validated against CU storm gust observations; it is not a deterministic thunderstorm gust prediction. CAPE, precipitation and shear are environmental context, not proof of a downdraft. No extra outage total is added.</div><button type="button" id="cu-v22-recheck" style="margin-top:8px;background:#31576b;color:white;padding:7px 12px;border:1px solid #7292a4;border-radius:6px">↻ Recheck loaded soundings</button></section><section id="cu-v24-panel" style="margin:12px 0;padding:13px;border:1px solid #5d9b76;border-radius:8px;background:#132c31;line-height:1.55"><strong style="font-size:15px;color:#9ee0b6">Convective-wind qualification · bounded integration</strong><p style="margin:6px 0;color:#d7e5ed">Uses the same sounding state as the DCAPE experiment and evaluates every 15-minute interval before allowing the experimental DCAPE wind-potential line. A qualified interval requires either a native HRRR thunderstorm weather code, or the simultaneous overlap of <b>modeled precipitation + CAPE ≥500 J/kg + time-matched DCAPE</b>. This is a research gate, not a validated severe-wind algorithm. <b>V28 waits for a READY sounding/DCAPE state, then sends only qualified potential into the main outage chart; the integration is max(native HRRR wind-only impact, historical convective analogue), never an additive total.</b></p><div id="cu-v24-summary" style="margin:9px 0;color:#e2f1e8">Load HRRR wind/CAPE and sounding data to evaluate the gate.</div><div style="overflow-x:auto"><canvas id="cu-v24-chart" width="900" height="270" style="width:100%;min-width:550px;display:block"></canvas></div><div id="cu-v24-reasons" style="margin-top:9px;color:#c8ddd1"></div><div style="font-size:11px;color:#afd0bd;margin-top:8px"><b>Gate labels:</b> STORM CODE = native HRRR weather code 95–99. PRECIP+CAPE+DCAPE = precipitation at ≥1 of 12 sites, maximum sampled CAPE ≥500 J/kg, and a time-matched DCAPE sounding. FAIL labels identify the missing ingredient. Gold wind potential is drawn only for qualified intervals. On the main outage chart, qualified convective curves rise vertically from zero at the first qualified interval and return vertically to zero at the last qualified interval; no zero-level line is drawn outside the qualified window. Operational outage curves remain unchanged.</div></section><div id="cu-v21-environment" style="display:none;margin:10px 0;padding:12px;border:1px solid #50798e;border-radius:7px;background:#132f40;line-height:1.6"><b>V21 · Storm organization and modeled-wind assessment</b><div id="cu-v21-results" style="margin-top:6px">Load HRRR to compare CAPE, precipitation, thunderstorm codes and actual 15-minute gusts in the same time intervals.</div><div style="overflow-x:auto;margin-top:9px"><canvas id="cu-v21-chart" width="900" height="235" style="width:100%;min-width:550px;display:block"></canvas></div><p style="font-size:12px;color:#f1c783">CAPE is not a gust forecast. Reflectivity and native HRRR downdraft diagnostics are not supplied by this API. No invented convective wind speed; no automatic outage adjustment. Storm-related gust attribution remains unverified.</p></div>
@@ -662,7 +662,17 @@ function cuReflectivityRating(dbz){if(!Number.isFinite(dbz))return -1;return dbz
 function cuSpatialStormAssessment(id,t){
  const when=new Date(t).getTime();
  if(!Number.isFinite(when))return {rating:-1,phase:'unknown'};
- const rows=(window.cuNumericalReflectivityV102||[]).filter(r=>r.model===id&&Number.isFinite(new Date(r.time).getTime())&&r.zones);
+ const rows=(window.cuNumericalReflectivityV102||[]).filter(r=>{
+  if(r.model!==id||!Number.isFinite(Date.parse(r.time))||!r.zones)return false;
+  if(id==='hrrr'){
+    const c=window.cuV1132HRRRCycle,stamp=Date.parse(r.time);
+    if(!c||!Number.isFinite(Date.parse(c)))return false; // do not display unverified HRRR cycles
+    const start=Date.parse(c),age=Date.now()-start;
+    if(age>8*3600000||age<0)return false;
+    if(stamp<start||stamp>start+49*3600000)return false;
+  }
+  return true;
+});
  if(!rows.length)return {rating:-1,phase:'unavailable'};
  let nearest=null,delta=Infinity;
  for(const r of rows){const d=Math.abs(new Date(r.time).getTime()-when);if(d<delta){delta=d;nearest=r;}}
@@ -733,7 +743,7 @@ window.cuImportReflectivityV102=function(rows){
  if(clean.some(r=>!['gfs','nam','hrrr','rrfs'].includes(r.model)||!/^\d{4}-\d\d-\d\dT\d\d/.test(r.time)||!Number.isFinite(r.dbz)||r.dbz<0||r.dbz>90))throw Error('Invalid model, ISO time or dBZ');
  window.cuNumericalReflectivityV102=clean;
  const status=document.getElementById('cu-v102-ref-status');
- if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
+ if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.2: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
  const old=document.getElementById('cu-v112-geographic-summary');
  if(old)old.remove();
  const panel=document.getElementById('cu-v102-ref-panel');
@@ -743,7 +753,7 @@ window.cuImportReflectivityV102=function(rows){
   const geographic=clean.filter(r=>r.model==='gfs'&&r.zones);
   const event=geographic.filter(r=>r.time>='2026-11-02T00:00'&&r.time<='2026-11-04T12:00');
   const peak=(key)=>{const a=event.map(r=>r.zones[key]).filter(Number.isFinite);return a.length?Math.max(...a).toFixed(1)+' dBZ':'unavailable';};
-  info.textContent='V113 GFS geographic coverage: '+geographic.length+' records. Nov 2–4 zone peaks — Springfield area: '+peak('springfield_area')+'; western approach: '+peak('approach_west')+'; upstream west: '+peak('upstream_west')+'. Regional peak is not local exposure. Western echoes are watch-only; no storm-motion or arrival-time claim.';
+  info.textContent='V113.2 GFS geographic coverage: '+geographic.length+' records. Nov 2–4 zone peaks — Springfield area: '+peak('springfield_area')+'; western approach: '+peak('approach_west')+'; upstream west: '+peak('upstream_west')+'. Regional peak is not local exposure. Western echoes are watch-only; no storm-motion or arrival-time claim.';
   panel.appendChild(info);
   const early=geographic.filter(r=>r.time<'2026-11-02T00:00:00').slice(0,24);
   if(early.length){
@@ -1397,10 +1407,25 @@ try{
 }catch(e){cuCachedError=String(e.message||e);}
 const badge=document.getElementById('cu-v113-noaa-hrrr');
 if(badge)badge.textContent=cuCachedHRRR?'NOAA HRRR hourly cache: '+cuCachedHRRR.cycle+' · '+cuCachedHRRR.hours.length+' hours · 12 sites · available for fallback':'NOAA HRRR hourly cache unavailable: '+cuCachedError+' (live retrieval remains enabled)';
+window.cuV1132HRRRCycle=cuCachedHRRR?.cycle||null;
+try{if(window.cuNumericalReflectivityV102?.length)drawForecast()}catch(e){}
 let ok=0;for(const m of models){const el=document.getElementById('wind-'+m.id);el.innerHTML='<strong>'+m.label+'</strong><div class="windmeta">Loading 12 points…</div>';
 const results=[];const errors=[];
 // Individual requests prevent a reported Open-Meteo multi-coordinate gust issue.
-for(let start=0;start<points.length;start+=2){
+// V113.2: use the published, cycle-verified NOAA HRRR hourly dataset first.
+// The live 15-minute diagnostic loads independently and is never mislabeled hourly.
+let usedCache=false;
+if(m.id==='hrrr'&&cuCachedHRRR){
+ const h=cuCachedHRRR.hours,pts=cuCachedHRRR.points;
+ const cp=pts.map((p,i)=>({point:points[i],time:h.map(x=>x.time),
+  gust:h.map(x=>Number.isFinite(x.gust_ms?.[i])?x.gust_ms[i]*2.2369362921:null),
+  wind:h.map(x=>Number.isFinite(x.wind_ms?.[i])?x.wind_ms[i]*2.2369362921:null),
+  temp:[],precip:[],snow:[],code:[]}));
+ if(cp.every(x=>x.gust.filter(Number.isFinite).length>=8&&x.wind.filter(Number.isFinite).length>=8)){
+  results.push(...cp);usedCache=true;
+ }
+}
+if(!usedCache)for(let start=0;start<points.length;start+=2){
  const batch=await Promise.allSettled(points.slice(start,start+2).map(p=>fetchPoint(m,p)));
  for(let j=0;j<batch.length;j++){
   const r=batch[j];
@@ -1414,20 +1439,7 @@ for(let start=0;start<points.length;start+=2){
  }
  await new Promise(resolve=>setTimeout(resolve,180));
 }
-// Only use verified NOAA HRRR hourly cache when live 12-site data failed.
-// The cache has a model-cycle age limit and preserves the 12 original sample points.
-let usedCache=false;
-if(m.id==='hrrr'&&results.length<10&&cuCachedHRRR){
- const h=cuCachedHRRR.hours,pts=cuCachedHRRR.points;
- const cachePoints=pts.map((p,i)=>({point:points[i],time:h.map(x=>x.time),
-  gust:h.map(x=>Number.isFinite(x.gust_ms?.[i])?x.gust_ms[i]*2.2369362921:null),
-  wind:h.map(x=>Number.isFinite(x.wind_ms?.[i])?x.wind_ms[i]*2.2369362921:null),
-  temp:[],precip:[],snow:[],code:[]}));
- if(cachePoints.every(x=>x.gust.filter(Number.isFinite).length>=8&&x.wind.filter(Number.isFinite).length>=8)){
-  results.splice(0,results.length,...cachePoints);usedCache=true;
- }
-}
-if(results.length>=10){window.cuPointData=window.cuPointData||{};window.cuPointData[m.id]=results;const rows=compute(results);if(rows.length){display(m,rows,results.length);if(usedCache){const el=document.getElementById('wind-hrrr');el.innerHTML+='<div style="color:#fbbf24">NOAA HRRR hourly fallback · cycle '+cuCachedHRRR.cycle+' · NOT 15-minute live data</div>';}ok++;
+if(results.length>=10){window.cuPointData=window.cuPointData||{};window.cuPointData[m.id]=results;const rows=compute(results);if(rows.length){display(m,rows,results.length);if(usedCache){const el=document.getElementById('wind-hrrr');el.innerHTML+='<div style="color:#fbbf24">NOAA HRRR hourly primary · cycle '+cuCachedHRRR.cycle+' · NOAA hourly grid data, NOT 15-minute live data</div>';}ok++;
  // V32: render immediately after each usable model instead of waiting for all 36 site requests.
  // HRRR is requested first because it controls the near-term operational view.
  try{table();updateThreats();drawForecast();setChartMode('live')}catch(e){}
@@ -2204,6 +2216,9 @@ btn.addEventListener('click',async()=>{
  }catch(e){status.textContent='Unable to build gust forecast: '+e.message;out.textContent='No values inferred. Existing outage curves unchanged.';v21out.textContent='Storm environment unavailable: '+e.message;draw()}
  finally{btn.disabled=false}
 });sel.addEventListener('change',show);draw();
+// V113.2: load the independent native 15-minute HRRR series on startup.
+// The button remains available for retry; failures stay explicitly unavailable.
+setTimeout(()=>{if(!btn.disabled)btn.click()},1800);
 })();
 </script>
 
@@ -2971,6 +2986,6 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 </script>
 
 
-<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113 · Automated NOAA GFS + HRRR reflectivity and wind</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly cache: checking…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
+<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.2 · HRRR automatic loading and forecast integrity</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.2 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
 </body></html>
