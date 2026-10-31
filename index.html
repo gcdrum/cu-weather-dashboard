@@ -658,10 +658,39 @@ function cuIngredientRating(r,id){
 window.cuNumericalReflectivityV102=[];
 window.cuReflectivityFetchStatus="not connected";
 function cuReflectivityRating(dbz){if(!Number.isFinite(dbz))return -1;return dbz>=45?3:dbz>=35?2:dbz>=20?1:0}
+// V111: spatial screening. Regional maxima are diagnostic only, never local impact.
+function cuSpatialStormAssessment(id,t){
+ const when=new Date(t).getTime();
+ if(!Number.isFinite(when))return {rating:-1,phase:'unknown'};
+ const rows=(window.cuNumericalReflectivityV102||[]).filter(r=>r.model===id&&Number.isFinite(new Date(r.time).getTime())&&r.zones);
+ if(!rows.length)return {rating:-1,phase:'unavailable'};
+ let nearest=null,delta=Infinity;
+ for(const r of rows){const d=Math.abs(new Date(r.time).getTime()-when);if(d<delta){delta=d;nearest=r;}}
+ // GFS three-hour samples; never stretch one sample beyond half its interval.
+ if(delta>90*60*1000)return {rating:-1,phase:'outside forecast samples'};
+ const z=nearest.zones;
+ const local=z.springfield_area,approach=z.approach_west,upstream=z.upstream_west,downstream=z.downstream_east;
+ const valid=v=>typeof v==='number'&&Number.isFinite(v);
+ // A local value is primary; west-of-town reflectivity is a watch, not local exposure.
+ const localRating=valid(local)?cuReflectivityRating(local):-1;
+ const westValues=[approach,upstream].filter(valid);
+ const westRating=westValues.length?cuReflectivityRating(Math.max(...westValues)):-1;
+ const prior=rows.filter(r=>new Date(r.time).getTime()<new Date(nearest.time).getTime()).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
+ const westPrev=prior?.zones?.approach_west;
+ const trend=valid(approach)&&valid(westPrev)&&new Date(nearest.time)-new Date(prior.time)<=4*3600000 ? approach-westPrev : null;
+ const phase=localRating>=2?'SPRINGFIELD-AREA SIGNAL':westRating>=2?(trend!==null&&trend>=5?'WESTERN APPROACH · INTENSIFYING':'WESTERN STORM SIGNAL'):
+  localRating>=1?'LOCAL LIGHT/MODERATE ECHO':westRating>=1?'WESTERN ECHO':'BELOW SCREENING THRESHOLD';
+ // Local signal is ranked directly. Strong west-only storms are capped at watch rank 1.
+ const rating=localRating>=0?Math.max(localRating,westRating>=2?1:0):westRating>=2?1:westRating>=0?0:-1;
+ return {rating,phase,local,approach,upstream,downstream,regional:nearest.dbz,peak:nearest.peak,time:nearest.time,trend};
+}
 function cuCombinedStormRating(id,t,profile){
- const ingredient= id==='rrfs'?-1:cuIngredientRating(profile,id);
+ const ingredient=id==='rrfs'?-1:cuIngredientRating(profile,id);
+ const spatial=cuSpatialStormAssessment(id,t);
+ if(spatial.rating>=0)return Math.max(ingredient,spatial.rating);
+ // Older non-geographic datasets retain the prior behavior, marked as regional-only.
  const hour=new Date(t).getTime();
- const rows=window.cuNumericalReflectivityV102.filter(r=>r.model===id&&Number.isFinite(hour)&&Math.abs(new Date(r.time).getTime()-hour)<1800000);
+ const rows=(window.cuNumericalReflectivityV102||[]).filter(r=>r.model===id&&!r.zones&&Number.isFinite(hour)&&Math.abs(new Date(r.time).getTime()-hour)<1800000);
  const detected=rows.length?Math.max(...rows.map(r=>cuReflectivityRating(r.dbz))):-1;
  return Math.max(ingredient,detected);
 }
@@ -684,11 +713,26 @@ window.cuV103FetchReflectivity=async function(){
 };
 window.cuImportReflectivityV102=function(rows){
  if(!Array.isArray(rows))throw Error('Expected a JSON array');
- const clean=rows.map(r=>({model:String(r.model||'').toLowerCase(),time:String(r.time||''),dbz:Number(r.dbz),zone:r.zone==='local'?'local':'regional'}));
+ const clean=rows.map(r=>{
+  const zones=r.zones&&typeof r.zones==='object'?Object.fromEntries(['upstream_west','approach_west','springfield_area','downstream_east'].map(k=>[k,r.zones[k]===null||r.zones[k]===undefined?null:Number(r.zones[k])])):null;
+  return {model:String(r.model||'').toLowerCase(),time:String(r.time||''),dbz:Number(r.dbz),zone:r.zone==='local'?'local':'regional',zones,peak:r.peak||null};
+ });
  if(clean.some(r=>!['gfs','nam','hrrr','rrfs'].includes(r.model)||!/^\d{4}-\d\d-\d\dT\d\d/.test(r.time)||!Number.isFinite(r.dbz)||r.dbz<0||r.dbz>90))throw Error('Invalid model, ISO time or dBZ');
  window.cuNumericalReflectivityV102=clean;
  const status=document.getElementById('cu-v102-ref-status');
- if(status)status.textContent=clean.length+' numerical reflectivity records loaded. Bars show the higher of reflectivity detection and ingredient screening. Outage estimates unchanged.';
+ if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V111: geographic Springfield exposure and western storm watch; CAPE/shear screening remains independent. Regional maxima are diagnostic only. Outage estimates unchanged.';
+ const old=document.getElementById('cu-v111-geographic-summary');
+ if(old)old.remove();
+ const panel=document.getElementById('cu-v102-ref-panel');
+ if(panel){
+  const info=document.createElement('div');info.id='cu-v111-geographic-summary';
+  info.style.cssText='margin:9px 0;padding:9px;border:1px solid #496879;border-radius:5px;line-height:1.6;color:#cce4ee';
+  const geographic=clean.filter(r=>r.model==='gfs'&&r.zones);
+  const event=geographic.filter(r=>r.time>='2026-11-02T00:00'&&r.time<='2026-11-04T12:00');
+  const peak=(key)=>{const a=event.map(r=>r.zones[key]).filter(Number.isFinite);return a.length?Math.max(...a).toFixed(1)+' dBZ':'unavailable';};
+  info.textContent='GFS geographic coverage: '+geographic.length+' records. Nov 2–4 zone peaks — Springfield area: '+peak('springfield_area')+'; western approach: '+peak('approach_west')+'; upstream west: '+peak('upstream_west')+'. Regional peak is not local exposure. Western echoes are watch-only; no storm-motion or arrival-time claim.';
+  panel.appendChild(info);
+ }
  drawForecast();
 };
 // V40: one authoritative 15-minute HRRR operational-wind state.
@@ -2867,6 +2911,6 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 </script>
 
 
-<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V107 · Numerical storm detection status</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">GFS / RRFS / NAM / HRRR reflectivity detection combines with CAPE/shear screening (highest rank wins). The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
+<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V111 · Geographic storm detection status</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V111 uses Springfield-area dBZ for local storm screening and west-zone dBZ for a capped approach watch. CAPE/shear screening remains independent; west-zone echoes alone cannot be treated as local storm impact. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
 </body></html>
