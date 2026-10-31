@@ -100,5 +100,113 @@
     "time": "2026-11-02T12:00:00+00:00",
     "dbz": 10.8,
     "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-02T15:00:00+00:00",
+    "dbz": 8.2,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-02T18:00:00+00:00",
+    "dbz": 15.3,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-02T21:00:00+00:00",
+    "dbz": 27.5,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T00:00:00+00:00",
+    "dbz": 45.2,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T03:00:00+00:00",
+    "dbz": 50.1,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T06:00:00+00:00",
+    "dbz": 48.4,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T09:00:00+00:00",
+    "dbz": 50.9,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T12:00:00+00:00",
+    "dbz": 47.4,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T15:00:00+00:00",
+    "dbz": 42.1,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T18:00:00+00:00",
+    "dbz": 39.1,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-03T21:00:00+00:00",
+    "dbz": 34.5,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-04T00:00:00+00:00",
+    "dbz": 29.9,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-04T03:00:00+00:00",
+    "dbz": 34.9,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-04T06:00:00+00:00",
+    "dbz": 28.0,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-04T09:00:00+00:00",
+    "dbz": 29.0,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-04T12:00:00+00:00",
+    "dbz": 12.0,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-04T15:00:00+00:00",
+    "dbz": 12.6,
+    "zone": "regional"
+  },
+  {
+    "model": "gfs",
+    "time": "2026-11-04T18:00:00+00:00",
+    "dbz": 0.2,
+    "zone": "regional"
   }
 ]
