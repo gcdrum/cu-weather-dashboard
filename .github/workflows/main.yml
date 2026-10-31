@@ -1,0 +1,50 @@
+
+name: NOAA Reflectivity Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */3 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: noaa-reflectivity
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install GRIB2 decoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libeccodes-dev
+          python -m pip install --upgrade pip
+          pip install requests eccodes numpy
+
+      - name: Process NOAA reflectivity
+        run: python scripts/update_reflectivity.py
+
+      - name: Commit updated forecast
+        run: |
+          if [ -f reflectivity.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add reflectivity.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Update NOAA reflectivity data"
+              git push
+            fi
+          fi
