@@ -134,36 +134,97 @@ def process(cycle,lead):
     return ({'model':'hrrr','time':valid.isoformat(),'dbz':rf['dbz'],'zone':'regional','zones':rf['zones'],'peak':rf['peak'],'site_dbz':rf['site_dbz'],'cycle':cycle.isoformat(),'lead':lead},
             {'time':valid.strftime('%Y-%m-%dT%H:%M'),'gust_ms':gusts,'wind_ms':winds})
 
+def process_reflectivity(cycle, lead):
+    """Decode REFC alone; wind availability must not block reflectivity publication."""
+    root=cycle_root(cycle,lead)
+    span=choose(index_fields(root),'REFC')
+    if span is None: raise ValueError('REFC missing from index')
+    lat,lon,values=read_field(root,span)
+    rf=reflectivity(lat,lon,values)
+    return {'model':'hrrr','time':(cycle+timedelta(hours=lead)).isoformat(),
+            'dbz':rf['dbz'],'zone':'regional','zones':rf['zones'],
+            'peak':rf['peak'],'site_dbz':rf['site_dbz'],
+            'cycle':cycle.isoformat(),'lead':lead}
+
+def atomic_json(path,obj):
+    path=Path(path)
+    tmp=path.with_suffix(path.suffix+'.tmp')
+    tmp.write_text(json.dumps(obj,indent=2)+'\n')
+    tmp.replace(path)
+
 def main():
-    now=datetime.now(timezone.utc);hour=now.replace(minute=0,second=0,microsecond=0)
-    chosen=None;first=None;errors=[]
-    # NOAA HRRR generally available ~1-2 hours after cycle; verify by fetching.
-    for back in range(0,5):
+    now=datetime.now(timezone.utc)
+    hour=now.replace(minute=0,second=0,microsecond=0)
+    errors=[]
+    chosen=None
+    first=None
+    # Probe the most recent cycles using only REFC; no dependency on gust or wind fields.
+    for back in range(5):
         cycle=hour-timedelta(hours=back)
         try:
-            first=process(cycle,0);chosen=cycle;break
-        except Exception as e:errors.append(f'{cycle:%Y-%m-%d %HZ} f00: {e}')
-    if chosen is None:raise RuntimeError('No available HRRR cycle: '+'; '.join(errors))
-    # Standard hourly cycles extend to 18h; 00/06/12/18Z cycles may extend to 48h.
-    maxlead=48 if chosen.hour%6==0 else 18
-    pairs=[first]
-    for lead in range(1,maxlead+1):
-        try:
-            pairs.append(process(chosen,lead))
-            print(f'HRRR {chosen:%HZ} f{lead:02d}: REFC and 12-site wind decoded',flush=True)
-        except Exception as e:
-            errors.append(f'f{lead:02d}: {e}');print('WARNING',errors[-1],flush=True)
-    if len(pairs)<4:raise RuntimeError('Only '+str(len(pairs))+' HRRR forecast hours; existing published data retained')
+            first=process_reflectivity(cycle,0)
+            chosen=cycle
+            break
+        except Exception as exc:
+            errors.append(f'{cycle:%HZ} f00 REFC: {exc}')
+    if chosen is None:
+        raise RuntimeError('No HRRR REFC available: '+'; '.join(errors))
+
     dest=Path('reflectivity.json')
-    merge_model_records(dest, 'hrrr', [a for a,b in pairs], 4)
-    published=[r for r in json.loads(dest.read_text()) if r.get('model')=='hrrr']
-    if published and published[0]['time'] != pairs[0][0]['time']:
-        raise RuntimeError('Older HRRR cycle rejected; refusing to publish mismatched wind cache')
-    payload={'model':'hrrr','cycle':chosen.isoformat(),'updated':now.isoformat(),
-             'source':'NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)',
-             'points':[{'name':n,'lat':y,'lon':x} for n,y,x in POINTS],
-             'hours':[b for a,b in pairs],'errors':errors}
-    Path('hrrr_wind.json').write_text(json.dumps(payload,indent=2)+'\n')
-    Path('hrrr_status.json').write_text(json.dumps({'cycle':chosen.isoformat(),'updated':now.isoformat(),'hours':len(pairs),'expected_hours':maxlead+1,'errors':errors},indent=2)+'\n')
-    print(f'Published {len(pairs)} HRRR forecast hours with validated geographic reflectivity')
+    existing=json.loads(dest.read_text()) if dest.exists() else []
+    old=[r for r in existing if isinstance(r,dict) and r.get('model')=='hrrr']
+    old_cycle=max((r.get('cycle','') for r in old),default='')
+    if old_cycle and old_cycle>chosen.isoformat():
+        print('Existing published HRRR cycle is newer; refusing regression',flush=True)
+        return
+    same=[r for r in old if r.get('cycle')==chosen.isoformat()]
+    bylead={int(r['lead']):r for r in same if isinstance(r.get('lead'),int)}
+    bylead[0]=first
+    maxlead=48 if chosen.hour%6==0 else 18
+    # Bound per-run work: publish the first new hours quickly, fill remaining hours next run.
+    missing=[lead for lead in range(1,maxlead+1) if lead not in bylead]
+    for lead in missing[:6]:
+        try:
+            bylead[lead]=process_reflectivity(chosen,lead)
+            print(f'HRRR {chosen:%HZ} f{lead:02d}: REFC decoded',flush=True)
+        except Exception as exc:
+            errors.append(f'f{lead:02d} REFC: {exc}')
+            print('WARNING',errors[-1],flush=True)
+            # NOAA often publishes sequentially; do not spend this run probing every later hour.
+            break
+    records=[bylead[k] for k in sorted(bylead)]
+    # Merge atomically, preserving GFS and never replacing newer/same-cycle coverage with less.
+    others=[r for r in existing if isinstance(r,dict) and r.get('model')!='hrrr']
+    combined=sorted(others+records,key=lambda r:(r['time'],r['model']))
+    atomic_json(dest,combined)
+    print(f'Published HRRR {chosen:%Y-%m-%d %HZ}: {len(records)} reflectivity hours (f{max(bylead):02d} max); previous {len(same)}',flush=True)
+
+    # Wind decoding is independent and optional. Keep the last usable wind cache on failure.
+    windpath=Path('hrrr_wind.json')
+    prior=json.loads(windpath.read_text()) if windpath.exists() else {}
+    wind_hours={h['time']:h for h in prior.get('hours',[]) if isinstance(h,dict) and 'time' in h} if prior.get('cycle')==chosen.isoformat() else {}
+    wind_leads=[]
+    for lead in sorted(bylead):
+        stamp=(chosen+timedelta(hours=lead)).strftime('%Y-%m-%dT%H:%M')
+        if stamp not in wind_hours: wind_leads.append(lead)
+    for lead in wind_leads[:3]:
+        try:
+            _,wind=process(chosen,lead)
+            wind_hours[wind['time']]=wind
+            print(f'HRRR {chosen:%HZ} f{lead:02d}: 12-site wind decoded',flush=True)
+        except Exception as exc:
+            errors.append(f'f{lead:02d} wind: {exc}')
+            print('WARNING',errors[-1],flush=True)
+            break
+    if wind_hours:
+        payload={'model':'hrrr','cycle':chosen.isoformat(),'updated':now.isoformat(),
+                 'source':'NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)',
+                 'points':[{'name':n,'lat':y,'lon':x} for n,y,x in POINTS],
+                 'hours':[wind_hours[k] for k in sorted(wind_hours)],'errors':errors}
+        atomic_json(windpath,payload)
+    atomic_json('hrrr_status.json',{'cycle':chosen.isoformat(),'updated':now.isoformat(),
+                'hours':len(records),'expected_hours':maxlead+1,
+                'last_lead':max(bylead),'wind_hours':len(wind_hours),
+                'complete':len(records)==maxlead+1,'errors':errors})
+
 if __name__=='__main__':main()
