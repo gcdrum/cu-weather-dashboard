@@ -659,38 +659,42 @@ window.cuNumericalReflectivityV102=[];
 window.cuReflectivityFetchStatus="not connected";
 function cuReflectivityRating(dbz){if(!Number.isFinite(dbz))return -1;return dbz>=45?3:dbz>=35?2:dbz>=20?1:0}
 // V111: spatial screening. Regional maxima are diagnostic only, never local impact.
+// V113.4: HRRR reflectivity is its OWN forecast product. Never borrow the wind-cache cycle.
+// A row's valid timestamp is the instant it describes, not a +/-35-minute interpolation.
+function cuHRRRReflectivityAudit(){
+ const all=(window.cuNumericalReflectivityV102||[]).filter(r=>r.model==='hrrr'&&r.zones&&Number.isFinite(Date.parse(r.time)));
+ const valid=all.filter(r=>Number.isFinite(r.zones.springfield_area)||Number.isFinite(r.zones.approach_west)||Number.isFinite(r.zones.upstream_west));
+ const unique=[...new Set(valid.map(r=>Date.parse(r.time)))].sort((a,b)=>a-b);
+ const start=unique[0],now=Date.now();
+ // HRRR forecast f00 is included by the NOAA updater; first valid hour is its cycle.
+ const fresh=Number.isFinite(start)&&start<=now+30*60000&&now-start<=8*3600000;
+ const hourly=unique.every((v,i)=>i===0||v>unique[i-1]&&(v-start)%3600000===0);
+ const wind=Date.parse(window.cuV1132HRRRCycle||'');
+ // Different model cycles are allowed, but should be made explicit rather than silently equated.
+ const reason=!unique.length?'No geographic HRRR reflectivity records':!fresh?'HRRR reflectivity cycle older than 8 hours or in the future':!hourly?'Non-hourly or duplicate HRRR valid times':null;
+ return {ok:!reason,reason,start,unique,wind,rows:valid};
+}
 function cuSpatialStormAssessment(id,t){
- const when=new Date(t).getTime();
+ const when=Date.parse(t);
  if(!Number.isFinite(when))return {rating:-1,phase:'unknown'};
- const rows=(window.cuNumericalReflectivityV102||[]).filter(r=>{
-  if(r.model!==id||!Number.isFinite(Date.parse(r.time))||!r.zones)return false;
-  if(id==='hrrr'){
-    const c=window.cuV1132HRRRCycle,stamp=Date.parse(r.time);
-    if(!c||!Number.isFinite(Date.parse(c)))return false; // do not display unverified HRRR cycles
-    const start=Date.parse(c),age=Date.now()-start;
-    if(age>8*3600000||age<0)return false;
-    if(stamp<start||stamp>start+49*3600000)return false;
-  }
-  return true;
-});
+ const audit=id==='hrrr'?cuHRRRReflectivityAudit():null;
+ if(audit&&!audit.ok)return {rating:-1,phase:audit.reason};
+ const rows=(audit?audit.rows:(window.cuNumericalReflectivityV102||[]).filter(r=>r.model===id&&r.zones&&Number.isFinite(Date.parse(r.time))));
  if(!rows.length)return {rating:-1,phase:'unavailable'};
- let nearest=null,delta=Infinity;
- for(const r of rows){const d=Math.abs(new Date(r.time).getTime()-when);if(d<delta){delta=d;nearest=r;}}
- // GFS three-hour samples; never stretch one sample beyond half its interval.
- if(delta>(id==='hrrr'?35:90)*60*1000)return {rating:-1,phase:'outside forecast samples'};
+ // HRRR uses exact forecast-valid hourly points. Do not paint neighboring intervals.
+ const nearest=id==='hrrr'?rows.find(r=>Date.parse(r.time)===when):rows.reduce((best,r)=>!best||Math.abs(Date.parse(r.time)-when)<Math.abs(Date.parse(best.time)-when)?r:best,null);
+ if(!nearest)return {rating:-1,phase:'no exact HRRR valid-hour sample'};
+ if(id!=='hrrr'&&Math.abs(Date.parse(nearest.time)-when)>90*60000)return {rating:-1,phase:'outside GFS forecast samples'};
  const z=nearest.zones;
  const local=z.springfield_area,approach=z.approach_west,upstream=z.upstream_west,downstream=z.downstream_east;
  const valid=v=>typeof v==='number'&&Number.isFinite(v);
- // A local value is primary; west-of-town reflectivity is a watch, not local exposure.
  const localRating=valid(local)?cuReflectivityRating(local):-1;
  const westValues=[approach,upstream].filter(valid);
  const westRating=westValues.length?cuReflectivityRating(Math.max(...westValues)):-1;
- const prior=rows.filter(r=>new Date(r.time).getTime()<new Date(nearest.time).getTime()).sort((a,b)=>new Date(b.time)-new Date(a.time))[0];
+ const prior=rows.filter(r=>Date.parse(r.time)<Date.parse(nearest.time)).sort((a,b)=>Date.parse(b.time)-Date.parse(a.time))[0];
  const westPrev=prior?.zones?.approach_west;
- const trend=valid(approach)&&valid(westPrev)&&new Date(nearest.time)-new Date(prior.time)<=4*3600000 ? approach-westPrev : null;
- const phase=localRating>=2?'SPRINGFIELD-AREA SIGNAL':westRating>=2?(trend!==null&&trend>=5?'WESTERN APPROACH · INTENSIFYING':'WESTERN STORM SIGNAL'):
-  localRating>=1?'LOCAL LIGHT/MODERATE ECHO':westRating>=1?'WESTERN ECHO':'BELOW SCREENING THRESHOLD';
- // Local signal is ranked directly. Strong west-only storms are capped at watch rank 1.
+ const trend=valid(approach)&&valid(westPrev)&&Date.parse(nearest.time)-Date.parse(prior.time)<=4*3600000?approach-westPrev:null;
+ const phase=localRating>=2?'SPRINGFIELD-AREA SIGNAL':westRating>=2?(trend!==null&&trend>=5?'WESTERN APPROACH · INTENSIFYING':'WESTERN STORM SIGNAL'):localRating>=1?'LOCAL LIGHT/MODERATE ECHO':westRating>=1?'WESTERN ECHO':'BELOW SCREENING THRESHOLD';
  const rating=localRating>=0?Math.max(localRating,westRating>=2?1:0):westRating>=2?1:westRating>=0?0:-1;
  return {rating,phase,local,approach,upstream,downstream,regional:nearest.dbz,peak:nearest.peak,time:nearest.time,trend};
 }
@@ -698,6 +702,7 @@ function cuSpatialStormAssessment(id,t){
 function cuV112Classify(id,t,profile){
  const ingredient=id==='rrfs'?-1:cuIngredientRating(profile,id);
  const spatial=cuSpatialStormAssessment(id,t);
+ if(id==='hrrr'&&!spatial.time)return {kind:'unknown',rank:-1,ingredient,spatial};
  if(!['gfs','hrrr'].includes(id)||!spatial.time)return {kind:'legacy',rank:cuCombinedStormRating(id,t,profile),ingredient,spatial};
  const local=spatial.local,west=Math.max(...[spatial.approach,spatial.upstream].filter(Number.isFinite),-Infinity);
  // ≥40 dBZ is a provisional stronger-convection screening threshold, NOT a severe-storm threshold.
@@ -745,7 +750,7 @@ window.cuImportReflectivityV102=function(rows){
  // Display layer performs cycle filtering after hourly cache has loaded; unverified HRRR remains UNKNOWN.
  window.cuV1133ReflectivityCycleCheck=true;
  const status=document.getElementById('cu-v102-ref-status');
- if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.3: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
+ if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.4: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
  const old=document.getElementById('cu-v112-geographic-summary');
  if(old)old.remove();
  const panel=document.getElementById('cu-v102-ref-panel');
@@ -3002,4 +3007,21 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 <section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.3 · HRRR source diagnostics and automatic loading</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.2 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
+<script>
+// V113.4 visual audit: explicitly report the model cycle, exact-hour coverage and mismatch.
+(function(){
+ function update(){
+  const parent=document.getElementById('cu-v102-ref-panel');
+  if(!parent||typeof cuHRRRReflectivityAudit!=='function')return;
+  let el=document.getElementById('cu-v1134-hrrr-audit');
+  if(!el){el=document.createElement('div');el.id='cu-v1134-hrrr-audit';el.style.cssText='margin:9px 0;padding:9px;border:1px solid #496879;border-radius:5px;color:#d4e7ef';parent.appendChild(el);}
+  const a=cuHRRRReflectivityAudit(),iso=t=>Number.isFinite(t)?new Date(t).toISOString():'unavailable';
+  const mismatch=Number.isFinite(a.wind)&&Number.isFinite(a.start)&&a.wind!==a.start;
+  el.textContent='V113.4 HRRR REFLECTIVITY: '+(a.ok?'VALID EXACT-HOUR SAMPLES':'UNKNOWN / HIDDEN')+' · '+a.unique.length+' forecast hours · reflectivity cycle '+iso(a.start)+' · wind-cache cycle '+iso(a.wind)+(mismatch?' (different cycles; evaluated separately)':'')+(a.reason?' · '+a.reason:'')+'. Outside sampled hours = UNKNOWN, not zero.';
+ }
+ window.addEventListener('cu-reflectivity-updated',update);
+ window.addEventListener('cu-hrrr-wind-ready',update);
+ document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,2000)});
+})();
+</script>
 </body></html>
