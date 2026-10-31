@@ -1,50 +1,43 @@
-
-name: NOAA Reflectivity Update
-
+name: NOAA Reflectivity and HRRR Wind Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 */3 * * *"
-
+    - cron: '17 * * * *'
 permissions:
   contents: write
-
 concurrency:
-  group: noaa-reflectivity
+  group: cu-noaa-forecast
   cancel-in-progress: false
-
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 40
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Install GRIB2 decoder
+          python-version: '3.11'
+      - name: Install GRIB decoder and Python dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libeccodes-dev
-          python -m pip install --upgrade pip
-          pip install requests eccodes numpy
-
-      - name: Process NOAA reflectivity
-        run: python scripts/update_reflectivity.py
-
-      - name: Commit updated forecast
+          python -m pip install requests numpy eccodes
+      - name: Refresh GFS every 3 hours (retain previous output on failure)
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        continue-on-error: true
         run: |
-          if [ -f reflectivity.json ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add reflectivity.json
-            if ! git diff --cached --quiet; then
-              git commit -m "Update NOAA reflectivity data"
-              git push
-            fi
+          if [ $((10#$(date -u +%H) % 3)) -eq 0 ]; then python scripts/update_reflectivity.py; else echo "GFS skipped (3-hour cadence)"; fi
+      - name: Refresh HRRR hourly
+        continue-on-error: true
+        run: python scripts/update_hrrr.py
+      - name: Commit published model data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_status.json; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update NOAA GFS and HRRR numerical forecasts'
+            git push
           fi
