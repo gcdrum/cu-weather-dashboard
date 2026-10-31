@@ -18,6 +18,15 @@ STATUS = Path('reflectivity_status.json')
 # West-to-east corridor around southwest Missouri, including upstream storms.
 WEST, EAST, SOUTH, NORTH = -95.5, -91.5, 35.5, 39.0
 BASE = 'https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25.pl'
+# Geographic screening boxes are approximate and are NOT utility service boundaries.
+# Each maximum comes from a subset of the same decoded NOAA grid.
+ZONES = {
+    'upstream_west': (-95.5, -94.0, 35.5, 39.0),
+    'approach_west': (-94.0, -93.3, 36.2, 38.3),
+    'springfield_area': (-93.6, -92.9, 36.9, 37.6),
+    'downstream_east': (-92.9, -91.5, 35.5, 39.0),
+}
+
 
 
 def download_field(session, cycle, hour):
@@ -48,8 +57,21 @@ def download_field(session, cycle, hour):
                         & np.isfinite(values) & (values >= 0) & (values <= 90))
                 if not np.any(mask):
                     raise ValueError('No valid dBZ values in requested region')
-                # This is regional maximum, not confirmed local feeder exposure.
-                return round(float(np.max(values[mask])), 1)
+                # Retain the legacy regional maximum and add geographically resolved evidence.
+                regional = round(float(np.max(values[mask])), 1)
+                zones = {}
+                for name, (west, east, south, north) in ZONES.items():
+                    m = mask & (lon >= west) & (lon <= east) & (lat >= south) & (lat <= north)
+                    zones[name] = round(float(np.max(values[m])), 1) if np.any(m) else None
+                # Grid-cell location of regional peak; this is not a storm-track vector.
+                valid_indices = np.flatnonzero(mask)
+                peak_index = valid_indices[int(np.argmax(values[mask]))]
+                return {
+                    'dbz': regional,
+                    'zones': zones,
+                    'peak': {'lat': round(float(lat[peak_index]), 3),
+                             'lon': round(float(lon[peak_index]), 3)},
+                }
             finally:
                 codes_release(handle)
 
@@ -71,7 +93,9 @@ def main():
             # Verify the cycle before attempting the remaining forecast hours.
             first = download_field(session, cycle, 0)
             chosen = cycle
-            records.append({'model': 'gfs', 'time': cycle.isoformat(), 'dbz': first, 'zone': 'regional'})
+            records.append({'model': 'gfs', 'time': cycle.isoformat(),
+                            'dbz': first['dbz'], 'zone': 'regional',
+                            'zones': first['zones'], 'peak': first['peak']})
             break
         except Exception as exc:
             errors.append(f'{cycle.isoformat()} f000: {exc}')
@@ -80,10 +104,14 @@ def main():
         raise RuntimeError('No NOAA GFS cycle available: '+'; '.join(errors))
     for hour in range(3, 121, 3):
         try:
-            dbz = download_field(session, chosen, hour)
+            field = download_field(session, chosen, hour)
             valid = chosen + timedelta(hours=hour)
-            records.append({'model':'gfs','time':valid.isoformat(),'dbz':dbz,'zone':'regional'})
-            print(f'GFS {valid.isoformat()} regional max {dbz} dBZ', flush=True)
+            records.append({'model':'gfs','time':valid.isoformat(),
+                            'dbz':field['dbz'],'zone':'regional',
+                            'zones':field['zones'],'peak':field['peak']})
+            print(f'GFS {valid.isoformat()} regional {field["dbz"]} dBZ '
+                  f'Springfield {field["zones"]["springfield_area"]} dBZ '
+                  f'west approach {field["zones"]["approach_west"]} dBZ', flush=True)
         except Exception as exc:
             errors.append(f'f{hour:03d}: {exc}')
             print('WARNING', errors[-1], flush=True)
@@ -93,7 +121,8 @@ def main():
     STATUS.write_text(json.dumps({'status':'partial' if errors else 'ok', 'model':'gfs',
                                   'cycle':chosen.isoformat(),'updated':now.isoformat(),
                                   'record_count':len(records),'errors':errors},indent=2)+'\n')
-    print(f'Wrote {len(records)} real GFS records. Other models not yet supported.')
+    print(f'Wrote {len(records)} geographically resolved GFS records. '
+          'Other models not yet supported. Geographic boxes are approximate.')
 
 
 if __name__ == '__main__':
