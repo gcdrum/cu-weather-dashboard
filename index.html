@@ -668,9 +668,9 @@ function cuCombinedStormRating(id,t,profile){
 // V103: optional automatic numerical-data endpoint; never interpret image RGB as dBZ.
 window.cuV103FetchReflectivity=async function(){
  const el=document.getElementById('cu-v102-ref-status');
- const url=location.protocol==='file:'?null:'/reflectivity.json';
+ const url=location.protocol==='file:'?null:'./reflectivity.json';
  if(!url){if(el)el.textContent='Browser-only HTML has no numerical reflectivity source. Hosted NOAA decoder required; missing model storm data is UNKNOWN.';return;}
- if(!/^(https?:\/\/|\/)/i.test(url)){if(el)el.textContent='Invalid endpoint URL.';return;}
+ if(!/^(https?:\/\/|\/|\.\/)/i.test(url)){if(el)el.textContent='Invalid endpoint URL.';return;}
  try{
   if(el)el.textContent='Retrieving decoded numerical model reflectivity…';
   const response=await fetch(url,{cache:'no-store'});
@@ -2867,6 +2867,6 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 </script>
 
 
-<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V107 · Numerical storm detection status</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">GFS / RRFS / NAM / HRRR reflectivity detection combines with CAPE/shear screening (highest rank wins). The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>/reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
+<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V107 · Numerical storm detection status</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">GFS / RRFS / NAM / HRRR reflectivity detection combines with CAPE/shear screening (highest rank wins). The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
 </body></html>
