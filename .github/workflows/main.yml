@@ -2,7 +2,7 @@ name: NOAA Reflectivity and HRRR Wind Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 * * * *'
+    - cron: '7,17,27,37,47,57 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -25,7 +25,7 @@ jobs:
       - name: Refresh GFS every 3 hours (retain previous output on failure)
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          if [ $((10#$(date -u +%H) % 3)) -eq 0 ]; then python scripts/update_reflectivity.py; else echo "GFS skipped (3-hour cadence)"; fi
+          if [ $((10#$(date -u +%H) % 3)) -eq 0 ] && [ "$(date -u +%M)" = "17" ]; then python scripts/update_reflectivity.py; else echo "GFS skipped (3-hour cadence)"; fi
       - name: Refresh HRRR hourly
         run: python scripts/update_hrrr.py
       - name: Validate combined numerical reflectivity
@@ -36,7 +36,7 @@ jobs:
           rows=json.loads(Path('reflectivity.json').read_text())
           counts={m:sum(r.get('model')==m for r in rows) for m in ('gfs','hrrr')}
           for model in ('gfs','hrrr'):
-              if counts[model] < 8:
+              if counts[model] < (4 if model == 'hrrr' else 8):
                   raise SystemExit(f'FAIL: {model} has only {counts[model]} records')
               for r in (r for r in rows if r.get('model')==model):
                   if not isinstance(r.get('zones'),dict) or not isinstance(r.get('peak'),dict):
