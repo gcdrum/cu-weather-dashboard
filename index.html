@@ -1303,8 +1303,24 @@ function drawForecast(){
  'No ≥30 mph hours in the currently loaded GFS/NAM/HRRR data. Gray = missing data.';
 
  ctx.font='10px Segoe UI,Arial';ctx.textAlign='right';
- ctx.fillStyle='#dce6ed';ctx.fillText('GFS',L-9,laneTop+12);
- ctx.fillText('NAM*',L-9,laneTop+(laneHeight+4)+12);ctx.fillText('HRRR',L-9,laneTop+2*(laneHeight+4)+12);ctx.fillText('RRFS',L-9,laneTop+3*(laneHeight+4)+12);
+ // V113.8: display source initialization cycles beside the four ingredient lanes.
+ // GFS/HRRR NOAA decoder includes f00, so the first valid hour identifies its run.
+ // Open-Meteo NAM does not expose a verified cycle; never infer one from valid time.
+ function noaaCycleLabel(id){
+  const rows=(window.cuNumericalReflectivityV102||[]).filter(r=>r.model===id&&r.zones&&Number.isFinite(Date.parse(r.time)));
+  if(!rows.length)return '—';
+  const first=Math.min(...rows.map(r=>Date.parse(r.time)));
+  return String(new Date(first).getUTCHours()).padStart(2,'0')+'Z';
+ }
+ const rrfsCycle=window.cuRRFS95?.cc;
+ const laneLabels=[
+  'GFS '+noaaCycleLabel('gfs'),
+  'NAM* —',
+  'HRRR '+noaaCycleLabel('hrrr'),
+  'RRFS '+(rrfsCycle===undefined?'—':String(rrfsCycle).padStart(2,'0')+'Z')
+ ];
+ ctx.fillStyle='#dce6ed';
+ laneLabels.forEach((label,i)=>ctx.fillText(label,L-9,laneTop+i*(laneHeight+4)+12));
  [['gfs',0],['nam',1],['hrrr',2],['rrfs',3]].forEach(([id,mi])=>{
   const byTime=new Map((profiles[id]||[]).map(r=>[r.time.slice(0,13),r]));
   const top=laneTop+mi*(laneHeight+4);
