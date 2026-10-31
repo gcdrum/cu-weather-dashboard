@@ -78,7 +78,7 @@ def main():
     if chosen is None:
         STATUS.write_text(json.dumps({'status':'error','errors':errors,'updated':now.isoformat()}, indent=2))
         raise RuntimeError('No NOAA GFS cycle available: '+'; '.join(errors))
-    for hour in range(3, 49, 3):
+    for hour in range(3, 121, 3):
         try:
             dbz = download_field(session, chosen, hour)
             valid = chosen + timedelta(hours=hour)
