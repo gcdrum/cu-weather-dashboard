@@ -688,7 +688,11 @@ function cuSpatialStormAssessment(id,t){
  const z=nearest.zones;
  const local=z.springfield_area,approach=z.approach_west,upstream=z.upstream_west,downstream=z.downstream_east;
  const valid=v=>typeof v==='number'&&Number.isFinite(v);
- const localRating=valid(local)?cuReflectivityRating(local):-1;
+ // V113.6: never classify an entire service area RED from one zone's maximum cell.
+ const sites=Array.isArray(nearest.site_dbz)?nearest.site_dbz.filter(valid):[];
+ const intense=sites.filter(v=>v>=40).length;
+ const rainy=sites.filter(v=>v>=10).length;
+ const localRating=id==='hrrr'?(intense>=2?2:intense===1?1:rainy>0?1:sites.length?0:valid(local)&&local>=40?1:valid(local)&&local>=10?1:0):(valid(local)?cuReflectivityRating(local):-1);
  const westValues=[approach,upstream].filter(valid);
  const westRating=westValues.length?cuReflectivityRating(Math.max(...westValues)):-1;
  const prior=rows.filter(r=>Date.parse(r.time)<Date.parse(nearest.time)).sort((a,b)=>Date.parse(b.time)-Date.parse(a.time))[0];
@@ -696,7 +700,7 @@ function cuSpatialStormAssessment(id,t){
  const trend=valid(approach)&&valid(westPrev)&&Date.parse(nearest.time)-Date.parse(prior.time)<=4*3600000?approach-westPrev:null;
  const phase=localRating>=2?'SPRINGFIELD-AREA SIGNAL':westRating>=2?(trend!==null&&trend>=5?'WESTERN APPROACH · INTENSIFYING':'WESTERN STORM SIGNAL'):localRating>=1?'LOCAL LIGHT/MODERATE ECHO':westRating>=1?'WESTERN ECHO':'BELOW SCREENING THRESHOLD';
  const rating=localRating>=0?Math.max(localRating,westRating>=2?1:0):westRating>=2?1:westRating>=0?0:-1;
- return {rating,phase,local,approach,upstream,downstream,regional:nearest.dbz,peak:nearest.peak,time:nearest.time,trend};
+ return {rating,phase,local,approach,upstream,downstream,regional:nearest.dbz,peak:nearest.peak,time:nearest.time,trend,site_dbz:nearest.site_dbz};
 }
 // V112: display-only GFS classification. Do not combine rain and CAPE/shear into a storm detection.
 function cuV112Classify(id,t,profile){
@@ -706,9 +710,12 @@ function cuV112Classify(id,t,profile){
  if(!['gfs','hrrr'].includes(id)||!spatial.time)return {kind:'legacy',rank:cuCombinedStormRating(id,t,profile),ingredient,spatial};
  const local=spatial.local,west=Math.max(...[spatial.approach,spatial.upstream].filter(Number.isFinite),-Infinity);
  // ≥40 dBZ is a provisional stronger-convection screening threshold, NOT a severe-storm threshold.
- const localConv=Number.isFinite(local)&&local>=40;
- const westConv=Number.isFinite(west)&&west>=40;
- const rain=Number.isFinite(local)&&local>=10;
+ // V113.6: Red requires >=2 distinct CU sampling locations with >=40 dBZ.
+ // Legacy rows without site data may show western watch, but never red.
+ const sites=id==='hrrr'?(spatial.site_dbz||[]):[];
+ const localConv=id==='hrrr'?sites.filter(v=>Number.isFinite(v)&&v>=40).length>=2:Number.isFinite(local)&&local>=40;
+ const westConv=Number.isFinite(west)&&west>=40 || (id==='hrrr'&&sites.some(v=>Number.isFinite(v)&&v>=40));
+ const rain=id==='hrrr'?(sites.some(v=>Number.isFinite(v)&&v>=10)||Number.isFinite(local)&&local>=10):Number.isFinite(local)&&local>=10;
  const kind=localConv?'local-convection':westConv?'west-watch':rain?'precipitation':'none';
  return {kind,rank:localConv?3:westConv?2:rain?1:0,ingredient,spatial};
 }
@@ -750,7 +757,7 @@ window.cuImportReflectivityV102=function(rows){
  // Display layer performs cycle filtering after hourly cache has loaded; unverified HRRR remains UNKNOWN.
  window.cuV1133ReflectivityCycleCheck=true;
  const status=document.getElementById('cu-v102-ref-status');
- if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.5: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
+ if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.6: GFS geographic screening; HRRR red requires ≥2 CU sites ≥40 dBZ, amber is zone watch or isolated site ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
  const old=document.getElementById('cu-v112-geographic-summary');
  if(old)old.remove();
  const panel=document.getElementById('cu-v102-ref-panel');
@@ -1336,7 +1343,7 @@ function drawForecast(){
     ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
    }
   });
-  // V113.5: Explicit HRRR coverage. Gray outside the decoded valid hours is UNKNOWN,
+  // V113.6: Explicit HRRR coverage. Gray outside the decoded valid hours is UNKNOWN,
   // not a forecast of no precipitation. Mark the forecast horizon on the chart.
   if(id==='hrrr'){
    const valid=hrrrAudit&&hrrrAudit.ok?hrrrAudit.unique:[];
@@ -3030,7 +3037,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 </script>
 
 
-<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.5 · HRRR forecast-window visualization</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.2 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
+<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.6 · Fast HRRR updates and site-based intensity</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.6 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
 <script>
 // V113.4 visual audit: explicitly report the model cycle, exact-hour coverage and mismatch.
