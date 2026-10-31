@@ -742,8 +742,10 @@ window.cuImportReflectivityV102=function(rows){
  });
  if(clean.some(r=>!['gfs','nam','hrrr','rrfs'].includes(r.model)||!/^\d{4}-\d\d-\d\dT\d\d/.test(r.time)||!Number.isFinite(r.dbz)||r.dbz<0||r.dbz>90))throw Error('Invalid model, ISO time or dBZ');
  window.cuNumericalReflectivityV102=clean;
+ // Display layer performs cycle filtering after hourly cache has loaded; unverified HRRR remains UNKNOWN.
+ window.cuV1133ReflectivityCycleCheck=true;
  const status=document.getElementById('cu-v102-ref-status');
- if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.2: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
+ if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.3: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
  const old=document.getElementById('cu-v112-geographic-summary');
  if(old)old.remove();
  const panel=document.getElementById('cu-v102-ref-panel');
@@ -771,7 +773,17 @@ window.cuImportReflectivityV102=function(rows){
 window.cuV40UpdateOperationalWind=function(){
  const data=Array.isArray(window.cuHRRR15Dataset)?window.cuHRRR15Dataset:[];
  const diag=document.getElementById('cu-v40-wind-diagnostic');
- if(!data.length){if(diag)diag.innerHTML='<b style="color:#8fdcff">HRRR OPERATIONAL WIND</b><br>Waiting for 15-minute HRRR data…';return null;}
+ if(!data.length){
+  const hourly=window.cuV1133HourlyWind;
+  if(diag){
+   const reason=window.cuV1133HRRR15Error;
+   diag.innerHTML='<b style="color:#8fdcff">HRRR OPERATIONAL WIND · V113.3</b><br>'+
+    (hourly?'NOAA HRRR hourly forecast loaded: <b>'+hourly.hours+' valid hours / 12 sites</b> · cycle '+hourly.cycle+'<br>Source: <b>NOAA hourly (not 15-minute)</b>. Operational 15-minute verification pending.':'NOAA hourly forecast unavailable or stale.<br>')+
+    'Native 15-minute HRRR: <b>not verified</b>'+(reason?'<br>Last retrieval error: '+String(reason).replace(/[<>&]/g,''):' · automatic retrieval requested')+
+    '<br>Hourly data must not be presented as 15-minute observations.';
+  }
+  return null;
+ }
  const usable=data.filter(x=>Number.isFinite(Number(x.max))&&x.t);
  if(!usable.length)return null;
  const latestPeak=usable.reduce((a,b)=>Number(b.max)>Number(a.max)?b:a);
@@ -1408,6 +1420,8 @@ try{
 const badge=document.getElementById('cu-v113-noaa-hrrr');
 if(badge)badge.textContent=cuCachedHRRR?'NOAA HRRR hourly cache: '+cuCachedHRRR.cycle+' · '+cuCachedHRRR.hours.length+' hours · 12 sites · available for fallback':'NOAA HRRR hourly cache unavailable: '+cuCachedError+' (live retrieval remains enabled)';
 window.cuV1132HRRRCycle=cuCachedHRRR?.cycle||null;
+window.cuV1133HourlyWind=cuCachedHRRR?{cycle:cuCachedHRRR.cycle,hours:cuCachedHRRR.hours.length}:null;
+try{window.cuV40UpdateOperationalWind?.()}catch(e){console.warn('HRRR operational diagnostic refresh',e)}
 try{if(window.cuNumericalReflectivityV102?.length)drawForecast()}catch(e){}
 let ok=0;for(const m of models){const el=document.getElementById('wind-'+m.id);el.innerHTML='<strong>'+m.label+'</strong><div class="windmeta">Loading 12 points…</div>';
 const results=[];const errors=[];
@@ -2177,7 +2191,7 @@ function show(){if(!dataset.length)return;draw();let d=dataset.filter(x=>day(x.t
  let maxfeeder=Math.max(...d.filter(x=>Number.isFinite(x.feeder)).map(x=>x.feeder),0);
  renderV21(d);renderV22(d);renderV24(d);
  out.innerHTML='<b>Peak modeled 15-minute gust:</b> '+fmt(peak.max)+' mph at '+esc(peak.peakSite)+' · '+esc(local(peak.t))+'<br><b>12-site mean at that time:</b> '+fmt(peak.mean)+' mph ('+peak.n+'/12 sites)<br><b>Data coverage:</b> '+cov+'/'+d.length+' intervals with ≥10 sites reporting<br><b>Storm-context indicators:</b> '+storm.length+' intervals with thunderstorm weather codes (95–99); '+rain.length+' with modeled precipitation at ≥1 location. These indicators are not storm verification or gust attribution.<br><b>Experimental nonconvective gust-fit feeder equivalent:</b> peak '+fmt(maxfeeder)+' feeders across 12 sites (mean of per-site historical fit). <b>Not a convective calibration and not additive to the main forecast.</b><br><b>Peak 15-minute gust ≥35 mph:</b> '+d.filter(x=>x.max>=35).length+' intervals; <b>≥45 mph:</b> '+d.filter(x=>x.max>=45).length+'; <b>≥55 mph:</b> '+d.filter(x=>x.max>=55).length+'.';
- window.cuHRRR15Dataset=dataset.slice(); try{window.cuV40UpdateOperationalWind&&window.cuV40UpdateOperationalWind();}catch(e){console.warn('V40 HRRR15 publish failed',e)} try{window.dispatchEvent(new Event('cu-hrrr15-updated'));}catch(e){}
+ window.cuV1133HRRR15Error=null;window.cuHRRR15Dataset=dataset.slice(); try{window.cuV40UpdateOperationalWind&&window.cuV40UpdateOperationalWind();}catch(e){console.warn('V40 HRRR15 publish failed',e)} try{window.dispatchEvent(new Event('cu-hrrr15-updated'));}catch(e){}
 }
 function renderV21(d){
  const cape=d.filter(x=>Number.isFinite(x.capeMax)),peakCape=cape.length?cape.reduce((a,b)=>b.capeMax>a.capeMax?b:a):null;
@@ -2213,7 +2227,7 @@ btn.addEventListener('click',async()=>{
  let dates=[...new Set(dataset.map(x=>day(x.t)))];sel.replaceChildren(...dates.map(d=>{let o=document.createElement('option');o.value=d;o.textContent=new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'});return o}));
  let today=day(new Date().toISOString().slice(0,19));sel.value=dates.includes(today)?today:dates[0];
  status.textContent='Loaded '+rows.length+'/12 sites from batched HRRR retrieval; '+dataset.length+' forecast intervals · retrieved '+new Date().toLocaleString()+'. '+(errors.length?'Site validation: '+errors.slice(0,2).join('; '):'All 12 sites valid.');show();
- }catch(e){status.textContent='Unable to build gust forecast: '+e.message;out.textContent='No values inferred. Existing outage curves unchanged.';v21out.textContent='Storm environment unavailable: '+e.message;draw()}
+ }catch(e){window.cuV1133HRRR15Error=e.message;try{window.cuV40UpdateOperationalWind?.()}catch(_){}status.textContent='Unable to build gust forecast: '+e.message;out.textContent='No values inferred. Existing outage curves unchanged.';v21out.textContent='Storm environment unavailable: '+e.message;draw()}
  finally{btn.disabled=false}
 });sel.addEventListener('change',show);draw();
 // V113.2: load the independent native 15-minute HRRR series on startup.
@@ -2986,6 +3000,6 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 </script>
 
 
-<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.2 · HRRR automatic loading and forecast integrity</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.2 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
+<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.3 · HRRR source diagnostics and automatic loading</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.2 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
 </body></html>
