@@ -2,7 +2,7 @@
   "status": "partial",
   "model": "gfs",
   "cycle": "2026-10-31T12:00:00+00:00",
-  "updated": "2026-10-31T18:38:28.499129+00:00",
+  "updated": "2026-10-31T18:43:59.606118+00:00",
   "record_count": 35,
   "errors": [
     "f105: No valid dBZ values in requested region",
