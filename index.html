@@ -684,6 +684,19 @@ function cuSpatialStormAssessment(id,t){
  const rating=localRating>=0?Math.max(localRating,westRating>=2?1:0):westRating>=2?1:westRating>=0?0:-1;
  return {rating,phase,local,approach,upstream,downstream,regional:nearest.dbz,peak:nearest.peak,time:nearest.time,trend};
 }
+// V112: display-only GFS classification. Do not combine rain and CAPE/shear into a storm detection.
+function cuV112Classify(id,t,profile){
+ const ingredient=id==='rrfs'?-1:cuIngredientRating(profile,id);
+ const spatial=cuSpatialStormAssessment(id,t);
+ if(id!=='gfs'||!spatial.time)return {kind:'legacy',rank:cuCombinedStormRating(id,t,profile),ingredient,spatial};
+ const local=spatial.local,west=Math.max(...[spatial.approach,spatial.upstream].filter(Number.isFinite),-Infinity);
+ // ≥40 dBZ is a provisional stronger-convection screening threshold, NOT a severe-storm threshold.
+ const localConv=Number.isFinite(local)&&local>=40;
+ const westConv=Number.isFinite(west)&&west>=40;
+ const rain=Number.isFinite(local)&&local>=10;
+ const kind=localConv?'local-convection':westConv?'west-watch':rain?'precipitation':'none';
+ return {kind,rank:localConv?3:westConv?2:rain?1:0,ingredient,spatial};
+}
 function cuCombinedStormRating(id,t,profile){
  const ingredient=id==='rrfs'?-1:cuIngredientRating(profile,id);
  const spatial=cuSpatialStormAssessment(id,t);
@@ -720,18 +733,26 @@ window.cuImportReflectivityV102=function(rows){
  if(clean.some(r=>!['gfs','nam','hrrr','rrfs'].includes(r.model)||!/^\d{4}-\d\d-\d\dT\d\d/.test(r.time)||!Number.isFinite(r.dbz)||r.dbz<0||r.dbz>90))throw Error('Invalid model, ISO time or dBZ');
  window.cuNumericalReflectivityV102=clean;
  const status=document.getElementById('cu-v102-ref-status');
- if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V111: geographic Springfield exposure and western storm watch; CAPE/shear screening remains independent. Regional maxima are diagnostic only. Outage estimates unchanged.';
- const old=document.getElementById('cu-v111-geographic-summary');
+ if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V112: GFS blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
+ const old=document.getElementById('cu-v112-geographic-summary');
  if(old)old.remove();
  const panel=document.getElementById('cu-v102-ref-panel');
  if(panel){
-  const info=document.createElement('div');info.id='cu-v111-geographic-summary';
+  const info=document.createElement('div');info.id='cu-v112-geographic-summary';
   info.style.cssText='margin:9px 0;padding:9px;border:1px solid #496879;border-radius:5px;line-height:1.6;color:#cce4ee';
   const geographic=clean.filter(r=>r.model==='gfs'&&r.zones);
   const event=geographic.filter(r=>r.time>='2026-11-02T00:00'&&r.time<='2026-11-04T12:00');
   const peak=(key)=>{const a=event.map(r=>r.zones[key]).filter(Number.isFinite);return a.length?Math.max(...a).toFixed(1)+' dBZ':'unavailable';};
-  info.textContent='GFS geographic coverage: '+geographic.length+' records. Nov 2–4 zone peaks — Springfield area: '+peak('springfield_area')+'; western approach: '+peak('approach_west')+'; upstream west: '+peak('upstream_west')+'. Regional peak is not local exposure. Western echoes are watch-only; no storm-motion or arrival-time claim.';
+  info.textContent='V112 GFS geographic coverage: '+geographic.length+' records. Nov 2–4 zone peaks — Springfield area: '+peak('springfield_area')+'; western approach: '+peak('approach_west')+'; upstream west: '+peak('upstream_west')+'. Regional peak is not local exposure. Western echoes are watch-only; no storm-motion or arrival-time claim.';
   panel.appendChild(info);
+  const early=geographic.filter(r=>r.time<'2026-11-02T00:00:00').slice(0,24);
+  if(early.length){
+   const details=document.createElement('details');details.style.cssText='margin:9px 0;color:#d4e7ef';
+   const summary=document.createElement('summary');summary.textContent='V112: inspect pre-November 2 GFS echoes ('+early.length+' records)';details.appendChild(summary);
+   const pre=document.createElement('pre');pre.style.cssText='white-space:pre-wrap;font-size:11px;line-height:1.6;overflow:auto';
+   pre.textContent=early.map(r=>{const z=r.zones;const v=k=>Number.isFinite(z[k])?z[k].toFixed(1):'missing';const local=z.springfield_area;const west=Math.max(...[z.approach_west,z.upstream_west].filter(Number.isFinite),-Infinity);const type=Number.isFinite(local)&&local>=40?'LOCAL ≥40':west>=40?'WEST ≥40':Number.isFinite(local)&&local>=10?'PRECIPITATION':'NO LOCAL ECHO';return r.time+' | Springfield '+v('springfield_area')+' dBZ | west approach '+v('approach_west')+' | upstream '+v('upstream_west')+' | '+type}).join('\n');
+   details.appendChild(pre);panel.appendChild(details);
+  }
  }
  drawForecast();
 };
@@ -1268,17 +1289,29 @@ function drawForecast(){
     (examples.length?'Qualifying periods: '+examples.join('; '):'No qualifying hours with both NAM CAPE and GFS proxy shear meeting the thresholds.');
   }
   const colors=['#344b55','#d1a548','#e78528','#d54a40'];
+  const v112=id==='gfs'?times.map(t=>cuV112Classify(id,t,byTime.get(t.slice(0,13)))):null;
   ratings.forEach((rating,i)=>{
-   ctx.fillStyle=rating<0?'#29333c':colors[rating];
    const xx=Math.max(L,x(i)-step/2),right=Math.min(L+PW,x(i)+step/2);
-   ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
+   if(v112){
+    const item=v112[i];
+    // Distinct encodings: blue rain, amber western watch, red local ≥40 dBZ.
+    ctx.fillStyle=item.kind==='local-convection'?'#d54a40':item.kind==='west-watch'?'#e0a53b':item.kind==='precipitation'?'#397c9b':item.kind==='none'?'#344b55':'#29333c';
+    ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
+    // Independent ingredient screen is a narrow strip, not promoted to a detected storm.
+    const ingredient=item.ingredient;
+    ctx.fillStyle=ingredient<0?'#29333c':['#344b55','#d1a548','#e78528','#d54a40'][ingredient];
+    ctx.fillRect(xx,top+laneHeight-3,Math.max(1,right-xx+0.4),3);
+   }else{
+    ctx.fillStyle=rating<0?'#29333c':colors[rating];
+    ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
+   }
   });
   // A single number per contiguous colored segment keeps hourly data legible.
   for(let i=0;i<=ratings.length;i++){
    const rating=i<ratings.length?ratings[i]:-99;
    if(i===0){prev=rating;segmentStart=0;continue}
    if(rating!==prev){
-    if(prev>0){
+    if(prev>0&&id!=='gfs'){
      const x1=Math.max(L,x(segmentStart)-step/2),x2=Math.min(L+PW,x(i-1)+step/2);
      if(x2-x1>=13){ctx.font='bold 10px Segoe UI,Arial';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText(String(prev),(x1+x2)/2,top+12)}
     }
@@ -1306,7 +1339,7 @@ function drawForecast(){
  const laneEl=document.getElementById('cu-lane-health');
  if(laneEl)laneEl.textContent='Convective row data completeness — '+laneHealth+'. '+(window.cuNamPressureDiagnostic||'NAM pressure check pending')+'. RRFS: gray until numerical reflectivity records are imported; imagery alone is not decoded. NAM* uses NAM CAPE + GFS shear proxy; dark blue-gray = low screening (0).';
  ctx.textAlign='left';ctx.font='10px Segoe UI,Arial';ctx.fillStyle='#b9c9d3';
- ctx.fillText('Convective ingredient screen: 0 low · 1 some · 2 elevated · 3 strong · gray unknown (not a storm probability)',L,laneTop+4*(laneHeight+4)+12);
+ ctx.fillText('GFS: blue rain · amber western ≥40 dBZ watch · red Springfield ≥40 dBZ · thin bottom strip = CAPE/shear. Other rows: ingredient screening.',L,laneTop+4*(laneHeight+4)+12);
 
  // Fractional estimates are shown in the text below, without a magnified inset.
  // Legend styled as a single dark pill like the original approved graphic.
@@ -2911,6 +2944,6 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 </script>
 
 
-<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V111 · Geographic storm detection status</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V111 uses Springfield-area dBZ for local storm screening and west-zone dBZ for a capped approach watch. CAPE/shear screening remains independent; west-zone echoes alone cannot be treated as local storm impact. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
+<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V112 · Geographic storm evidence (precipitation separated from convection)</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V112 GFS colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. Other model rows remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
 </body></html>
