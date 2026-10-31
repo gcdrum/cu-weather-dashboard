@@ -13,6 +13,42 @@ import numpy as np
 import requests
 from eccodes import codes_get_array, codes_grib_new_from_file, codes_release
 
+
+
+def merge_model_records(path, model, fresh, min_count):
+    """Preserve other models, reject malformed or regressive same-cycle updates."""
+    if len(fresh) < min_count:
+        raise RuntimeError(f'{model}: only {len(fresh)} records, minimum {min_count}')
+    existing = json.loads(path.read_text()) if path.exists() else []
+    if not isinstance(existing, list):
+        raise RuntimeError('Existing reflectivity.json is not a list')
+    def check(r):
+        if not isinstance(r,dict) or not isinstance(r.get('time'),str) or not isinstance(r.get('model'),str):
+            raise RuntimeError('Malformed reflectivity record')
+        if r['model'] in ('gfs','hrrr'):
+            zones=r.get('zones')
+            if not isinstance(zones,dict) or not all(k in zones for k in ('upstream_west','approach_west','springfield_area','downstream_east')):
+                raise RuntimeError(f'Missing geographic zones in {r["model"]} record {r["time"]}')
+            if not isinstance(r.get('peak'),dict) or not all(k in r['peak'] for k in ('lat','lon')):
+                raise RuntimeError(f'Missing peak coordinates in {r["model"]} record {r["time"]}')
+    for r in fresh: check(r)
+    # Older files may contain legacy GFS records. Do not preserve them as if they were validated.
+    other=[r for r in existing if isinstance(r,dict) and r.get('model') != model]
+    for r in other: check(r)
+    old=[r for r in existing if isinstance(r,dict) and r.get('model') == model]
+    old_valid=[r for r in old if isinstance(r.get('zones'),dict) and isinstance(r.get('peak'),dict)]
+    # A same-cycle rerun may have fewer available forecast hours; retain the more complete dataset.
+    if old_valid and fresh[0]['time'] == old_valid[0]['time'] and len(fresh) < len(old_valid):
+        print(f'{model}: retaining {len(old_valid)} existing records rather than {len(fresh)} incomplete same-cycle records',flush=True)
+        fresh=old_valid
+    combined=sorted(other+fresh,key=lambda r:(r['time'],r['model']))
+    # Do not write until every model has passed validation.
+    for r in combined: check(r)
+    tmp=path.with_suffix('.json.tmp')
+    tmp.write_text(json.dumps(combined,indent=2)+'\n')
+    tmp.replace(path)
+    print(f'Merged {len(fresh)} {model} + {len(other)} other-model records',flush=True)
+
 OUT = Path('reflectivity.json')
 STATUS = Path('reflectivity_status.json')
 # West-to-east corridor around southwest Missouri, including upstream storms.
@@ -117,7 +153,7 @@ def main():
             print('WARNING', errors[-1], flush=True)
     if len(records) < 4:
         raise RuntimeError(f'Only {len(records)} records decoded; refusing to publish incomplete data')
-    OUT.write_text(json.dumps(records, indent=2)+'\n')
+    merge_model_records(OUT, 'gfs', records, 8)
     STATUS.write_text(json.dumps({'status':'partial' if errors else 'ok', 'model':'gfs',
                                   'cycle':chosen.isoformat(),'updated':now.isoformat(),
                                   'record_count':len(records),'errors':errors},indent=2)+'\n')
