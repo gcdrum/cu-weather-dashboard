@@ -750,7 +750,7 @@ window.cuImportReflectivityV102=function(rows){
  // Display layer performs cycle filtering after hourly cache has loaded; unverified HRRR remains UNKNOWN.
  window.cuV1133ReflectivityCycleCheck=true;
  const status=document.getElementById('cu-v102-ref-status');
- if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.4: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
+ if(status)status.textContent=clean.length+' numerical reflectivity records loaded. V113.5: GFS/HRRR blue=precipitation, amber=western ≥40 dBZ watch, red=Springfield ≥40 dBZ; narrow bottom strip=CAPE/shear. Regional maxima diagnostic only. Outage estimates unchanged.';
  const old=document.getElementById('cu-v112-geographic-summary');
  if(old)old.remove();
  const panel=document.getElementById('cu-v102-ref-panel');
@@ -1317,6 +1317,7 @@ function drawForecast(){
   }
   const colors=['#344b55','#d1a548','#e78528','#d54a40'];
   const v112=['gfs','hrrr'].includes(id)?times.map(t=>cuV112Classify(id,t,byTime.get(t.slice(0,13)))):null;
+  const hrrrAudit=id==='hrrr'?cuHRRRReflectivityAudit():null;
   ratings.forEach((rating,i)=>{
    const xx=Math.max(L,x(i)-step/2),right=Math.min(L+PW,x(i)+step/2);
    if(v112){
@@ -1325,14 +1326,38 @@ function drawForecast(){
     ctx.fillStyle=item.kind==='local-convection'?'#d54a40':item.kind==='west-watch'?'#e0a53b':item.kind==='precipitation'?'#397c9b':item.kind==='none'?'#344b55':'#29333c';
     ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
     // Independent ingredient screen is a narrow strip, not promoted to a detected storm.
-    const ingredient=item.ingredient;
-    ctx.fillStyle=ingredient<0?'#29333c':['#344b55','#d1a548','#e78528','#d54a40'][ingredient];
-    ctx.fillRect(xx,top+laneHeight-3,Math.max(1,right-xx+0.4),3);
+    if(id==='gfs'){
+     const ingredient=item.ingredient;
+     ctx.fillStyle=ingredient<0?'#29333c':['#344b55','#d1a548','#e78528','#d54a40'][ingredient];
+     ctx.fillRect(xx,top+laneHeight-3,Math.max(1,right-xx+0.4),3);
+    }
    }else{
     ctx.fillStyle=rating<0?'#29333c':colors[rating];
     ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
    }
   });
+  // V113.5: Explicit HRRR coverage. Gray outside the decoded valid hours is UNKNOWN,
+  // not a forecast of no precipitation. Mark the forecast horizon on the chart.
+  if(id==='hrrr'){
+   const valid=hrrrAudit&&hrrrAudit.ok?hrrrAudit.unique:[];
+   if(valid.length){
+    const first=valid[0],last=valid[valid.length-1];
+    const left=Math.max(L,Math.min(L+PW,x(0)-step/2));
+    const endIdx=times.findIndex(t=>Date.parse(t)>last);
+    const edge=endIdx>=0?Math.max(L,Math.min(L+PW,x(endIdx)-step/2)):L+PW;
+    ctx.save();
+    ctx.strokeStyle='#8ed4ef';ctx.lineWidth=1.3;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(edge,top-2);ctx.lineTo(edge,top+laneHeight+2);ctx.stroke();ctx.setLineDash([]);
+    if(edge<L+PW-80){
+     ctx.fillStyle='#8b9ba5';ctx.font='9px Segoe UI,Arial';ctx.textAlign='left';
+     ctx.fillText('NO HRRR FORECAST AVAILABLE',Math.min(edge+7,L+PW-150),top+laneHeight-3);
+    }
+    ctx.restore();
+   }else{
+    ctx.save();ctx.fillStyle='#aebfc9';ctx.font='9px Segoe UI,Arial';ctx.textAlign='left';
+    ctx.fillText('HRRR REFLECTIVITY UNAVAILABLE / STALE',L+8,top+laneHeight-3);ctx.restore();
+   }
+  }
   // A single number per contiguous colored segment keeps hourly data legible.
   for(let i=0;i<=ratings.length;i++){
    const rating=i<ratings.length?ratings[i]:-99;
@@ -3005,7 +3030,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 </script>
 
 
-<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.3 · HRRR source diagnostics and automatic loading</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.2 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
+<section id="cu-v102-ref-panel" style="background:#102634;border:1px solid #416579;border-radius:8px;padding:12px;margin:12px 0;color:#d9e9f4;font:13px Segoe UI,Arial"><b>V113.5 · HRRR forecast-window visualization</b><div id="cu-v107-model-status" style="padding:8px 0;color:#ffcb92">Waiting for numerical reflectivity…</div><p style="margin:7px 0">V113.2 GFS/HRRR colors distinguish blue precipitation (local ≥10 dBZ), amber western stronger-echo watch (west ≥40 dBZ), and red local stronger-convection screening (Springfield ≥40 dBZ). The thin bottom strip of the GFS row shows CAPE/shear independently. Reflectivity alone cannot confirm thunderstorms or severity; the 40 dBZ threshold is provisional. NAM and RRFS remain ingredient screens until numerical reflectivity is available. This does not establish storm motion or arrival time. The radar image is <b>not</b> numerical reflectivity data. Automatically checks the same-origin numerical forecast service. Missing data is reported as unavailable. Raw NOAA GRIB2 requires a decoder; image colors are not numerical dBZ. Regional storm evidence is a screening signal, not confirmed local impact.</p><div style="margin:8px 0">Numerical reflectivity source: <code>./reflectivity.json</code> (automatic; no manual import)</div><div id="cu-v113-noaa-hrrr" style="padding:7px;color:#9fe0ff">NOAA HRRR hourly primary: checking cycle and site coverage…</div><div id="cu-v102-ref-status" style="margin-top:6px;color:#f8c471">Waiting for automatic numerical reflectivity service; gray means unknown.</div><details><summary>JSON input format</summary><pre style="white-space:pre-wrap">[{"model":"rrfs","time":"2026-11-03T01:00:00-06:00","dbz":45,"zone":"regional"}]</pre><small>Example format only; example is NOT loaded as a forecast. Input must come from decoded forecast fields, not image colors.</small></details></section>
 <script>window.addEventListener("load",()=>{window.cuV103FetchReflectivity?.();});</script>
 <script>
 // V113.4 visual audit: explicitly report the model cycle, exact-hour coverage and mismatch.
@@ -3017,7 +3042,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
   if(!el){el=document.createElement('div');el.id='cu-v1134-hrrr-audit';el.style.cssText='margin:9px 0;padding:9px;border:1px solid #496879;border-radius:5px;color:#d4e7ef';parent.appendChild(el);}
   const a=cuHRRRReflectivityAudit(),iso=t=>Number.isFinite(t)?new Date(t).toISOString():'unavailable';
   const mismatch=Number.isFinite(a.wind)&&Number.isFinite(a.start)&&a.wind!==a.start;
-  el.textContent='V113.4 HRRR REFLECTIVITY: '+(a.ok?'VALID EXACT-HOUR SAMPLES':'UNKNOWN / HIDDEN')+' · '+a.unique.length+' forecast hours · reflectivity cycle '+iso(a.start)+' · wind-cache cycle '+iso(a.wind)+(mismatch?' (different cycles; evaluated separately)':'')+(a.reason?' · '+a.reason:'')+'. Outside sampled hours = UNKNOWN, not zero.';
+  el.textContent='V113.5 HRRR FORECAST WINDOW: '+(a.ok?'VALID EXACT-HOUR SAMPLES':'UNKNOWN / HIDDEN')+' · '+a.unique.length+' forecast hours · reflectivity cycle '+iso(a.start)+' · wind-cache cycle '+iso(a.wind)+(mismatch?' (different cycles; evaluated separately)':'')+(a.reason?' · '+a.reason:'')+'. Valid forecast: '+(a.unique.length?new Date(a.unique[0]).toLocaleString('en-US',{timeZone:'America/Chicago',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'})+' through '+new Date(a.unique[a.unique.length-1]).toLocaleString('en-US',{timeZone:'America/Chicago',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}):'none')+'. Beyond the window = NO FORECAST AVAILABLE, not zero. Blue=local precipitation; amber=western ≥40 dBZ; red=Springfield ≥40 dBZ.';
  }
  window.addEventListener('cu-reflectivity-updated',update);
  window.addEventListener('cu-hrrr-wind-ready',update);
