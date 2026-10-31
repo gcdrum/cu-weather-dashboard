@@ -33,7 +33,10 @@ def merge_model_records(path, model, fresh, min_count):
     for r in other: check(r)
     old=[r for r in existing if isinstance(r,dict) and r.get('model') == model]
     old_valid=[r for r in old if isinstance(r.get('zones'),dict) and isinstance(r.get('peak'),dict)]
-    # A same-cycle rerun may have fewer available forecast hours; retain the more complete dataset.
+    # Never regress to an older model cycle. Same-cycle partial retries retain full coverage.
+    if old_valid and fresh[0]['time'] < old_valid[0]['time']:
+        print(f'{model}: rejecting older cycle {fresh[0]["time"]}',flush=True)
+        fresh=old_valid
     if old_valid and fresh[0]['time'] == old_valid[0]['time'] and len(fresh) < len(old_valid):
         print(f'{model}: retaining {len(old_valid)} existing records rather than {len(fresh)} incomplete same-cycle records',flush=True)
         fresh=old_valid
@@ -98,7 +101,7 @@ def reflectivity(lat,lon,v):
     for name,(w,e,s,n) in ZONES.items():
         m=valid&(lon>=w)&(lon<=e)&(lat>=s)&(lat<=n)
         zones[name]=round(float(np.max(v[m])),1) if np.any(m) else None
-    return {'dbz':round(float(np.max(v[valid])),1),'zones':zones,'peak':{'lat':round(float(lat[peak]),3),'lon':round(float(lon[peak]),3)}}
+    return {'dbz':round(float(np.max(v[valid])),1),'zones':zones,'peak':{'lat':round(float(lat[peak]),3),'lon':round(float(lon[peak]),3)},'site_dbz':sample(lat,lon,v)}
 
 def sample(lat,lon,v):
     out=[]
@@ -128,14 +131,14 @@ def process(cycle,lead):
     a,b,vv=read_field(root,v);vpts=sample(a,b,vv)
     winds=[round((x*x+y*y)**.5,2) if x is not None and y is not None else None for x,y in zip(upts,vpts)]
     valid=cycle+timedelta(hours=lead)
-    return ({'model':'hrrr','time':valid.isoformat(),'dbz':rf['dbz'],'zone':'regional','zones':rf['zones'],'peak':rf['peak']},
+    return ({'model':'hrrr','time':valid.isoformat(),'dbz':rf['dbz'],'zone':'regional','zones':rf['zones'],'peak':rf['peak'],'site_dbz':rf['site_dbz'],'cycle':cycle.isoformat(),'lead':lead},
             {'time':valid.strftime('%Y-%m-%dT%H:%M'),'gust_ms':gusts,'wind_ms':winds})
 
 def main():
     now=datetime.now(timezone.utc);hour=now.replace(minute=0,second=0,microsecond=0)
     chosen=None;first=None;errors=[]
     # NOAA HRRR generally available ~1-2 hours after cycle; verify by fetching.
-    for back in range(2,9):
+    for back in range(0,5):
         cycle=hour-timedelta(hours=back)
         try:
             first=process(cycle,0);chosen=cycle;break
@@ -150,9 +153,12 @@ def main():
             print(f'HRRR {chosen:%HZ} f{lead:02d}: REFC and 12-site wind decoded',flush=True)
         except Exception as e:
             errors.append(f'f{lead:02d}: {e}');print('WARNING',errors[-1],flush=True)
-    if len(pairs)<8:raise RuntimeError('Only '+str(len(pairs))+' HRRR forecast hours; existing published data retained')
+    if len(pairs)<4:raise RuntimeError('Only '+str(len(pairs))+' HRRR forecast hours; existing published data retained')
     dest=Path('reflectivity.json')
-    merge_model_records(dest, 'hrrr', [a for a,b in pairs], 8)
+    merge_model_records(dest, 'hrrr', [a for a,b in pairs], 4)
+    published=[r for r in json.loads(dest.read_text()) if r.get('model')=='hrrr']
+    if published and published[0]['time'] != pairs[0][0]['time']:
+        raise RuntimeError('Older HRRR cycle rejected; refusing to publish mismatched wind cache')
     payload={'model':'hrrr','cycle':chosen.isoformat(),'updated':now.isoformat(),
              'source':'NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)',
              'points':[{'name':n,'lat':y,'lon':x} for n,y,x in POINTS],
