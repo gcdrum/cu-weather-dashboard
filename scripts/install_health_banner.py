@@ -254,7 +254,7 @@ snippet = r"""
   const canvas=document.getElementById('live-forecast-chart'),c=canvas?.__cuTimeCursor;
   if(!canvas||!c?.times?.length)return;
   let bar=document.getElementById('cu-rrfs-timeline');
-  if(!bar){bar=document.createElement('div');bar.id='cu-rrfs-timeline';canvas.insertAdjacentElement('afterend',bar);}
+  if(!bar){bar=document.createElement('div');bar.id='cu-rrfs-timeline';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',bar);}
   const points=window.cuFourModelForecast?.rrfs?.points||[];
   const first=Date.parse(c.times[0]+'Z'),last=Date.parse(c.times[c.times.length-1]+'Z');
   const rows=points.filter(p=>Number.isFinite(Number(p.gust_mph))&&Date.parse(p.time)>=first&&Date.parse(p.time)<=last);
@@ -315,18 +315,18 @@ snippet = r"""
   // Display actual run provenance; Open-Meteo NAM data does not expose a
   // verified initialization cycle, so never fabricate a NAM 00Z/12Z label.
   let provenance=document.getElementById('cu-model-run-provenance');
-  if(!provenance){provenance=document.createElement('div');provenance.id='cu-model-run-provenance';canvas.insertAdjacentElement('afterend',provenance);}
+  if(!provenance){provenance=document.createElement('div');provenance.id='cu-model-run-provenance';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',provenance);}
   provenance.style.cssText='display:flex;flex-wrap:wrap;gap:8px 18px;padding:6px 12px;color:#e3ebef;font:12px Segoe UI,Arial,sans-serif';
   provenance.textContent='NAM: Open-Meteo (run not supplied) | RRFS: '+(window.cuRRFSRunLabel||'?')+' NOAA | HRRR: '+(window.cuHRRRRunLabel||'?')+' NOAA';
   // Keep run provenance visible on narrow screens, independently of canvas labels.
   provenance.style.cssText+=';max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;line-height:1.5';
   let runStrip=document.getElementById('cu-model-run-strip');
-  if(!runStrip){runStrip=document.createElement('div');runStrip.id='cu-model-run-strip';canvas.insertAdjacentElement('beforebegin',runStrip);}
+  if(!runStrip){runStrip=document.createElement('div');runStrip.id='cu-model-run-strip';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('beforebegin',runStrip);}
   runStrip.style.cssText='display:flex;flex-wrap:wrap;gap:5px 12px;padding:7px 10px;max-width:100%;box-sizing:border-box;color:#e5edf2;background:#22333d;font:12px Segoe UI,Arial,sans-serif;border-radius:6px';
   runStrip.textContent='GFS: Open-Meteo (run unverified) · NAM: Open-Meteo (run unverified) · HRRR: '+(window.cuHRRRRunLabel||'?')+' NOAA · RRFS: '+(window.cuRRFSRunLabel||'?')+' NOAA';
   // The model legend is displayed in the adjacent HTML panel, not on the date axis.
   let legend=document.getElementById('cu-ensemble-chart-legend');
-  if(!legend){legend=document.createElement('div');legend.id='cu-ensemble-chart-legend';canvas.insertAdjacentElement('afterend',legend);}
+  if(!legend){legend=document.createElement('div');legend.id='cu-ensemble-chart-legend';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',legend);}
   legend.style.cssText='display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 12px;color:#d7e3e8;font:11px Segoe UI,Arial,sans-serif';
   legend.textContent='Ensemble (orange) | HRRR (blue) | RRFS (gold) | GFS (green) | NAM (purple) - comparison only';
  }
