@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import numpy as np
 import requests
-from eccodes import codes_grib_new_from_file, codes_get_array, codes_release
+from eccodes import codes_grib_new_from_file, codes_get_array, codes_release, codes_get
 
 
 
@@ -92,6 +92,26 @@ def read_field(root,span):
                 lon=np.where(lon>180,lon-360,lon)
                 return lat,lon,val
             finally:codes_release(handle)
+
+def read_field_metadata(root,span):
+    """Inspect GRIB metadata rather than assuming a web-map color scale's units."""
+    start,end=span
+    if end is None: raise ValueError('Missing GRIB byte-range end')
+    r=get(root,headers={'Range':f'bytes={start}-{end}'})
+    if r.status_code!=206 or not r.content.startswith(b'GRIB'):
+        raise ValueError('Invalid lightning GRIB byte-range response')
+    with tempfile.NamedTemporaryFile(suffix='.grib2') as tmp:
+        tmp.write(r.content);tmp.flush()
+        with open(tmp.name,'rb') as fh:
+            handle=codes_grib_new_from_file(fh)
+            if handle is None: raise ValueError('Missing lightning GRIB message')
+            try:
+                metadata={}
+                for key in ('shortName','name','units','stepType','stepRange','typeOfStatisticalProcessing'):
+                    try: metadata[key]=str(codes_get(handle,key))
+                    except Exception: pass
+                return metadata
+            finally: codes_release(handle)
 
 def reflectivity(lat,lon,v):
     valid=(lat>=35.5)&(lat<=39)&(lon>=-95.5)&(lon<=-91.5)&np.isfinite(v)&(v>=0)&(v<=90)
@@ -268,13 +288,14 @@ def update_lightning_density(cycle, leads):
             span=choose(fields,'LTNG') or choose(fields,'LITNG')
             if span is None:
                 continue
+            metadata=read_field_metadata(root,span)
             lat,lon,values=read_field(root,span)
             mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
             if not np.any(mask):
                 continue
             hours.append({'time':(cycle+timedelta(hours=lead)).isoformat(),
                           'peak_raw':round(float(np.max(values[mask])),5),
-                          'field':'LTNG/LITNG','units_verified':False})
+                          'field':'LTNG/LITNG','grib_metadata':metadata,'units_verified':False})
         except Exception as exc:
             print(f'HRRR lightning f{lead:02d}: {exc}',flush=True)
     atomic_json(dest,{'model':'hrrr','cycle':cycle.isoformat(),
