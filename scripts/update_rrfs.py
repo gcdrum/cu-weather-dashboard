@@ -74,16 +74,37 @@ def rrfs_lightning_diagnostic(cycle, url, rows):
     field=span(rows,'LTNGSD')
     if field:
         try:
-            decoded=decode(url,field)
-            lat,lon,values=decoded
-            mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
-            if np.any(mask):
-                # WMO LTNGSD is lightning strike density in m^-2 s^-1.
-                peak=float(np.max(values[mask]))*1e6*300
-                result.update(status='available',units_verified=True,
-                    source='RRFS LTNGSD 1-hour maximum, converted from m^-2 s^-1',
-                    hours=[{'time':(cycle+timedelta(hours=1)).isoformat(),
-                            'value':round(peak,5),'units_verified':True}])
+            a,b=field
+            response=fetch(url,headers={'Range':f'bytes={a}-{b}'})
+            with tempfile.NamedTemporaryFile(suffix='.grib2') as tmp:
+                tmp.write(response.content);tmp.flush()
+                with open(tmp.name,'rb') as fh:
+                    g=codes_grib_new_from_file(fh)
+                    if g is None: raise ValueError('No GRIB lightning message')
+                    try:
+                        meta={}
+                        for key in ('shortName','name','units','stepType','stepRange','typeOfLevel','level'):
+                            try:meta[key]=str(codes_get(g,key))
+                            except Exception:pass
+                    finally:codes_release(g)
+            result['grib_metadata']=meta
+            unit=meta.get('units','').replace(' ','').lower()
+            if unit in ('m-2s-1','m**-2s**-1','1/m2/s','m^-2s^-1'):
+                factor=300000000.0
+            elif unit in ('flashes/km2/5min','flasheskm-2(5min)-1'):
+                factor=1.0
+            else:
+                result['status']='units_unverified'
+                factor=None
+            if factor is not None:
+                lat,lon,values=decode(url,field)
+                mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
+                if np.any(mask):
+                    peak=float(np.max(values[mask]))*factor
+                    result.update(status='available',units_verified=True,
+                        source='RRFS LTNGSD; native units '+meta.get('units',''),
+                        hours=[{'time':(cycle+timedelta(hours=1)).isoformat(),
+                                'value':round(peak,5),'units_verified':True}])
         except Exception as exc:result['diagnostic_error']=str(exc)[:250]
     atomic('rrfs_lightning.json',result)
     print('RRFS LTNGSD: '+result['status'],flush=True)
