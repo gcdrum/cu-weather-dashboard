@@ -83,7 +83,12 @@ def main():
         print("RRFS unavailable; no fabricated data",flush=True);return
     previous=Path("rrfs_wind.json")
     old=json.loads(previous.read_text()) if previous.exists() else {}
-    hours={r["time"]:r for r in old.get("hours",[]) if isinstance(r,dict) and "time" in r} if old.get("cycle")==chosen.isoformat() else {}
+    # Persist an incoming cycle separately, so each scheduled run can finish it
+    # without replacing the active forecast prematurely.
+    pending_path=Path("rrfs_pending.json")
+    pending=json.loads(pending_path.read_text()) if pending_path.exists() else {}
+    source=old if old.get("cycle")==chosen.isoformat() else pending if pending.get("cycle")==chosen.isoformat() else {}
+    hours={r["time"]:r for r in source.get("hours",[]) if isinstance(r,dict) and "time" in r}
     maxlead=84 if chosen.hour%6==0 else 60
     newly_decoded = 0
     for lead in range(1,maxlead+1):
@@ -111,6 +116,8 @@ def main():
         # Six hours per run took many runs to complete a cycle; increase to 18.
         if newly_decoded >= 18:break
     if hours:
+        atomic("rrfs_pending.json",{"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),
+             "hours":[hours[k] for k in sorted(hours)]})
         payload={"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),
                  "source":"NOAA operational RRFS 3km 2dfld GRIB2",
                  "points":[{"name":n,"lat":y,"lon":x} for n,y,x in POINTS],
