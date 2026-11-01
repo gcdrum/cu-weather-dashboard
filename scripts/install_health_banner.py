@@ -52,6 +52,13 @@ snippet = r"""
    el.innerHTML='<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><strong style="font-size:17px">NOAA model status</strong><strong style="color:'+(bad?'#ffb08a':'#85dfb5')+'">'+(bad?'⚠ DATA FRESHNESS WARNING':'✓ Data recently updated')+'</strong></div><div style="display:flex;gap:10px;flex-wrap:wrap">'+cards+'</div><div id="cu-decoded-gust-chart" style="margin-top:14px"><strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="padding:10px">Loading gust data…</div></div><div style="font-size:12px;color:#b7c8d2;margin-top:7px">Health report '+reportAge+' min old · Freshness and forecast completeness are different measures</div>';
    const results=await Promise.allSettled([get('hrrr_wind.json'),get('rrfs_wind.json')]);
    const series=results.map((r,i)=>r.status==='fulfilled'?plot(r.value,i===0?'#4db8ff':'#f5b95e'):[]);
+   const sourceState={};
+   for(const [name,idx] of [['hrrr',0],['rrfs',1]]){
+     const m=health.models?.[name]||{};
+     const updated=Date.parse(m.updated||'');
+     const valid=series[idx].length>0 && m.state==='current' && Number.isFinite(updated) && Date.now()-updated<90*60000 && reportAge<=90;
+     sourceState[name]=valid?{label:'NOAA DIRECT',reason:'Current direct NOAA feed'}:{label:'UNAVAILABLE',reason:'Direct NOAA feed stale, incomplete, or unavailable; Open-Meteo fallback not yet wired for this comparison'};
+   }
    const browserCache=window.cuSurfaceWindCache||{};
    let published={};
    try { published=(await get('model_winds.json')).models||{}; } catch(e) {}
@@ -66,6 +73,7 @@ snippet = r"""
      const browserSeries=browserRows.map(h=>({time:Date.parse(String(h.time).endsWith('Z')?h.time:h.time+'Z'),value:Number(h.max),color})).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)).sort((a,b)=>a.time-b.time);
      series.push(remoteSeries.length?remoteSeries:browserSeries);
      coverage[name]={hours:(remoteSeries.length||browserSeries.length),source:remoteSeries.length?'published':'browser'};
+     sourceState[name]={label:remoteSeries.length?'OPEN-METEO PRIMARY':browserSeries.length?'OPEN-METEO BROWSER':'UNAVAILABLE',reason:remoteSeries.length?'Published Open-Meteo forecast':browserSeries.length?'Published Open-Meteo forecast unavailable or stale; browser fallback active':'No current Open-Meteo forecast available'};
    }
    // Publish normalized four-model gust data for other dashboard components.
    // Keep the existing outage engine untouched until numerical and convective calibration is validated.
@@ -84,10 +92,11 @@ snippet = r"""
      const tier=peak.value>=60?'Extreme':peak.value>=50?'Likely':peak.value>=40?'Possible Elevated':peak.value>=30?'Possible':'Below threshold';
      return '<tr><td>'+name.toUpperCase()+'</td><td>'+peak.value.toFixed(1)+' mph</td><td>'+tier+'</td><td>'+new Date(peak.time).toISOString().slice(5,16).replace('T',' ')+'Z</td></tr>';
    }).join('');
+   const sourceTable='<div style="margin-top:12px"><strong>Forecast data source</strong><div style="font-size:12px;color:#b7c8d2">Source selection and fallback status for this comparison (not yet the main outage engine).</div>'+names.map(name=>{const st=sourceState[name];const color=st.label==='NOAA DIRECT'?'#72d6a5':st.label==='UNAVAILABLE'?'#f5a06a':'#f2c76e';return '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-size:12px"><strong>'+name.toUpperCase()+'</strong><span style="color:'+color+'">'+st.label+'</span></div><div style="font-size:11px;color:#b7c8d2">'+st.reason+'</div>';}).join('')+'</div>';
    const riskTable='<div style="margin-top:14px"><strong>Four-model wind threat screening</strong><div style="font-size:12px;color:#b7c8d2">Peak 12-site gust by model. Wind-only threshold screening; not a calibrated feeder-outage forecast. Convective reflectivity risk is evaluated separately.</div><div style="overflow-x:auto;margin-top:8px"><table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left"><thead><tr><th>Model</th><th>Peak gust</th><th>Threat</th><th>Peak UTC</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
    const chartEl=document.getElementById('cu-decoded-gust-chart');
    const availability=liveModels.map(([name])=>name.toUpperCase()+': '+coverage[name].hours+' hours ('+coverage[name].source+')').join(' · ');
-   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM via existing Open-Meteo browser sampling: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
+   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+sourceTable+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM via existing Open-Meteo browser sampling: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
   }catch(e){el.textContent='⚠ NOAA model health unavailable: '+e.message;}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
