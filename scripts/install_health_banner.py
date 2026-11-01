@@ -136,9 +136,12 @@ snippet = r"""
    }));
    const consensus=[...hoursMap.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,models])=>{
      const values=models.map(x=>x.gust).sort((a,b)=>a-b);
-     const median=values[Math.floor(values.length/2)];
-     const feederEstimate=Math.max(0,Math.min(170,median<=40?Math.max(0,(median-25)/3):median<=55?5+(median-40)*2/3:15+(median-55)));
-     return {time,median_gust_mph:median,estimated_feeders:Math.round(feederEstimate*10)/10,model_count:models.length,models:models.map(x=>x.name)};
+     const median=values.length%2?values[(values.length-1)/2]:(values[values.length/2-1]+values[values.length/2])/2;
+     // User-calibrated nonconvective outage curve, capped by 170 feeders.
+     const feederEstimate=Math.max(0,Math.min(170,median<30?0:median<40?(median-30)*0.5:median<55?5+(median-40)*2/3:median<60?15+(median-55):20+(median-60)*2));
+     const feeders=Math.round(feederEstimate*10)/10;
+     const stage=feeders>=80?5:feeders>=50?4:feeders>=30?3:feeders>=10?2:1;
+     return {time,median_gust_mph:median,estimated_feeders:feeders,stage,model_count:models.length,models:models.map(x=>x.name)};
    });
    // Convective screen: local-area reflectivity only. Regional peaks alone cannot
    // establish that thunderstorms threaten the utility service territory.
@@ -165,6 +168,13 @@ snippet = r"""
    const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ within ±90 minutes of a forecast hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
    const convectivePoints=activeWindows.map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ff9a36'}));
    const convectiveMarkers=activeWindows.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+activeWindows.map(x=>'<span style="border:1px solid #a8753c;border-radius:5px;padding:4px 6px;color:#ffd096;font-size:11px">'+esc(x.time.slice(5,16).replace('T',' ')+'Z')+' · '+esc(x.convective_models.join('+').toUpperCase())+' · '+Number(x.local_reflectivity_dbz).toFixed(0)+' dBZ</span>').join('')+'</div>':'';
+   // Four-model calculation output for downstream integration and verification.
+   // Require >=2 independent sources to avoid a single model masquerading as consensus.
+   window.cuModelEnsembleOutageForecast=convectiveWindows.filter(x=>x.model_count>=2).map(x=>({
+     time:x.time,gust_mph:x.median_gust_mph,feeders:x.estimated_feeders,
+     stage:x.stage,model_count:x.model_count,models:x.models,
+     convective_screen:x.convective_screen,source:'four-model ensemble'
+   }));
    window.cuExperimentalOutageTimeline=convectiveWindows;
    // Feed the shared main-chart overlay. Only display: never alter engine inputs.
    window.cuParallelOverlayRows=convectiveWindows.filter(x=>x.model_count>=2).map(x=>({time:x.time,feeders:x.estimated_feeders,models:x.model_count}));
