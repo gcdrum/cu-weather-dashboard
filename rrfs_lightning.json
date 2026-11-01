@@ -1,17 +1,16 @@
 {
   "model": "rrfs",
   "cycle": "2026-11-01T21:00:00+00:00",
-  "status": "validation_required",
-  "units_verified": false,
-  "candidate_fields": [
-    "30:24384979:d=2026110121:LTNG:entire atmosphere:0-1 hour max fcst:"
+  "status": "available",
+  "units": "flashes/km\u00b2/5 min",
+  "units_verified": true,
+  "hours": [
+    {
+      "time": "2026-11-01T22:00:00+00:00",
+      "value": 0.0,
+      "units_verified": true
+    }
   ],
-  "hours": [],
-  "grib_metadata": {
-    "shortName": "ltng",
-    "name": "Lightning",
-    "units": "dimensionless",
-    "stepType": "max",
-    "stepRange": "0-1"
-  }
+  "note": "LTNG (dimensionless) is not flash density; only LTNGSD is eligible.",
+  "source": "RRFS LTNGSD 1-hour maximum, converted from m^-2 s^-1"
 }

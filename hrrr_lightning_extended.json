@@ -159,6 +159,162 @@
         "stepRange": "30"
       },
       "units_verified": false
+    },
+    {
+      "time": "2026-11-03T01:00:00+00:00",
+      "peak_raw": 0.046,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "31"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T02:00:00+00:00",
+      "peak_raw": 0.085,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "32"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T03:00:00+00:00",
+      "peak_raw": 0.099,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "33"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T04:00:00+00:00",
+      "peak_raw": 0.068,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "34"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T05:00:00+00:00",
+      "peak_raw": 0.058,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "35"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T06:00:00+00:00",
+      "peak_raw": 0.068,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "36"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T07:00:00+00:00",
+      "peak_raw": 0.061,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "37"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T08:00:00+00:00",
+      "peak_raw": 0.15,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "38"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T09:00:00+00:00",
+      "peak_raw": 0.066,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "39"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T10:00:00+00:00",
+      "peak_raw": 0.125,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "40"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T11:00:00+00:00",
+      "peak_raw": 0.103,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "41"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T12:00:00+00:00",
+      "peak_raw": 0.12,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "42"
+      },
+      "units_verified": false
     }
   ],
   "checked_leads": [
