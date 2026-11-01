@@ -223,7 +223,8 @@ snippet = r"""
  function overlayParallel(){
   const canvas=document.getElementById('live-forecast-chart');
   const c=canvas?.__cuTimeCursor,rows=window.cuParallelOverlayRows||[];
-  if(!canvas||!c||!rows.length||window.cuChartMode!=='live')return;
+  const rrfs=window.cuRRFSFeederCurve||[];
+  if(!canvas||!c||(!rows.length&&!rrfs.length)||window.cuChartMode!=='live')return;
   const ctx=canvas.getContext('2d'),dpr=Math.max(1,window.devicePixelRatio||1);
   const W=c.logicalWidth,H=675,L=108,R=87,T=76,B=259,PH=H-T-B;
   const y=v=>{v=Math.max(0,Math.min(80,v));return T+PH-((v<=10?2*v:20+(v-10))/90)*PH};
@@ -234,6 +235,13 @@ snippet = r"""
   ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
   ctx.strokeStyle='#ffb86b';ctx.lineWidth=3;ctx.setLineDash([9,5]);ctx.beginPath();
   points.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
+  // RRFS's own wind-only feeder curve, using the same shared time and feeder axes.
+  const rrfsPoints=rrfs.map(r=>({t:Date.parse(r.time),v:Number(r.feeders)})).filter(r=>Number.isFinite(r.t)&&Number.isFinite(r.v)&&r.t>=first&&r.t<=last).sort((a,b)=>a.t-b.t);
+  if(rrfsPoints.length>=2){
+    ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
+    ctx.strokeStyle='#e7c36c';ctx.lineWidth=2;ctx.setLineDash([3,6]);ctx.beginPath();
+    rrfsPoints.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
+  }
   ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#ffb86b';ctx.font='bold 12px Segoe UI,Arial';ctx.fillText('— — Four-model experimental (orange dashed)',L+12,T+PH+18);ctx.restore();
  }
  function installParallelOverlay(){
