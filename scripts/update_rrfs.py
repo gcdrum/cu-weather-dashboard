@@ -77,7 +77,7 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
              for i,(_,line) in enumerate(rows) if ':LTNGSD:' in line]
     result['index_matches']=[{'lead':lead,'line':line[:280]} for lead,_,_,_,line in matches[:60]]
     result['field_variants']=[]
-    for lead,url,rows,i,line in matches[:36]:
+    for lead,url,rows,i,line in matches:\n        if line.find(':1 m above ground:')<0:continue
         if i+1>=len(rows):continue
         field=(rows[i][0],rows[i+1][0]-1)
         try:
@@ -147,7 +147,7 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
     result['hours']=[merged[k] for k in sorted(merged) if k>=cutoff]
     result['coverage_policy']='per-valid-hour replacement; older cycle retained until replaced'
     result['units_verified']=bool(result['hours']) and all(r.get('units_verified') is True for r in result['hours'])
-    if result['hours'] and result['status']!='available':result['status']='retained_previous_cycle'
+    if result['hours'] and result['status']!='available':result['status']='retained_previous_cycle'\n    if result['hours'] and result['units_verified'] and result['status']=='units_unverified':result['status']='available'
     if not result['hours'] and result['status']=='field_unavailable' and matches:
         result['status']='no_valid_geographic_samples'
     result['matched_fields']=len(matches)
@@ -207,7 +207,7 @@ def main():
         for future in as_completed(futures):
             lead,url,rows=future.result()
             if url:indexed[lead]=(url,rows)
-    rrfs_lightning_diagnostic(chosen,{1:(first_url,fields(first_url)),**indexed})
+    # Lightning must probe all available leads, including wind hours already decoded.\n    lightning_indexed={1:(first_url,fields(first_url)),**indexed}\n    with ThreadPoolExecutor(max_workers=8) as pool:\n        futures=[pool.submit(probe,lead) for lead in range(2,maxlead+1) if lead not in lightning_indexed]\n        for future in as_completed(futures):\n            lead,url,rows=future.result()\n            if url:lightning_indexed[lead]=(url,rows)\n    rrfs_lightning_diagnostic(chosen,lightning_indexed)
     print(f'RRFS index probe: {len(indexed)}/{min(36,len(missing_leads))} missing leads available',flush=True)
     if missing_leads and not indexed:errors.append('No newly published RRFS hours in current probe window')
     # Keep manual runs bounded, but allow useful catch-up without waiting for
