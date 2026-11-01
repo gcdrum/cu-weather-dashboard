@@ -1,0 +1,19 @@
+name: Schedule Trigger Diagnostic
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '11,26,41,56 * * * *'
+permissions:
+  contents: read
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Record schedule trigger
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "UTC: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "Repository: ${{ github.repository }}"
+          echo "Default branch ref: ${{ github.ref }}"
+          echo "This job tests GitHub scheduling only; no NOAA downloads."
