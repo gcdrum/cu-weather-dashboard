@@ -58,8 +58,10 @@ snippet = r"""
    const bad=reportAge>90||modelEntries.some(({m})=>m.state!=='current'||Date.now()-Date.parse(m.updated)>5400000);
    el.innerHTML='<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><strong style="font-size:17px">NOAA model status</strong><strong style="color:'+(bad?'#ffb08a':'#85dfb5')+'">'+(bad?'⚠ DATA FRESHNESS WARNING':'✓ Data recently updated')+'</strong></div><div style="display:flex;gap:10px;flex-wrap:wrap">'+cards+'</div><div id="cu-decoded-gust-chart" style="margin-top:14px"><strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="padding:10px">Loading gust data…</div></div><div style="font-size:12px;color:#b7c8d2;margin-top:7px">Health report '+reportAge+' min old · Freshness and forecast completeness are different measures</div>';
    const results=await Promise.allSettled([get('hrrr_wind.json'),get('rrfs_wind.json')]);
+   window.cuHRRRRunLabel=results[0]?.status==='fulfilled'&&results[0].value?.cycle?new Date(results[0].value.cycle).getUTCHours().toString().padStart(2,'0')+'Z':'?';
    window.cuRRFSRunLabel=results[1]?.status==='fulfilled'&&results[1].value?.cycle?new Date(results[1].value.cycle).getUTCHours().toString().padStart(2,'0')+'Z':'?';
    const series=results.map((r,i)=>r.status==='fulfilled'?plot(r.value,i===0?'#4db8ff':'#f5b95e'):[]);
+   window.cuNAMRunLabel='run not provided by Open-Meteo';
    const browserCache=window.cuSurfaceWindCache||{};
    let published={};
    try { published=(await get('model_winds.json')).models||{}; } catch(e) {}
@@ -310,6 +312,12 @@ snippet = r"""
     ctx.restore();
   }
   // RRFS's own wind-only feeder curve, using the same shared time and feeder axes.
+  // Display actual run provenance; Open-Meteo NAM data does not expose a
+  // verified initialization cycle, so never fabricate a NAM 00Z/12Z label.
+  let provenance=document.getElementById('cu-model-run-provenance');
+  if(!provenance){provenance=document.createElement('div');provenance.id='cu-model-run-provenance';canvas.insertAdjacentElement('afterend',provenance);}
+  provenance.style.cssText='display:flex;flex-wrap:wrap;gap:8px 18px;padding:6px 12px;color:#e3ebef;font:12px Segoe UI,Arial,sans-serif';
+  provenance.textContent='NAM: Open-Meteo (run not supplied) | RRFS: '+(window.cuRRFSRunLabel||'?')+' NOAA | HRRR: '+(window.cuHRRRRunLabel||'?')+' NOAA';
   // The model legend is displayed in the adjacent HTML panel, not on the date axis.
   let legend=document.getElementById('cu-ensemble-chart-legend');
   if(!legend){legend=document.createElement('div');legend.id='cu-ensemble-chart-legend';canvas.insertAdjacentElement('afterend',legend);}
