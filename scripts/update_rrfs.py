@@ -71,41 +71,51 @@ def rrfs_lightning_diagnostic(cycle, url, rows):
     result={'model':'rrfs','cycle':cycle.isoformat(),'status':'field_unavailable',
             'units':'flashes/km²/5 min','units_verified':False,'hours':[],
             'note':'LTNG (dimensionless) is not flash density; only LTNGSD is eligible.'}
-    field=span(rows,'LTNGSD')
-    if field:
+    # Probe both documented height variants; unknown ecCodes parameter names
+    # are diagnostic only, never grounds for assuming a density conversion.
+    matches=[(i,line) for i,(_,line) in enumerate(rows) if ':LTNGSD:' in line]
+    result['index_matches']=[line[:280] for _,line in matches]
+    result['field_variants']=[]
+    for i,line in matches:
+        if i+1>=len(rows):continue
+        field=(rows[i][0],rows[i+1][0]-1)
         try:
             a,b=field
             response=fetch(url,headers={'Range':f'bytes={a}-{b}'})
+            if response.status_code!=206 or not response.content.startswith(b'GRIB'):
+                raise ValueError('Invalid GRIB range response')
             with tempfile.NamedTemporaryFile(suffix='.grib2') as tmp:
                 tmp.write(response.content);tmp.flush()
                 with open(tmp.name,'rb') as fh:
                     g=codes_grib_new_from_file(fh)
-                    if g is None: raise ValueError('No GRIB lightning message')
+                    if g is None:raise ValueError('No GRIB lightning message')
                     try:
                         meta={}
-                        for key in ('shortName','name','units','stepType','stepRange','typeOfLevel','level'):
+                        for key in ('shortName','name','units','stepType','stepRange',
+                                    'typeOfLevel','level','discipline','parameterCategory',
+                                    'parameterNumber','tablesVersion','localTablesVersion'):
                             try:meta[key]=str(codes_get(g,key))
                             except Exception:pass
                     finally:codes_release(g)
-            result['grib_metadata']=meta
+            result['field_variants'].append({'index':line[:280],'metadata':meta})
             unit=meta.get('units','').replace(' ','').lower()
-            if unit in ('m-2s-1','m**-2s**-1','1/m2/s','m^-2s^-1'):
-                factor=300000000.0
-            elif unit in ('flashes/km2/5min','flasheskm-2(5min)-1'):
-                factor=1.0
-            else:
+            factor={'m-2s-1':300000000.0,'m**-2s**-1':300000000.0,
+                    '1/m2/s':300000000.0,'m^-2s^-1':300000000.0,
+                    'flashes/km2/5min':1.0,'flasheskm-2(5min)-1':1.0}.get(unit)
+            if factor is None:
                 result['status']='units_unverified'
-                factor=None
-            if factor is not None:
-                lat,lon,values=decode(url,field)
-                mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
-                if np.any(mask):
-                    peak=float(np.max(values[mask]))*factor
-                    result.update(status='available',units_verified=True,
-                        source='RRFS LTNGSD; native units '+meta.get('units',''),
-                        hours=[{'time':(cycle+timedelta(hours=1)).isoformat(),
-                                'value':round(peak,5),'units_verified':True}])
-        except Exception as exc:result['diagnostic_error']=str(exc)[:250]
+                continue
+            lat,lon,values=decode(url,field)
+            mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
+            if not np.any(mask):continue
+            peak=float(np.max(values[mask]))*factor
+            result.update(status='available',units_verified=True,
+                grib_metadata=meta,source='RRFS LTNGSD; native units '+meta.get('units',''),
+                hours=[{'time':(cycle+timedelta(hours=1)).isoformat(),
+                        'value':round(peak,5),'units_verified':True}])
+            break
+        except Exception as exc:
+            result.setdefault('diagnostic_errors',[]).append(str(exc)[:250])
     # Merge valid forecast hours from previous cycles, never synthesizing zeros.
     dest=Path('rrfs_lightning.json')
     prior=json.loads(dest.read_text()) if dest.exists() else {}
