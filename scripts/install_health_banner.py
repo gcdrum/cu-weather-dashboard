@@ -110,6 +110,24 @@ snippet = r"""
      points:series[i].map(p=>({time:new Date(p.time).toISOString(),gust_mph:p.value})),
      available:series[i].length>0
    }]));
+   // Separate experimental outage timeline derived from selected forecast sources.
+   // Existing production outage calculations remain untouched pending calibration.
+   const hoursMap=new Map();
+   names.forEach((name,i)=>series[i].forEach(p=>{
+     if(p.time<Date.now()-3600000)return;
+     const hour=new Date(p.time).toISOString();
+     if(!hoursMap.has(hour))hoursMap.set(hour,[]);
+     hoursMap.get(hour).push({name,gust:p.value});
+   }));
+   const consensus=[...hoursMap.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,models])=>{
+     const values=models.map(x=>x.gust).sort((a,b)=>a-b);
+     const median=values[Math.floor(values.length/2)];
+     const feederEstimate=Math.max(0,Math.min(170,median<=40?Math.max(0,(median-25)/3):median<=55?5+(median-40)*2/3:15+(median-55)));
+     return {time,median_gust_mph:median,estimated_feeders:Math.round(feederEstimate*10)/10,model_count:models.length,models:models.map(x=>x.name)};
+   });
+   window.cuExperimentalOutageTimeline=consensus;
+   const consensusSeries=consensus.filter(x=>x.model_count>=2).map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
+   const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart(consensusSeries)+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
    const feederSignal=mph=>{const x=Math.max(0,(mph-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1));};
    const near=Date.now()-3600000;
    const rows=names.map((name,i)=>{
@@ -128,7 +146,7 @@ snippet = r"""
    const riskTable='<div style="margin-top:14px"><strong>Four-model wind threat screening</strong><div style="font-size:12px;color:#b7c8d2">Peak gust within each model’s available horizon; peaks are not directly comparable when forecast periods differ. Wind-only screening, not a calibrated feeder-outage forecast. Convective reflectivity risk is evaluated separately.</div><div style="overflow-x:auto;margin-top:8px"><table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left"><thead><tr><th>Model</th><th>Peak gust</th><th>Threat</th><th>Peak UTC</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
    const chartEl=document.getElementById('cu-decoded-gust-chart');
    const availability=liveModels.map(([name])=>name.toUpperCase()+': '+coverage[name].hours+' hours ('+coverage[name].source+')').join(' · ');
-   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+failoverBanner+sourceTable+testControls+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM forecast availability: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
+   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+failoverBanner+sourceTable+testControls+consensusPanel+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM forecast availability: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
    if(chartEl)chartEl.querySelectorAll('[data-cu-test]').forEach(btn=>btn.addEventListener('click',()=>{testModel=btn.dataset.cuTest;refresh();}));
   }catch(e){el.textContent='⚠ NOAA model health unavailable: '+e.message;}
  }
