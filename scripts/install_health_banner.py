@@ -473,11 +473,16 @@ if light_update_anchor in html and 'cuLightningOperationalV2' not in html:
      x.model.toUpperCase()+' verified native lightning flash density '+x.value+' flashes/km²/5 min, band '+cuLightningOperationalV2.level.band+'.',
      cuPhaseForTime(Date.parse(x.time)));
  }else{
-   threat('Lightning',lightningHit?'possible':'waiting',
-     (lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+
+   const raw=(window.cuLightningRawSignals||[]).filter(x=>x&&Number.isFinite(x.value)&&Date.parse(x.time)>=Date.now()-15*60000);
+   const signal=raw.sort((a,b)=>b.value-a.value)[0];
+   // HRRR dimensionless LTNG is a qualitative signal, NOT a flash count.
+   // A positive raw signal only supports Possible pending calibration.
+   const rawHit=signal&&signal.value>0;
+   threat('Lightning',lightningHit||rawHit?'possible':'waiting',
+     (lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+\n     (rawHit?'HRRR uncalibrated lightning guidance '+signal.value+' (dimensionless; Possible screening only). ':'')+
      'Native HRRR/RRFS lightning flash density is not yet verified. '+
      'No verified native lightning signal; do not interpret missing density as zero.',
-     lightningHit?cuPhaseForTime(lightningHit.ms):{phase:'unknown',label:'AWAITING VERIFIED LIGHTNING DATA'});
+     lightningHit?cuPhaseForTime(lightningHit.ms):rawHit?cuPhaseForTime(Date.parse(signal.time)):{phase:'unknown',label:'AWAITING VERIFIED LIGHTNING DATA'});
  }
  """
     # Replace existing Lightning set call by adding a final overriding tile update
@@ -488,7 +493,7 @@ if light_update_anchor in html and 'cuLightningOperationalV2' not in html:
 
 # Fetch published lightning data into the existing live threat-light controller.
 # A partial newer cycle cannot turn missing hours into zero-valued forecasts.
-light_fetch_patch=r"""\n<script>\nwindow.cuLightningDensityForecasts=[];\n(async()=>{\n const all=[];\n for(const [model,file] of [['hrrr','hrrr_lightning.json'],['rrfs','rrfs_lightning.json']]){\n  try{\n   const response=await fetch(file+'?t='+Date.now(),{cache:'no-store'});\n   if(!response.ok)continue;\n   const data=await response.json();\n   if(!Array.isArray(data.hours))continue;\n   for(const h of data.hours){\n    if(h.units_verified!==true||!Number.isFinite(h.value))continue;\n    all.push({model,time:h.time,value:h.value,units:'flashes/km²/5 min',\n      units_verified:true,source_cycle:h.source_cycle||data.cycle});\n   }\n  }catch(e){console.warn('Lightning data load',model,e)}\n }\n window.cuLightningDensityForecasts=all;\n try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}\n})();\n</script>\n"""
+light_fetch_patch=r"""\n<script>\nwindow.cuLightningDensityForecasts=[];\nwindow.cuLightningRawSignals=[];\n(async()=>{\n const density=[],raw=[];\n for(const [model,file] of [['hrrr','hrrr_lightning.json'],['hrrr','hrrr_lightning_extended.json'],['rrfs','rrfs_lightning.json']]){\n  try{\n   const response=await fetch(file+'?t='+Date.now(),{cache:'no-store'});\n   if(!response.ok)continue;\n   const data=await response.json();\n   if(!Array.isArray(data.hours))continue;\n   for(const h of data.hours){\n    const t=Date.parse(h.time);if(!Number.isFinite(t))continue;\n    const source_cycle=h.source_cycle||data.cycle;\n    if(model==='rrfs'&&h.units_verified===true&&Number.isFinite(h.value)){\n      density.push({model,time:h.time,value:h.value,units:'flashes/km²/5 min',units_verified:true,source_cycle,metric:h.metric||'density_rate'});\n    }else if(model==='hrrr'&&Number.isFinite(h.peak_raw)){\n      raw.push({model,time:h.time,value:h.peak_raw,source_cycle,metric:'dimensionless_lightning_guidance',units_verified:false});\n    }\n   }\n  }catch(e){console.warn('Lightning data load',model,e)}\n }\n const dedup=(a)=>[...new Map(a.sort((x,y)=>Date.parse(x.source_cycle)-Date.parse(y.source_cycle)).map(x=>[x.model+'|'+x.time,x])).values()];\n window.cuLightningDensityForecasts=dedup(density);\n window.cuLightningRawSignals=dedup(raw);\n try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}\n})();\n</script>\n"""
 if 'window.cuLightningDensityForecasts=[]' not in html:
     html=html.replace('</body>',light_fetch_patch+'</body>',1)
 
