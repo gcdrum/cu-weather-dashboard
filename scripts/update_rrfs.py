@@ -106,6 +106,10 @@ def main():
             if not url:
                 errors.append(f'f{lead:03d}: no published RRFS index at any supported path')
                 print('RRFS waiting:', errors[-1], flush=True)
+                # A missing lead may be a publication gap; try subsequent hours
+                # before concluding the entire forecast cycle is exhausted.
+                if lead < min(maxlead, 36):
+                    continue
                 break
             gust=sample(decode(url,span(rows,"GUST")))
             ref=sample(decode(url,span(rows,"REFC")))
