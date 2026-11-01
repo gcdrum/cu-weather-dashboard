@@ -5,7 +5,7 @@ These are not direct NOAA GRIB decodes. Never synthesize missing points.
 """
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 import requests
@@ -69,6 +69,23 @@ def build(name, api):
             "points":[{"name":p[0],"lat":p[1],"lon":p[2]} for p in POINTS],
             "hours":hours,"successful_points":len(POINTS)-len(errors),"errors":errors[:12]}
 
+def latest_noaa_nam_cycle():
+    """Identify NOAA's latest published NAM CONUS cycle; not Open-Meteo's cycle."""
+    now=datetime.now(timezone.utc).replace(minute=0,second=0,microsecond=0)
+    for back in range(0,19):
+        cycle=now-timedelta(hours=back)
+        if cycle.hour not in (0,6,12,18):
+            continue
+        date=cycle.strftime("%Y%m%d")
+        url=f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/nam/prod/nam.{date}/nam.t{cycle:%H}z.conusnest.hiresf01.tm00.grib2.idx"
+        try:
+            r=requests.get(url,timeout=(4,8),headers={"User-Agent":"CU-Weather-Dashboard/1.0"})
+            if r.status_code==200 and ":UGRD:" in r.text:
+                return {"cycle":cycle.isoformat(),"source":"NOAA NOMADS NAM CONUS nest index","matches_open_meteo_run":False}
+        except requests.RequestException:
+            pass
+    return {"cycle":None,"source":"NOAA NOMADS","matches_open_meteo_run":False}
+
 def main():
     existing={}
     if OUT.exists():
@@ -84,6 +101,7 @@ def main():
             print(f"{name.upper()}: {len(result['hours'])} hours / {result['successful_points']} sites")
         except Exception as exc:
             print(f"WARNING {name}: {exc}; retaining last published data")
+    existing["noaa_nam_cycle_status"]=latest_noaa_nam_cycle()
     existing["checked_at"]=datetime.now(timezone.utc).isoformat()
     OUT.write_text(json.dumps(existing,separators=(",",":"))+"\n")
 
