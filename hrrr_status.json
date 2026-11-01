@@ -1,10 +1,10 @@
 {
   "cycle": "2026-11-01T15:00:00+00:00",
-  "updated": "2026-11-01T16:29:42.387428+00:00",
+  "updated": "2026-11-01T16:49:15.753598+00:00",
   "hours": 19,
   "expected_hours": 19,
   "last_lead": 18,
-  "wind_hours": 12,
+  "wind_hours": 16,
   "complete": true,
   "percent_complete": 100.0,
   "errors": [
