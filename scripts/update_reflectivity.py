@@ -37,11 +37,19 @@ def merge_model_records(path, model, fresh, min_count):
     for r in other: check(r)
     old=[r for r in existing if isinstance(r,dict) and r.get('model') == model]
     old_valid=[r for r in old if isinstance(r.get('zones'),dict) and isinstance(r.get('peak'),dict)]
-    # A same-cycle rerun may have fewer available forecast hours; retain the more complete dataset.
-    if old_valid and fresh[0]['time'] == old_valid[0]['time'] and len(fresh) < len(old_valid):
-        print(f'{model}: retaining {len(old_valid)} existing records rather than {len(fresh)} incomplete same-cycle records',flush=True)
-        fresh=old_valid
-    combined=sorted(other+fresh,key=lambda r:(r['time'],r['model']))
+    # Merge by valid forecast hour; do not replace missing hours with zeros.
+    # An older cycle may fill only hours not yet present in the incoming cycle.
+    merged={}
+    for r in old_valid:
+        if r.get('time'):
+            merged[r['time']]=dict(r,source_cycle=r.get('source_cycle',r.get('cycle',old_valid[0]['time'])))
+    incoming_cycle=fresh[0]['time']
+    for r in fresh:
+        if r.get('time'):
+            merged[r['time']]=dict(r,source_cycle=incoming_cycle)
+    cutoff=(datetime.now(timezone.utc)-timedelta(hours=1)).isoformat()
+    retained=[merged[k] for k in sorted(merged) if k>=cutoff]
+    combined=sorted(other+retained,key=lambda r:(r['time'],r['model']))
     # Do not write until every model has passed validation.
     for r in combined: check(r)
     tmp=path.with_suffix('.json.tmp')
