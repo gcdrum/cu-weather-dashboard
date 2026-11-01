@@ -365,5 +365,25 @@ if re.search(pattern,html,flags=re.S):
 else:
     if '</body>' not in html: raise SystemExit('Missing closing body')
     html=html.replace('</body>',snippet+'</body>',1)
+# Correct the ORIGINAL canvas ingredient labels (not a supplemental strip).
+original = """ const rrfsCycle=window.cuRRFS95?.cc;
+ const laneLabels=[
+  'GFS '+noaaCycleLabel('gfs'),
+  'NAM* —',
+  'HRRR '+noaaCycleLabel('hrrr'),
+  'RRFS '+(rrfsCycle===undefined?'—':String(rrfsCycle).padStart(2,'0')+'Z')
+ ];"""
+replacement = """ const verifiedCycle=(label,fallback)=>/^\\d{2}Z$/.test(label||'')?label:fallback;
+ const laneLabels=[
+  'GFS '+noaaCycleLabel('gfs'),
+  'NAM* API',
+  'HRRR '+verifiedCycle(window.cuHRRRRunLabel,noaaCycleLabel('hrrr')),
+  'RRFS '+verifiedCycle(window.cuRRFSRunLabel,'—')
+ ];"""
+if original in html:
+    html=html.replace(original,replacement,1)
+elif replacement not in html:
+    raise SystemExit('Original operational canvas lane labels not found; refusing silent success')
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
