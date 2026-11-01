@@ -166,6 +166,10 @@ snippet = r"""
    const convectivePoints=activeWindows.map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ff9a36'}));
    const convectiveMarkers=activeWindows.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+activeWindows.map(x=>'<span style="border:1px solid #a8753c;border-radius:5px;padding:4px 6px;color:#ffd096;font-size:11px">'+esc(x.time.slice(5,16).replace('T',' ')+'Z')+' · '+esc(x.convective_models.join('+').toUpperCase())+' · '+Number(x.local_reflectivity_dbz).toFixed(0)+' dBZ</span>').join('')+'</div>':'';
    window.cuExperimentalOutageTimeline=convectiveWindows;
+   // Feed the shared main-chart overlay. Only display: never alter engine inputs.
+   window.cuParallelOverlayRows=convectiveWindows.filter(x=>x.model_count>=2).map(x=>({time:x.time,feeders:x.estimated_feeders,models:x.model_count}));
+   if(typeof window.drawForecast==='function'&&window.cuChartMode==='live')window.drawForecast();
+
    // Parallel integration in the MAIN forecast panel, not the production engine.
    const mainChart=document.querySelector('.forecast-chart');
    if(mainChart){
@@ -206,6 +210,31 @@ snippet = r"""
    if(chartEl)chartEl.querySelectorAll('[data-cu-test]').forEach(btn=>btn.addEventListener('click',()=>{testModel=btn.dataset.cuTest;refresh();}));
   }catch(e){el.textContent='⚠ NOAA model health unavailable: '+e.message;}
  }
+ // Draw parallel estimates on the SAME operational canvas, using its exact time
+ // cursor and piecewise feeder scale. Does not alter the operational curves.
+ function overlayParallel(){
+  const canvas=document.getElementById('live-forecast-chart');
+  const c=canvas?.__cuTimeCursor,rows=window.cuParallelOverlayRows||[];
+  if(!canvas||!c||!rows.length||window.cuChartMode!=='live')return;
+  const ctx=canvas.getContext('2d'),dpr=Math.max(1,window.devicePixelRatio||1);
+  const W=c.logicalWidth,H=675,L=108,R=87,T=76,B=259,PH=H-T-B;
+  const y=v=>{v=Math.max(0,Math.min(80,v));return T+PH-((v<=10?2*v:20+(v-10))/90)*PH};
+  const first=Date.parse(c.times[0]+'Z'),last=Date.parse(c.times[c.times.length-1]+'Z');
+  const x=t=>L+(t-first)/Math.max(1,last-first)*(W-L-R);
+  const points=rows.map(r=>({t:Date.parse(r.time),v:Number(r.feeders)})).filter(r=>Number.isFinite(r.t)&&Number.isFinite(r.v)&&r.t>=first&&r.t<=last).sort((a,b)=>a.t-b.t);
+  if(points.length<2)return;
+  ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
+  ctx.strokeStyle='#ffb86b';ctx.lineWidth=3;ctx.setLineDash([9,5]);ctx.beginPath();
+  points.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
+  ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#ffb86b';ctx.font='bold 12px Segoe UI,Arial';ctx.fillText('— — Four-model experimental (orange dashed)',L+12,T+PH+18);ctx.restore();
+ }
+ function installParallelOverlay(){
+  if(typeof window.drawForecast!=='function'||window.drawForecast.__cuParallelWrapped)return;
+  const original=window.drawForecast;
+  const wrapped=function(...args){const result=original.apply(this,args);overlayParallel();return result;};
+  wrapped.__cuParallelWrapped=true;window.drawForecast=wrapped;
+ }
+ installParallelOverlay();
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
  setInterval(refresh,60000);
  // The Open-Meteo GFS/NAM requests finish asynchronously after page load.
