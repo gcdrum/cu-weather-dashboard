@@ -209,7 +209,10 @@ def main():
     # Wind decoding is independent and optional. Keep the last usable wind cache on failure.
     windpath=Path('hrrr_wind.json')
     prior=json.loads(windpath.read_text()) if windpath.exists() else {}
-    wind_hours={h['time']:h for h in prior.get('hours',[]) if isinstance(h,dict) and 'time' in h} if prior.get('cycle')==chosen.isoformat() else {}
+    pending_path=Path('hrrr_pending.json')
+    pending=json.loads(pending_path.read_text()) if pending_path.exists() else {}
+    source=prior if prior.get('cycle')==chosen.isoformat() else pending if pending.get('cycle')==chosen.isoformat() else {}
+    wind_hours={h['time']:h for h in source.get('hours',[]) if isinstance(h,dict) and 'time' in h}
     wind_leads=[]
     for lead in sorted(bylead):
         stamp=(chosen+timedelta(hours=lead)).strftime('%Y-%m-%dT%H:%M')
@@ -224,6 +227,8 @@ def main():
             print('WARNING',errors[-1],flush=True)
             break
     if wind_hours:
+        atomic_json('hrrr_pending.json',{'model':'hrrr','cycle':chosen.isoformat(),
+            'updated':now.isoformat(),'hours':[wind_hours[k] for k in sorted(wind_hours)]})
         payload={'model':'hrrr','cycle':chosen.isoformat(),'updated':now.isoformat(),
                  'source':'NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)',
                  'points':[{'name':n,'lat':y,'lon':x} for n,y,x in POINTS],
