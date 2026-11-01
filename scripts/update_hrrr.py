@@ -247,6 +247,7 @@ def main():
         else:
             print(f'HRRR incoming {chosen:%HZ}: retaining prior wind cycle {prior_cycle} '
                   f'({len(prior_hours)} hours vs {len(wind_hours)} incoming)',flush=True)
+    update_lightning_density(chosen, bylead.keys())
     atomic_json('hrrr_status.json',{'cycle':chosen.isoformat(),'updated':now.isoformat(),
                 'hours':len(records),'expected_hours':maxlead+1,
                 'last_lead':max(bylead),'wind_hours':len(wind_hours),
@@ -254,5 +255,32 @@ def main():
                 'reflectivity_complete':len(records)==maxlead+1,
                 'wind_complete':len(wind_hours)==maxlead+1,
                 'percent_complete':round(100*min(len(records),len(wind_hours))/(maxlead+1),1),'errors':errors})
+
+
+def update_lightning_density(cycle, leads):
+    """Experimental HRRR LTNG/LITNG extraction. Do not convert unknown units."""
+    dest=Path('hrrr_lightning.json')
+    hours=[]
+    for lead in sorted(leads)[:12]:
+        try:
+            root=cycle_root(cycle,lead)
+            fields=index_fields(root)
+            span=choose(fields,'LTNG') or choose(fields,'LITNG')
+            if span is None:
+                continue
+            lat,lon,values=read_field(root,span)
+            mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
+            if not np.any(mask):
+                continue
+            hours.append({'time':(cycle+timedelta(hours=lead)).isoformat(),
+                          'peak_raw':round(float(np.max(values[mask])),5),
+                          'field':'LTNG/LITNG','units_verified':False})
+        except Exception as exc:
+            print(f'HRRR lightning f{lead:02d}: {exc}',flush=True)
+    if hours:
+        atomic_json(dest,{'model':'hrrr','cycle':cycle.isoformat(),
+          'units':'unverified native GRIB field; not yet flashes/km2/5min',
+          'status':'validation_required','hours':hours})
+        print(f'HRRR lightning raw field extracted for {len(hours)} forecast hours; units unverified',flush=True)
 
 if __name__=='__main__':main()
