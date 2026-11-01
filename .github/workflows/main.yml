@@ -45,6 +45,27 @@ jobs:
                       raise SystemExit(f'FAIL: missing geographic fields: {model} {r.get("time")}')
           print('Validated combined reflectivity:',counts)
           PYVALID
+      - name: Summarize model freshness and progress
+        if: always()
+        run: |
+          python - <<'PYSUM'
+          import json, os
+          from pathlib import Path
+          lines = ["## NOAA model update status", "", "| Model | Cycle (UTC) | Updated (UTC) | Progress | Errors |", "|---|---|---|---|---|"]
+          for model, path in (("HRRR", "hrrr_status.json"), ("RRFS", "rrfs_status.json")):
+              try:
+                  d = json.loads(Path(path).read_text())
+                  progress = f"{d.get('hours', '?')}/{d.get('expected_hours', '?')} ({d.get('percent_complete', '?')}%)"
+                  errors = "; ".join(str(x) for x in d.get("errors", [])[:2]) or "None"
+                  errors = errors.replace("|", "/").replace("\\n", " ")[:250]
+                  lines.append(f"| {model} | {d.get('cycle', '?')} | {d.get('updated', '?')} | {progress} | {errors} |")
+              except Exception as exc:
+                  lines.append(f"| {model} | — | — | — | Status unreadable: {str(exc)[:100]} |")
+          summary = "\\n".join(lines) + "\\n"
+          print(summary)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write(summary)
+          PYSUM
       - name: Commit published model data
         run: |
           git config user.name 'github-actions[bot]'
