@@ -14,5 +14,6 @@
     "stepRange": "0-1",
     "typeOfLevel": "heightAboveGround",
     "level": "1"
-  }
+  },
+  "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced"
 }
