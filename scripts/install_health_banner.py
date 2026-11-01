@@ -414,5 +414,38 @@ html=re.sub(r'<style id="cu-mobile-chart-viewport-fix">.*?</style>','',html,flag
 if '</head>' not in html: raise SystemExit('Missing head for mobile viewport CSS')
 html=html.replace('</head>',mobile_css+'</head>',1)
 
+# Add numerical-model reflectivity corroboration to the existing lightning and
+# QLCS screens. Do not infer lightning strikes or QLCS structure from a lone pixel.
+light_anchor=" set('Lightning',lightningHit,"
+if light_anchor not in html:
+    raise SystemExit('Lightning screening anchor missing')
+if 'cuMultiModelStormCorroborationV1' not in html:
+    js=r""" const cuMultiModelStormCorroborationV1=(()=>{
+   const now=Date.now()-15*60000;
+   const records=(window.cuNumericalReflectivityV102||[]).filter(r=>['rrfs','gfs','hrrr','nam'].includes(r.model)&&Number.isFinite(Date.parse(r.time))&&Date.parse(r.time)>=now);
+   const groups=new Map();
+   for(const r of records){
+     const local=Number(r.zones?.springfield_area),west=Number(r.zones?.approach_west),upstream=Number(r.zones?.upstream_west);
+     if(![local,west,upstream].some(Number.isFinite))continue;
+     const t=Math.floor(Date.parse(r.time)/3600000)*3600000;
+     const key=r.model+':'+t;
+     groups.set(key,{model:r.model,ms:t,local,west,upstream});
+   }
+   const rows=[...groups.values()].sort((a,b)=>a.ms-b.ms);
+   const capeSupport=ms=>profFuture.some(x=>Math.abs(x.ms-ms)<=90*60000&&cape(x.r)>=500);
+   const shearSupport=ms=>profFuture.some(x=>Math.abs(x.ms-ms)<=90*60000&&cape(x.r)>=500&&shear(x.r)>=30);
+   const lightning=rows.find(x=>capeSupport(x.ms)&&x.local>=35&&[x.west,x.upstream].some(v=>Number.isFinite(v)&&v>=35));
+   const qlcs=rows.find(x=>shearSupport(x.ms)&&x.local>=35&&x.west>=35&&x.upstream>=35&&rows.some(y=>y!==x&&y.model===x.model&&y.ms>x.ms&&y.ms<=x.ms+2*3600000&&y.local>=35&&y.west>=35));
+   return {lightning,qlcs,available:rows.length>0,models:[...new Set(rows.map(x=>x.model))]};
+ })();
+ """
+    html=html.replace(light_anchor,js+light_anchor,1)
+    old=" set('Lightning',lightningHit,"
+    html=html.replace(old," if(!lightningHit&&cuMultiModelStormCorroborationV1.lightning){const x=cuMultiModelStormCorroborationV1.lightning;lightningHit={ms:x.ms};lightningWhy=x.model.toUpperCase()+' numerical local and upstream reflectivity ≥35 dBZ with CAPE ≥500 J/kg (storm potential; not observed lightning)';}\n"+old,1)
+    oldql=" set('QLCS',qlcs,'Organization-support screen: Possible when CAPE ≥500 J/kg and 0–6 km shear ≥30 kt. Reflectivity line structure is not diagnosed here, so this is environmental support rather than QLCS identification.');"
+    newql=" const modelLine=cuMultiModelStormCorroborationV1.qlcs;\n set('QLCS',qlcs||(modelLine?{ms:modelLine.ms}:null),'Organization-support screen: CAPE ≥500 J/kg and 0–6 km shear ≥30 kt. '+(modelLine?'Corroborating '+modelLine.model.toUpperCase()+' local/west/upstream ≥35 dBZ over adjacent forecast hours; possible organized convection, not confirmed QLCS.':'No corroborated multi-zone persistent line detected. Environmental support alone is not proof of QLCS.'));"
+    if oldql not in html:raise SystemExit('QLCS screening anchor missing')
+    html=html.replace(oldql,newql,1)
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
