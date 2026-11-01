@@ -66,6 +66,20 @@ snippet = r"""
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
  setInterval(refresh,60000);
+ // The Open-Meteo GFS/NAM requests finish asynchronously after page load.
+ // Redraw when their shared cache gains new forecast rows, without fetching NOAA again.
+ let lastLiveSignature='';
+ setInterval(()=>{
+   const cache=window.cuSurfaceWindCache||{};
+   const signature=['gfs','nam'].map(name=>{
+     const rows=cache[name]?.rows||[];
+     return name+':'+rows.length+':'+(rows[0]?.time||'')+':'+(rows.at(-1)?.time||'');
+   }).join('|');
+   if(signature===lastLiveSignature)return;
+   lastLiveSignature=signature;
+   if(!['gfs','nam'].some(name=>(cache[name]?.rows||[]).length))return;
+   refresh();
+ },10000);
 })();
 </script>
 """
