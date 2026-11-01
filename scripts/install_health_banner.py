@@ -134,9 +134,32 @@ snippet = r"""
      const feederEstimate=Math.max(0,Math.min(170,median<=40?Math.max(0,(median-25)/3):median<=55?5+(median-40)*2/3:15+(median-55)));
      return {time,median_gust_mph:median,estimated_feeders:Math.round(feederEstimate*10)/10,model_count:models.length,models:models.map(x=>x.name)};
    });
-   window.cuExperimentalOutageTimeline=consensus;
+   // Convective screen: local-area reflectivity only. Regional peaks alone cannot
+   // establish that thunderstorms threaten the utility service territory.
+   let reflectivity=[];
+   try {const raw=await get('reflectivity.json');reflectivity=Array.isArray(raw)?raw:[];} catch(e){}
+   const convective=reflectivity.filter(r=>['gfs','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
+     const time=Date.parse(r.time);
+     const local=Number(r.zones?.springfield_area);
+     const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
+     const dbz=Math.max(Number.isFinite(local)?local:-10,site);
+     return {time,model:String(r.model).toLowerCase(),dbz};
+   }).filter(r=>Number.isFinite(r.time)&&r.time>=Date.now()-3600000&&r.dbz>=35);
+   const convectiveWindows=consensus.map(row=>{
+     const t=Date.parse(row.time);
+     const matches=convective.filter(r=>Math.abs(r.time-t)<=90*60000);
+     const models=[...new Set(matches.map(r=>r.model))];
+     const maxDbz=matches.length?Math.max(...matches.map(r=>r.dbz)):null;
+     return {...row,convective_models:models,local_reflectivity_dbz:maxDbz,convective_screen:models.length>=2?'Multi-model local convection':models.length===1?'Single-model local convection':'No local 35 dBZ signal',convective_feeders_added:0};
+   });
+   // Avoid arbitrary thunderstorm feeder multipliers or double-counting the wind
+   // already included in gust guidance. This is a screening overlay, not a forecast.
+   window.cuConvectiveScreen=convectiveWindows;
+   const activeWindows=convectiveWindows.filter(x=>x.convective_models.length);
+   const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ within ±90 minutes of a forecast hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
+   window.cuExperimentalOutageTimeline=convectiveWindows;
    const consensusSeries=consensus.filter(x=>x.model_count>=2).map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
-   const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart([consensusSeries],10)+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
+   const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart([consensusSeries],10)+convectivePanel+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
    const feederSignal=mph=>{const x=Math.max(0,(mph-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1));};
    const near=Date.now()-3600000;
    const rows=names.map((name,i)=>{
