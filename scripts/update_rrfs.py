@@ -145,6 +145,10 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
     result['coverage_policy']='per-valid-hour replacement; older cycle retained until replaced'
     result['units_verified']=bool(result['hours']) and all(r.get('units_verified') is True for r in result['hours'])
     if result['hours'] and result['status']!='available':result['status']='retained_previous_cycle'
+    if not result['hours'] and result['status']=='field_unavailable' and matches:
+        result['status']='no_valid_geographic_samples'
+    result['matched_fields']=len(matches)
+    result['valid_hours']=len(result['hours'])
     atomic('rrfs_lightning.json',result)
     print('RRFS LTNGSD: '+result['status'],flush=True)
 
@@ -257,5 +261,5 @@ def main():
         payload['hours']=[merged[k] for k in sorted(merged) if k>=cutoff]
         payload['coverage_policy']='latest available value per valid hour; source_cycle per hour'
         atomic("rrfs_wind.json",payload)
-    atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":len(hours),"expected_hours":maxlead,"percent_complete":round(100*len(hours)/maxlead,1),"complete":len(hours)==maxlead,"errors":errors})
+    atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":sum(1 for k in hours if chosen.strftime("%Y-%m-%d") and 1 <= round((datetime.fromisoformat(k)-chosen.replace(tzinfo=None)).total_seconds()/3600) <= maxlead),"expected_hours":maxlead,"percent_complete":round(100*min(maxlead,sum(1 for k in hours if 1 <= round((datetime.fromisoformat(k)-chosen.replace(tzinfo=None)).total_seconds()/3600) <= maxlead))/maxlead,1),"complete":sum(1 for k in hours if 1 <= round((datetime.fromisoformat(k)-chosen.replace(tzinfo=None)).total_seconds()/3600) <= maxlead)>=maxlead,"errors":errors})
 if __name__=="__main__":main()
