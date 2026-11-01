@@ -30,20 +30,35 @@ jobs:
         run: python scripts/update_hrrr.py
       - name: Refresh RRFS independently (non-blocking)
         run: python scripts/update_rrfs.py || echo 'RRFS unavailable; preserving HRRR/GFS'
-      - name: Validate combined numerical reflectivity
+      - name: Validate combined numerical reflectivity (report degraded data without blocking publication)
         run: |
           python - <<'PYVALID'
-          import json
+          import json, os
           from pathlib import Path
-          rows=json.loads(Path('reflectivity.json').read_text())
-          counts={m:sum(r.get('model')==m for r in rows) for m in ('gfs','hrrr')}
-          for model in ('gfs','hrrr'):
-              if counts[model] < (4 if model == 'hrrr' else 8):
-                  raise SystemExit(f'FAIL: {model} has only {counts[model]} records')
-              for r in (r for r in rows if r.get('model')==model):
-                  if not isinstance(r.get('zones'),dict) or not isinstance(r.get('peak'),dict):
-                      raise SystemExit(f'FAIL: missing geographic fields: {model} {r.get("time")}')
-          print('Validated combined reflectivity:',counts)
+          problems = []
+          counts = {}
+          try:
+              rows = json.loads(Path('reflectivity.json').read_text())
+              if not isinstance(rows, list):
+                  raise ValueError('reflectivity.json must contain an array')
+              counts = {m: sum(isinstance(r, dict) and r.get('model') == m for r in rows) for m in ('gfs', 'hrrr')}
+              for model, minimum in (('gfs', 8), ('hrrr', 4)):
+                  if counts[model] < minimum:
+                      problems.append(f'{model.upper()}: only {counts[model]} records (minimum {minimum})')
+                  bad = [r for r in rows if isinstance(r, dict) and r.get('model') == model and
+                         (not isinstance(r.get('zones'), dict) or not isinstance(r.get('peak'), dict))]
+                  if bad:
+                      problems.append(f'{model.upper()}: {len(bad)} records missing geographic fields')
+          except Exception as exc:
+              problems.append(f'Reflectivity unavailable or invalid: {exc}')
+          print('Reflectivity record counts:', counts)
+          if problems:
+              for problem in problems:
+                  print('::warning::' + problem)
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+                  summary.write('### Reflectivity validation warnings\\n' + ''.join('- ' + p + '\\n' for p in problems))
+          else:
+              print('Validated combined reflectivity')
           PYVALID
       - name: Summarize model freshness and progress
         if: always()
