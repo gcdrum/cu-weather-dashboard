@@ -1,29 +1,13 @@
 {
   "status": "partial",
-  "cycle": "2026-11-01T15:00:00+00:00",
-  "updated": "2026-11-01T19:12:33.596211+00:00",
-  "hours": 18,
+  "cycle": "2026-11-01T18:00:00+00:00",
+  "updated": "2026-11-01T19:41:41.799009+00:00",
+  "hours": 13,
   "expected_hours": 60,
-  "percent_complete": 30.0,
+  "percent_complete": 21.7,
   "complete": false,
   "errors": [
-    "f019: no published RRFS index at any supported path",
-    "f020: no published RRFS index at any supported path",
-    "f021: no published RRFS index at any supported path",
-    "f022: no published RRFS index at any supported path",
-    "f023: no published RRFS index at any supported path",
-    "f024: no published RRFS index at any supported path",
-    "f025: no published RRFS index at any supported path",
-    "f026: no published RRFS index at any supported path",
-    "f027: no published RRFS index at any supported path",
-    "f028: no published RRFS index at any supported path",
-    "f029: no published RRFS index at any supported path",
-    "f030: no published RRFS index at any supported path",
-    "f031: no published RRFS index at any supported path",
-    "f032: no published RRFS index at any supported path",
-    "f033: no published RRFS index at any supported path",
-    "f034: no published RRFS index at any supported path",
-    "f035: no published RRFS index at any supported path",
-    "f036: no published RRFS index at any supported path"
+    "f014: no published RRFS index at any supported path",
+    "f015: no published RRFS index at any supported path"
   ]
 }
