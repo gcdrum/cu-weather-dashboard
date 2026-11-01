@@ -447,5 +447,12 @@ if 'cuMultiModelStormCorroborationV1' not in html:
     if oldql not in html:raise SystemExit('QLCS screening anchor missing')
     html=html.replace(oldql,newql,1)
 
+# HRRR native lightning-density thresholds (flashes/km2/5 minutes).
+# Missing data is WAITING, not a zero forecast. Other models corroborate convection,
+# but their reflectivity is never relabeled as native HRRR flash density.
+lightning_patch=r"""\n<script>\nwindow.cuHRRRLightningLevel=function(v){\n if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};\n const band=v<=0.1?0:v<=0.3?1:v<=1?2:v<=3?3:v<=6?4:5;\n return {level:['none','possible','possible','elevated','likely','extreme'][band],band:band+1,units:'flashes/km²/5 min'};\n};\n</script>\n"""
+if 'window.cuHRRRLightningLevel=' not in html:
+    html=html.replace('</body>',lightning_patch+'</body>',1)
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
