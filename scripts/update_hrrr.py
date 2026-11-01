@@ -177,7 +177,11 @@ def main():
     if old_cycle and old_cycle>chosen.isoformat():
         print('Existing published HRRR cycle is newer; refusing regression',flush=True)
         return
+    candidate_path=Path('hrrr_reflectivity_pending.json')
+    candidate=json.loads(candidate_path.read_text()) if candidate_path.exists() else {}
     same=[r for r in old if r.get('cycle')==chosen.isoformat()]
+    if not same and candidate.get('cycle')==chosen.isoformat():
+        same=candidate.get('records',[])
     bylead={int(r['lead']):r for r in same if isinstance(r.get('lead'),int)}
     bylead[0]=first
     maxlead=48 if chosen.hour%6==0 else 18
@@ -193,6 +197,7 @@ def main():
             # NOAA often publishes sequentially; do not spend this run probing every later hour.
             break
     records=[bylead[k] for k in sorted(bylead)]
+    atomic_json(candidate_path,{'cycle':chosen.isoformat(),'updated':now.isoformat(),'records':records})
     # Merge atomically, preserving GFS and never replacing newer/same-cycle coverage with less.
     others=[r for r in existing if isinstance(r,dict) and r.get('model')!='hrrr']
     # Do not publish a sparse new cycle over a more useful prior cycle.
