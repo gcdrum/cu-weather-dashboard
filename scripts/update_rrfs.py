@@ -111,6 +111,17 @@ def main():
         # Six hours per run took many runs to complete a cycle; increase to 18.
         if newly_decoded >= 18:break
     if hours:
-        atomic("rrfs_wind.json",{"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),"source":"NOAA operational RRFS 3km 2dfld GRIB2","points":[{"name":n,"lat":y,"lon":x} for n,y,x in POINTS],"hours":[hours[k] for k in sorted(hours)]})
+        payload={"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),
+                 "source":"NOAA operational RRFS 3km 2dfld GRIB2",
+                 "points":[{"name":n,"lat":y,"lon":x} for n,y,x in POINTS],
+                 "hours":[hours[k] for k in sorted(hours)]}
+        # Preserve the more useful earlier run while the incoming RRFS cycle fills.
+        old_hours=old.get("hours",[]) if isinstance(old,dict) else []
+        old_cycle=old.get("cycle","") if isinstance(old,dict) else ""
+        if old_cycle==chosen.isoformat() or not old_hours or len(hours)>=len(old_hours):
+            atomic("rrfs_wind.json",payload)
+        else:
+            print(f"RRFS incoming {chosen:%HZ}: retaining {old_cycle} with "
+                  f"{len(old_hours)} hours (incoming {len(hours)})",flush=True)
     atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":len(hours),"expected_hours":maxlead,"percent_complete":round(100*len(hours)/maxlead,1),"complete":len(hours)==maxlead,"errors":errors})
 if __name__=="__main__":main()
