@@ -25,7 +25,7 @@ jobs:
       - name: Refresh GFS every 3 hours (retain previous output on failure)
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          if [ $((10#$(date -u +%H) % 3)) -eq 0 ] && [ "$(date -u +%M)" = "17" ]; then python scripts/update_reflectivity.py; else echo "GFS skipped (3-hour cadence)"; fi
+          if [ $((10#$(date -u +%H) % 3)) -eq 0 ] && [ "$(date -u +%M)" -lt "20" ]; then python scripts/update_reflectivity.py; else echo "GFS skipped (3-hour cadence)"; fi
       - name: Refresh HRRR incrementally (latest REFC first)
         run: python scripts/update_hrrr.py
       - name: Validate combined numerical reflectivity
