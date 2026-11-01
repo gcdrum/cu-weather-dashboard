@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 import requests
 import numpy as np
-from eccodes import codes_grib_new_from_file, codes_get_array, codes_release
+from eccodes import codes_grib_new_from_file, codes_get_array, codes_release, codes_get
 
 BUCKET="https://noaa-rrfs-ops-pds.s3.amazonaws.com"
 POINTS=[("NW / Willard side",37.258,-93.405),("North",37.290,-93.310),("NE / Strafford side",37.258,-93.190),("West",37.221,-93.395),("Central Springfield",37.209,-93.292),("East",37.215,-93.210),("SW / Republic side",37.170,-93.392),("South / Battlefield",37.150,-93.292),("SE",37.155,-93.220),("Far South / West",37.095,-93.405),("Far South / Central",37.088,-93.300),("Far South / East",37.095,-93.220)]
@@ -66,6 +66,35 @@ def sample(field):
 def atomic(path,obj):
     p=Path(path);tmp=p.with_suffix(p.suffix+".tmp")
     tmp.write_text(json.dumps(obj,indent=2)+"\n");tmp.replace(p)
+def rrfs_lightning_diagnostic(cycle, url, rows):
+    """Inspect RRFS native lightning fields; do not assume units match HRRR."""
+    matches=[(line.split(':')[3] if len(line.split(':'))>3 else '',line)
+             for _,line in rows if re.search(r':(?:LTNG|LITNG|FLASHD|FLDCP):',line,re.I)]
+    result={'model':'rrfs','cycle':cycle.isoformat(),'status':'validation_required' if matches else 'field_unavailable',
+            'units_verified':False,'candidate_fields':[line for _,line in matches[:12]],'hours':[]}
+    for token in ('LTNG','LITNG','FLASHD','FLDCP'):
+        byte_span=span(rows,token)
+        if byte_span is None: continue
+        try:
+            a,b=byte_span
+            r=fetch(url,headers={'Range':f'bytes={a}-{b}'})
+            with tempfile.NamedTemporaryFile(suffix='.grib2') as tmp:
+                tmp.write(r.content);tmp.flush()
+                with open(tmp.name,'rb') as fh:
+                    g=codes_grib_new_from_file(fh)
+                    if g is None:continue
+                    try:
+                        meta={}
+                        for key in ('shortName','name','units','stepType','stepRange'):
+                            try:meta[key]=str(codes_get(g,key))
+                            except Exception:pass
+                        result['grib_metadata']=meta
+                    finally:codes_release(g)
+            break
+        except Exception as exc:result['diagnostic_error']=str(exc)[:250]
+    atomic('rrfs_lightning.json',result)
+    print('RRFS lightning diagnostic: '+result['status'],flush=True)
+
 def main():
     now=datetime.now(timezone.utc);hour=now.replace(minute=0,second=0,microsecond=0)
     errors=[];chosen=None;first_url=None
@@ -82,6 +111,7 @@ def main():
     if not chosen:
         atomic("rrfs_status.json",{"status":"unavailable","updated":now.isoformat(),"errors":["No supported RRFS operational 2dfld index found; check bucket layout"]})
         print("RRFS unavailable; no fabricated data",flush=True);return
+    rrfs_lightning_diagnostic(chosen,first_url,fields(first_url))
     previous=Path("rrfs_wind.json")
     old=json.loads(previous.read_text()) if previous.exists() else {}
     # Persist an incoming cycle separately, so each scheduled run can finish it
