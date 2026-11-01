@@ -1,15 +1,16 @@
 {
   "cycle": "2026-11-01T20:00:00+00:00",
-  "updated": "2026-11-01T21:13:50.056658+00:00",
-  "hours": 11,
+  "updated": "2026-11-01T21:24:04.236619+00:00",
+  "hours": 14,
   "expected_hours": 19,
-  "last_lead": 10,
-  "wind_hours": 5,
+  "last_lead": 13,
+  "wind_hours": 9,
   "complete": false,
   "reflectivity_complete": false,
   "wind_complete": false,
-  "percent_complete": 26.3,
+  "percent_complete": 47.4,
   "errors": [
-    "21Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t21z.wrfsfcf00.grib2.idx"
+    "21Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t21z.wrfsfcf00.grib2.idx",
+    "f14 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t20z.wrfsfcf14.grib2.idx"
   ]
 }

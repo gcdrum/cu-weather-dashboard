@@ -112,7 +112,16 @@ body{max-width:1700px;padding:12px 16px 18px}
 .windcards>.windcard{height:100%;box-sizing:border-box;min-width:0}
 </style>
 
-</head><body>
+<style id="cu-mobile-chart-viewport-fix">
+@media (max-width: 700px) {
+  html,body {max-width:100%;overflow-x:hidden}
+  .forecast-chart {min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;overflow:hidden!important}
+  .forecast-chart .cu-chart-scroll {display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x pan-y}
+  .forecast-chart .cu-chart-scroll canvas {max-width:none!important;flex-shrink:0!important}
+  #cu-model-run-strip,#cu-model-run-provenance {width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  .forecast-chart .cu-chart-mobile-hint {display:block!important;white-space:normal!important}
+}
+</style></head><body>
 
 <section id="cu-radar-v1">
  <div class="rh"><div><b>BROWSER RADAR V3</b> <span id="cu-radar-badge">LOADING</span></div><div><button class="rb on" data-radar="bref">Base REF</button><button class="rb" data-radar="cref">Composite REF</button><button class="rb" id="cu-radar-play">▶ Loop</button></div></div>
@@ -3201,6 +3210,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3555,6 +3565,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 
