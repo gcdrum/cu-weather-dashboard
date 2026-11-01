@@ -277,10 +277,11 @@ def update_lightning_density(cycle, leads):
                           'field':'LTNG/LITNG','units_verified':False})
         except Exception as exc:
             print(f'HRRR lightning f{lead:02d}: {exc}',flush=True)
-    if hours:
-        atomic_json(dest,{'model':'hrrr','cycle':cycle.isoformat(),
+    atomic_json(dest,{'model':'hrrr','cycle':cycle.isoformat(),
           'units':'unverified native GRIB field; not yet flashes/km2/5min',
-          'status':'validation_required','hours':hours})
-        print(f'HRRR lightning raw field extracted for {len(hours)} forecast hours; units unverified',flush=True)
+          'status':'validation_required' if hours else 'field_unavailable',
+          'hours':hours,'checked_leads':sorted(leads)[:12],
+          'note':'Do not use raw values for operational threat classification until field and units are verified.'})
+    print(f'HRRR lightning diagnostic: {len(hours)} hours extracted; status '+('validation_required' if hours else 'field_unavailable'),flush=True)
 
 if __name__=='__main__':main()
