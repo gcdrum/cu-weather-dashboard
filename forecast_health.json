@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-11-01T14:35:12.368369+00:00",
+  "overall": "current",
+  "models": {
+    "hrrr": {
+      "cycle": "2026-11-01T13:00:00+00:00",
+      "updated": "2026-11-01T14:34:18.240840+00:00",
+      "age_minutes": 0.9,
+      "hours": 19,
+      "expected_hours": 19,
+      "percent_complete": 100.0,
+      "state": "current",
+      "errors": [
+        "14Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t14z.wrfsfcf00.grib2.idx"
+      ]
+    },
+    "rrfs": {
+      "cycle": "2026-11-01T12:00:00+00:00",
+      "updated": "2026-11-01T14:34:37.368231+00:00",
+      "age_minutes": 0.6,
+      "hours": 36,
+      "expected_hours": 84,
+      "percent_complete": 42.9,
+      "state": "current",
+      "errors": []
+    }
+  }
+}\n
