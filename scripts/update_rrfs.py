@@ -2,6 +2,7 @@
 Uses NOAA operational RRFS S3 index byte ranges. No synthetic values.
 """
 import json, re, tempfile, time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
@@ -94,6 +95,30 @@ def main():
     maxlead=60 if chosen.hour%6==0 else 18
     newly_decoded = 0
     missing_streak = 0
+    # Probe indexes in parallel so unpublished hours do not consume minutes.
+    # Prioritize the near-term 24h forecast before the extended horizon.
+    missing_leads=[lead for lead in range(1,maxlead+1)
+                   if (chosen+timedelta(hours=lead)).strftime("%Y-%m-%dT%H:%M") not in hours]
+    def probe(lead):
+        for candidate in candidates(chosen,lead):
+            try:
+                response=requests.get(candidate+'.idx',timeout=7,headers={'User-Agent':'CU-Weather-Dashboard/1.0'})
+                if response.status_code!=200:continue
+                rows=[]
+                for line in response.text.splitlines():
+                    parts=line.split(':',2)
+                    if len(parts)>2 and parts[1].isdigit():rows.append((int(parts[1]),line))
+                if rows and (span(rows,'GUST') or span(rows,'REFC')):return lead,candidate,rows
+            except requests.RequestException:continue
+        return lead,None,None
+    indexed={}
+    # Limit concurrent requests and check near-term first.
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures=[pool.submit(probe,lead) for lead in missing_leads[:36]]
+        for future in as_completed(futures):
+            lead,url,rows=future.result()
+            if url:indexed[lead]=(url,rows)
+    print(f'RRFS index probe: {len(indexed)}/{min(36,len(missing_leads))} missing leads available',flush=True)
     # Keep manual runs bounded, but allow useful catch-up without waiting for
     # several additional dispatches when the NOAA cycle is already published.
     max_new_per_run = 36
@@ -101,11 +126,7 @@ def main():
         stamp=(chosen+timedelta(hours=lead)).strftime("%Y-%m-%dT%H:%M")
         if stamp in hours:continue
         try:
-            url=None;rows=None
-            for candidate in candidates(chosen,lead):
-                try:
-                    rows=fields(candidate);url=candidate;break
-                except requests.RequestException:continue
+            url,rows=indexed.get(lead,(None,None))
             if not url:
                 errors.append(f'f{lead:03d}: no published RRFS index at any supported path')
                 print('RRFS waiting:', errors[-1], flush=True)
