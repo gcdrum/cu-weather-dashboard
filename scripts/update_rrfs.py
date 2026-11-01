@@ -66,17 +66,17 @@ def sample(field):
 def atomic(path,obj):
     p=Path(path);tmp=p.with_suffix(p.suffix+".tmp")
     tmp.write_text(json.dumps(obj,indent=2)+"\n");tmp.replace(p)
-def rrfs_lightning_diagnostic(cycle, url, rows):
-    """Extract RRFS LTNGSD, converting m^-2 s^-1 to flashes/km2/5min."""
+def rrfs_lightning_diagnostic(cycle, indexed_urls):
+    """Inspect and decode available RRFS LTNGSD leads; never guess units."""
     result={'model':'rrfs','cycle':cycle.isoformat(),'status':'field_unavailable',
             'units':'flashes/km²/5 min','units_verified':False,'hours':[],
             'note':'LTNG (dimensionless) is not flash density; only LTNGSD is eligible.'}
     # Probe both documented height variants; unknown ecCodes parameter names
     # are diagnostic only, never grounds for assuming a density conversion.
-    matches=[(i,line) for i,(_,line) in enumerate(rows) if ':LTNGSD:' in line]
-    result['index_matches']=[line[:280] for _,line in matches]
+    matches=[(lead,url,rows,i,line) for lead,(url,rows) in sorted(indexed_urls.items())\n             for i,(_,line) in enumerate(rows) if ':LTNGSD:' in line]
+    result['index_matches']=[{'lead':lead,'line':line[:280]} for lead,_,_,_,line in matches[:60]]
     result['field_variants']=[]
-    for i,line in matches:
+    for lead,url,rows,i,line in matches[:36]:
         if i+1>=len(rows):continue
         field=(rows[i][0],rows[i+1][0]-1)
         try:
@@ -97,7 +97,7 @@ def rrfs_lightning_diagnostic(cycle, url, rows):
                             try:meta[key]=str(codes_get(g,key))
                             except Exception:pass
                     finally:codes_release(g)
-            result['field_variants'].append({'index':line[:280],'metadata':meta})
+            if not any(v.get('index')==line[:280] for v in result['field_variants']):\n                result['field_variants'].append({'index':line[:280],'metadata':meta})
             unit=meta.get('units','').replace(' ','').lower()
             factor={'m-2s-1':300000000.0,'m**-2s**-1':300000000.0,
                     '1/m2/s':300000000.0,'m^-2s^-1':300000000.0,
@@ -111,9 +111,8 @@ def rrfs_lightning_diagnostic(cycle, url, rows):
             peak=float(np.max(values[mask]))*factor
             result.update(status='available',units_verified=True,
                 grib_metadata=meta,source='RRFS LTNGSD; native units '+meta.get('units',''),
-                hours=[{'time':(cycle+timedelta(hours=1)).isoformat(),
+                hours=result['hours']+[{'time':(cycle+timedelta(hours=lead)).isoformat(),
                         'value':round(peak,5),'units_verified':True}])
-            break
         except Exception as exc:
             result.setdefault('diagnostic_errors',[]).append(str(exc)[:250])
     # Merge valid forecast hours from previous cycles, never synthesizing zeros.
@@ -149,7 +148,6 @@ def main():
     if not chosen:
         atomic("rrfs_status.json",{"status":"unavailable","updated":now.isoformat(),"errors":["No supported RRFS operational 2dfld index found; check bucket layout"]})
         print("RRFS unavailable; no fabricated data",flush=True);return
-    rrfs_lightning_diagnostic(chosen,first_url,fields(first_url))
     previous=Path("rrfs_wind.json")
     old=json.loads(previous.read_text()) if previous.exists() else {}
     # Persist an incoming cycle separately, so each scheduled run can finish it
@@ -186,6 +184,7 @@ def main():
         for future in as_completed(futures):
             lead,url,rows=future.result()
             if url:indexed[lead]=(url,rows)
+    rrfs_lightning_diagnostic(chosen,{1:(first_url,fields(first_url)),**indexed})
     print(f'RRFS index probe: {len(indexed)}/{min(36,len(missing_leads))} missing leads available',flush=True)
     if missing_leads and not indexed:errors.append('No newly published RRFS hours in current probe window')
     # Keep manual runs bounded, but allow useful catch-up without waiting for
