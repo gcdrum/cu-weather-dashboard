@@ -92,7 +92,7 @@ jobs:
           result = {'checked_at': now.isoformat(),
                     'overall': 'current' if all(v['state'] == 'current' for v in models.values()) else 'degraded',
                     'models': models}
-          Path('forecast_health.json').write_text(json.dumps(result, indent=2) + '\\n')
+          Path('forecast_health.json').write_text(json.dumps(result, indent=2) + chr(10))
           print(json.dumps(result, indent=2))
           PYHEALTH
       - name: Commit published model data
