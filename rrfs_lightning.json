@@ -1,16 +1,18 @@
 {
   "model": "rrfs",
   "cycle": "2026-11-01T21:00:00+00:00",
-  "status": "available",
+  "status": "units_unverified",
   "units": "flashes/km\u00b2/5 min",
-  "units_verified": true,
-  "hours": [
-    {
-      "time": "2026-11-01T22:00:00+00:00",
-      "value": 0.0,
-      "units_verified": true
-    }
-  ],
+  "units_verified": false,
+  "hours": [],
   "note": "LTNG (dimensionless) is not flash density; only LTNGSD is eligible.",
-  "source": "RRFS LTNGSD 1-hour maximum, converted from m^-2 s^-1"
+  "grib_metadata": {
+    "shortName": "unknown",
+    "name": "unknown",
+    "units": "unknown",
+    "stepType": "max",
+    "stepRange": "0-1",
+    "typeOfLevel": "heightAboveGround",
+    "level": "1"
+  }
 }
