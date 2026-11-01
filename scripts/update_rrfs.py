@@ -65,7 +65,8 @@ def sample(field):
     return out
 def atomic(path,obj):
     p=Path(path);tmp=p.with_suffix(p.suffix+".tmp")
-    tmp.write_text(json.dumps(obj,indent=2)+"\n");tmp.replace(p)
+    tmp.write_text(json.dumps(obj,indent=2)+"
+");tmp.replace(p)
 def rrfs_lightning_diagnostic(cycle, indexed_urls):
     """Inspect and decode available RRFS LTNGSD leads; never guess units."""
     result={'model':'rrfs','cycle':cycle.isoformat(),'status':'field_unavailable',
@@ -127,7 +128,8 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
             result.update(status='available',units_verified=True,
                 grib_metadata=meta,source='RRFS LTNGSD; native units '+meta.get('units',''),
                 hours=result['hours']+[{'time':(cycle+timedelta(hours=lead)).isoformat(),
-                        'value':round(peak,5),'units_verified':True,\n                        'metric':'five_minute_equivalent_of_one_hour_maximum_rate'}])
+                        'value':round(peak,5),'units_verified':True,
+                        'metric':'five_minute_equivalent_of_one_hour_maximum_rate'}])
         except Exception as exc:
             result.setdefault('diagnostic_errors',[]).append(str(exc)[:250])
     # Merge valid forecast hours from previous cycles, never synthesizing zeros.
