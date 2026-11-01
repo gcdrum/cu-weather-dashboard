@@ -118,7 +118,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_status.json rrfs_wind.json rrfs_pending.json rrfs_status.json forecast_health.json model_winds.json index.html; do
+          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_pending.json hrrr_status.json rrfs_wind.json rrfs_pending.json rrfs_status.json forecast_health.json model_winds.json index.html; do
             if [ -f "$f" ]; then git add "$f"; fi
           done
           if ! git diff --cached --quiet; then
