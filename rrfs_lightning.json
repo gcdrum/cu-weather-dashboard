@@ -6,6 +6,53 @@
   "units_verified": false,
   "hours": [],
   "note": "LTNG (dimensionless) is not flash density; only LTNGSD is eligible.",
+  "index_matches": [
+    {
+      "lead": 1,
+      "line": "28:24315853:d=2026110121:LTNGSD:1 m above ground:0-1 hour max fcst:"
+    },
+    {
+      "lead": 1,
+      "line": "29:24322098:d=2026110121:LTNGSD:2 m above ground:0-1 hour max fcst:"
+    }
+  ],
+  "field_variants": [
+    {
+      "index": "28:24315853:d=2026110121:LTNGSD:1 m above ground:0-1 hour max fcst:",
+      "metadata": {
+        "shortName": "unknown",
+        "name": "unknown",
+        "units": "unknown",
+        "stepType": "max",
+        "stepRange": "0-1",
+        "typeOfLevel": "heightAboveGround",
+        "level": "1",
+        "discipline": "0",
+        "parameterCategory": "17",
+        "parameterNumber": "0",
+        "tablesVersion": "2",
+        "localTablesVersion": "1"
+      }
+    },
+    {
+      "index": "29:24322098:d=2026110121:LTNGSD:2 m above ground:0-1 hour max fcst:",
+      "metadata": {
+        "shortName": "unknown",
+        "name": "unknown",
+        "units": "unknown",
+        "stepType": "max",
+        "stepRange": "0-1",
+        "typeOfLevel": "heightAboveGround",
+        "level": "2",
+        "discipline": "0",
+        "parameterCategory": "17",
+        "parameterNumber": "0",
+        "tablesVersion": "2",
+        "localTablesVersion": "1"
+      }
+    }
+  ],
+  "units_basis": "GRIB2 0-17-0: m^-2 s^-1 (1-hour maximum); 5-min equivalent rate",
   "grib_metadata": {
     "shortName": "unknown",
     "name": "unknown",
@@ -13,7 +60,13 @@
     "stepType": "max",
     "stepRange": "0-1",
     "typeOfLevel": "heightAboveGround",
-    "level": "1"
+    "level": "1",
+    "discipline": "0",
+    "parameterCategory": "17",
+    "parameterNumber": "0",
+    "tablesVersion": "2",
+    "localTablesVersion": "1"
   },
+  "source": "RRFS LTNGSD; native units unknown",
   "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced"
 }
