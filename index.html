@@ -3110,4 +3110,59 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{refreshRRFS();document.getElementById('wind-refresh')?.addEventListener('click',refreshRRFS);setInterval(refreshRRFS,600000)});
 })();
 </script>
+<style>
+/* RRFS comparison panels are viewport responsive and never widen the page. */
+#cu-rrfs-audit,#cu-rrfs-timeline{max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box}
+#cu-rrfs-audit canvas,#cu-rrfs-timeline canvas{display:block;width:100%;height:auto;max-width:100%}
+@media(max-width:700px){#cu-peak-gust-audit{max-width:100%;min-width:0}#cu-gust-audit-canvas{min-width:0!important}}
+</style>
+<script>
+/* Independent RRFS comparison overlays: verified NOAA samples, no outage-model mutation. */
+(function(){
+ const mph=2.2369362921;
+ function makePanel(id,title,anchor){
+  let node=document.getElementById(id);if(node)return node;
+  const target=document.getElementById(anchor);if(!target)return null;
+  node=document.createElement('section');node.id=id;
+  node.style.cssText='border:1px solid #47677a;border-radius:9px;background:#102532;color:#d9eaf4;padding:12px;margin:12px 0;font-size:12px;max-width:100%;min-width:0';
+  node.innerHTML='<strong>'+title+'</strong><div class="rrfs-note" style="color:#a9c5d6;margin:5px 0">Awaiting NOAA RRFS data</div><canvas width="850" height="220" aria-label="RRFS hourly maximum wind gust comparison chart"></canvas><div style="font-size:11px;color:#91b0c1;margin-top:6px">NOAA RRFS 3 km · maximum of 12 locations · independent comparison only; no effect on outage predictions</div>';
+  target.insertAdjacentElement('afterend',node);return node;
+ }
+ function render(panel,rows,cycle,status){
+  const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d');
+  const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!valid.length){note.textContent='RRFS data unavailable';return}
+  const label=new Date(cycle).toISOString().slice(11,13)+'Z';
+  note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
+  const W=canvas.width,H=canvas.height,L=52,R=16,T=18,B=38;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#102532';ctx.fillRect(0,0,W,H);
+  const hi=Math.max(30,Math.ceil(Math.max(...valid.map(r=>r.gust))/10)*10);
+  ctx.font='12px Segoe UI,Arial';ctx.textAlign='right';
+  for(let v=0;v<=hi;v+=10){const y=H-B-v/hi*(H-T-B);ctx.strokeStyle='#304653';ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-R,y);ctx.stroke();ctx.fillStyle='#9fb5c3';ctx.fillText(v+' mph',L-7,y+4)}
+  const times=valid.map(r=>Date.parse(r.time+'Z'));const min=Math.min(...times),max=Math.max(...times);
+  const x=t=>L+(t-min)/Math.max(3600000,max-min)*(W-L-R);
+  ctx.beginPath();ctx.lineWidth=3;ctx.strokeStyle='#a58cff';
+  valid.forEach((r,i)=>{const px=x(times[i]),py=H-B-r.gust/hi*(H-T-B);if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py)});ctx.stroke();
+  ctx.textAlign='center';ctx.fillStyle='#c7d7e1';
+  valid.forEach((r,i)=>{if(i%Math.max(1,Math.ceil(valid.length/6))!==0&&i!==valid.length-1)return;ctx.fillText(new Date(times[i]).toLocaleString(undefined,{weekday:'short',hour:'numeric'}),x(times[i]),H-14)});
+  const dbz=valid.filter(r=>Number.isFinite(r.dbz));if(dbz.length){ctx.fillStyle='#b2c7d5';ctx.textAlign='right';ctx.fillText('Peak reflectivity '+Math.max(...dbz.map(r=>r.dbz)).toFixed(0)+' dBZ',W-R,T+12)}
+ }
+ function update(){
+  const data=window.cuRRFSForecast;if(!data||!Array.isArray(data.hours))return;
+  const audit=makePanel('cu-rrfs-audit','RRFS hourly gust comparison — NOAA 3 km','cu-peak-gust-audit');
+  const main=makePanel('cu-rrfs-timeline','RRFS forecast timeline — independent model data','cu-rrfs-audit');
+  const rows=data.hours.map(h=>({time:h.time,gust:Math.max(0,...(h.gust_ms||[]).filter(Number.isFinite))*mph,dbz:Math.max(0,...(h.site_dbz||[]).filter(Number.isFinite))}));
+  const pct=rows.length/(new Date(data.cycle).getUTCHours()%6===0?84:60)*100;
+  const status={percent_complete:pct};
+  if(audit)render(audit,rows,data.cycle,status);
+  if(main)render(main,rows,data.cycle,status);
+  const lane=document.getElementById('cu-lane-health');
+  if(lane&&!lane.dataset.rrfsComparison){lane.dataset.rrfsComparison='1';lane.insertAdjacentText('afterend',' RRFS: decoded NOAA 12-site gusts and reflectivity available in independent comparison panels; outage predictions unchanged.');}
+  const stat=document.getElementById('cu-v107-model-status');
+  if(stat&&!stat.dataset.rrfsComparison){stat.dataset.rrfsComparison='1';stat.insertAdjacentText('afterend',' | RRFS: '+rows.length+' decoded forecast hours (12-site gust and reflectivity)');}
+ }
+ window.addEventListener('cu-rrfs-wind-ready',update);
+ document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
+})();
+</script>
 </body></html>
