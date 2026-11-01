@@ -1,7 +1,7 @@
 {
   "model": "hrrr",
   "cycle": "2026-11-01T16:00:00+00:00",
-  "updated": "2026-11-01T16:57:33.040008+00:00",
+  "updated": "2026-11-01T16:59:22.467933+00:00",
   "source": "NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)",
   "points": [
     {
@@ -127,9 +127,71 @@
         3.38,
         3.37
       ]
+    },
+    {
+      "time": "2026-11-01T18:00",
+      "gust_ms": [
+        2.95,
+        3.2,
+        4.2,
+        3.2,
+        3.2,
+        3.89,
+        3.33,
+        3.14,
+        3.58,
+        3.51,
+        3.08,
+        3.45
+      ],
+      "wind_ms": [
+        2.5,
+        2.62,
+        3.44,
+        2.67,
+        2.5,
+        3.28,
+        2.84,
+        2.46,
+        3.07,
+        2.91,
+        2.44,
+        3.04
+      ]
+    },
+    {
+      "time": "2026-11-01T19:00",
+      "gust_ms": [
+        3.49,
+        5.37,
+        4.68,
+        3.87,
+        4.68,
+        4.68,
+        4.12,
+        4.74,
+        4.74,
+        4.12,
+        4.56,
+        4.81
+      ],
+      "wind_ms": [
+        3.08,
+        4.2,
+        3.87,
+        3.13,
+        3.62,
+        3.74,
+        3.33,
+        3.71,
+        3.47,
+        3.38,
+        3.86,
+        3.7
+      ]
     }
   ],
   "errors": [
-    "f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t16z.wrfsfcf02.grib2.idx"
+    "f04 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t16z.wrfsfcf04.grib2.idx"
   ]
 }
