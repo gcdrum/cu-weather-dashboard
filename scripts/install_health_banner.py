@@ -185,6 +185,14 @@ snippet = r"""
      parallel.innerHTML='<div style="font-weight:700;font-size:14px">Four-model parallel forecast <span style="font-size:11px;color:#ffcf8c">(EXPERIMENTAL · not operational)</span></div><div style="margin:5px 0;color:#c3d4dc">NOAA HRRR/RRFS + Open-Meteo coverage supplementation; GFS/NAM from Open-Meteo. Original calculated forecast and response stages are unchanged.</div>'+(peak?'<div style="margin:6px 0"><b>Peak wind-only estimate:</b> '+peak.estimated_feeders.toFixed(1)+' feeders · '+esc(peak.time.slice(5,16).replace('T',' ')+'Z')+' · '+confidence+' available at peak</div>':'<div>Insufficient multi-model coverage for feeder estimate</div>')+chart([preview],10,bands)+'<div style="color:#f7be75">■ Shaded: local ≥35 dBZ convection · '+conv.length+' screened hours; '+conv.filter(x=>x.convective_models.length>=2).length+' with multi-model support</div><div style="color:#b9cbd4;margin-top:5px">No convective feeder increment. Forecast is shown alongside the main model for validation, not substituted into the operational prediction.</div>';
    }
 
+   // Publish RRFS's own independently calculated feeder estimate for the shared chart.
+   // This is a separate experimental series, not a silent change to operational alerts.
+   const rrfsFeederCurve=(series[1]||[]).map(p=>{
+     const mph=Math.max(0,Number(p.value)||0);
+     const feeders=mph<30?0:mph<40?(mph-30)*0.5:mph<55?5+(mph-40)*2/3:mph<60?15+(mph-55):Math.min(170,20+(mph-60)*2);
+     return {time:new Date(p.time).toISOString(),feeders:Math.max(0,feeders),model:'rrfs'};
+   }).filter(p=>Number.isFinite(p.feeders));
+   window.cuRRFSFeederCurve=rrfsFeederCurve;
    const consensusSeries=consensus.filter(x=>x.model_count>=2).map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
    const convectiveBands=activeWindows.map(x=>({start:Date.parse(x.time)-30*60000,end:Date.parse(x.time)+30*60000}));
    const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart([consensusSeries],10,convectiveBands)+'<div style="color:#ffbd74;font-size:12px">■ Shaded orange: local ≥35 dBZ convective screening (not additional feeder outages)</div>'+convectivePanel+convectiveMarkers+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
