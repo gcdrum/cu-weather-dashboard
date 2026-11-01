@@ -190,6 +190,18 @@ def main():
     if chosen is None:
         raise RuntimeError('No HRRR REFC available: '+'; '.join(errors))
 
+    # Keep a separate extended-cycle lightning forecast for f19-f48.
+    # The latest short-cycle lightning sample must not erase this horizon.
+    extended=hour.replace(hour=18)
+    if extended>hour: extended-=timedelta(days=1)
+    if extended!=chosen:
+        try:
+            extended_leads=range(19,49)
+            update_lightning_density(extended,extended_leads,
+                                     output='hrrr_lightning_extended.json')
+        except Exception as exc:
+            print('WARNING extended 18Z lightning: '+str(exc),flush=True)
+
     dest=Path('reflectivity.json')
     existing=json.loads(dest.read_text()) if dest.exists() else []
     old=[r for r in existing if isinstance(r,dict) and r.get('model')=='hrrr']
@@ -277,9 +289,9 @@ def main():
                 'percent_complete':round(100*min(len(records),len(wind_hours))/(maxlead+1),1),'errors':errors})
 
 
-def update_lightning_density(cycle, leads):
+def update_lightning_density(cycle, leads, output='hrrr_lightning.json'):
     """Experimental HRRR LTNG/LITNG extraction. Do not convert unknown units."""
-    dest=Path('hrrr_lightning.json')
+    dest=Path(output)
     hours=[]
     for lead in sorted(leads)[:12]:
         try:
