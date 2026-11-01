@@ -175,6 +175,19 @@ snippet = r"""
      stage:x.stage,model_count:x.model_count,models:x.models,
      convective_screen:x.convective_screen,source:'four-model ensemble'
    }));
+   // Explicit readiness contract for a future operational-engine handoff.
+   // Do not silently replace the existing engine when only one model is available.
+   const ensembleRows=window.cuModelEnsembleOutageForecast;
+   const nowHour=Date.now();
+   const nearTerm=ensembleRows.filter(r=>{const t=Date.parse(r.time);return t>=nowHour-3600000&&t<=nowHour+6*3600000;});
+   const allFour=nearTerm.filter(r=>r.model_count===4);
+   window.cuEnsembleOperationalReadiness={
+     ready:nearTerm.length>=4&&allFour.length>=4,
+     available_hours:nearTerm.length,
+     four_model_hours:allFour.length,
+     reason:nearTerm.length<4?'Insufficient near-term coverage':allFour.length<4?'Not all four models available across near-term forecast':'Four-model coverage ready for engine validation',
+     evaluated_at:new Date().toISOString()
+   };
    window.cuExperimentalOutageTimeline=convectiveWindows;
    // Feed the shared main-chart overlay. Only display: never alter engine inputs.
    window.cuParallelOverlayRows=convectiveWindows.filter(x=>x.model_count>=2).map(x=>({time:x.time,feeders:x.estimated_feeders,models:x.model_count}));
