@@ -1,15 +1,14 @@
 {
   "status": "partial",
   "model": "gfs",
-  "cycle": "2026-10-31T12:00:00+00:00",
-  "updated": "2026-10-31T18:43:59.606118+00:00",
-  "record_count": 35,
+  "cycle": "2026-11-01T06:00:00+00:00",
+  "updated": "2026-11-01T15:08:10.809401+00:00",
+  "record_count": 36,
   "errors": [
-    "f105: No valid dBZ values in requested region",
-    "f108: No valid dBZ values in requested region",
-    "f111: No valid dBZ values in requested region",
-    "f114: No valid dBZ values in requested region",
-    "f117: No valid dBZ values in requested region",
-    "f120: No valid dBZ values in requested region"
+    "f075: No valid dBZ values in requested region",
+    "f084: No valid dBZ values in requested region",
+    "f090: No valid dBZ values in requested region",
+    "f093: No valid dBZ values in requested region",
+    "f096: No valid dBZ values in requested region"
   ]
 }
