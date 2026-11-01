@@ -295,7 +295,11 @@ snippet = r"""
     data.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
   });
   // RRFS's own wind-only feeder curve, using the same shared time and feeder axes.
-  ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#ffb86b';ctx.font='bold 12px Segoe UI,Arial';ctx.fillText('— — Ensemble orange · HRRR blue · RRFS gold · GFS green · NAM purple (comparison)',L+12,T+PH+18);ctx.restore();
+  // The model legend is displayed in the adjacent HTML panel, not on the date axis.
+  let legend=document.getElementById('cu-ensemble-chart-legend');
+  if(!legend){legend=document.createElement('div');legend.id='cu-ensemble-chart-legend';canvas.insertAdjacentElement('afterend',legend);}
+  legend.style.cssText='display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 12px;color:#d7e3e8;font:11px Segoe UI,Arial,sans-serif';
+  legend.textContent='Ensemble (orange) | HRRR (blue) | RRFS (gold) | GFS (green) | NAM (purple) - comparison only';
  }
  function installParallelOverlay(){
   if(typeof window.drawForecast!=='function'||window.drawForecast.__cuParallelWrapped)return;
