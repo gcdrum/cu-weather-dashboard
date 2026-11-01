@@ -104,6 +104,19 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
             factor={'m-2s-1':300000000.0,'m**-2s**-1':300000000.0,
                     '1/m2/s':300000000.0,'m^-2s^-1':300000000.0,
                     'flashes/km2/5min':1.0,'flasheskm-2(5min)-1':1.0}.get(unit)
+            # ecCodes may not know the RRFS parameter name/units, but the
+            # internationally defined GRIB2 discipline/category/number is
+            # sufficient when all three match 0/17/0 and level is 1 m AGL.
+            # This is a 1-hour MAXIMUM rate, expressed as a 5-min equivalent,
+            # not a measured or accumulated five-minute flash count.
+            known_parameter=(meta.get('discipline')=='0' and
+                             meta.get('parameterCategory')=='17' and
+                             meta.get('parameterNumber')=='0' and
+                             meta.get('typeOfLevel')=='heightAboveGround' and
+                             meta.get('level')=='1')
+            if factor is None and known_parameter:
+                factor=300000000.0
+                result['units_basis']='GRIB2 0-17-0: m^-2 s^-1 (1-hour maximum); 5-min equivalent rate'
             if factor is None:
                 result['status']='units_unverified'
                 continue
@@ -114,7 +127,7 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
             result.update(status='available',units_verified=True,
                 grib_metadata=meta,source='RRFS LTNGSD; native units '+meta.get('units',''),
                 hours=result['hours']+[{'time':(cycle+timedelta(hours=lead)).isoformat(),
-                        'value':round(peak,5),'units_verified':True}])
+                        'value':round(peak,5),'units_verified':True,\n                        'metric':'five_minute_equivalent_of_one_hour_maximum_rate'}])
         except Exception as exc:
             result.setdefault('diagnostic_errors',[]).append(str(exc)[:250])
     # Merge valid forecast hours from previous cycles, never synthesizing zeros.
