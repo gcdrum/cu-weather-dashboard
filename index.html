@@ -1312,12 +1312,12 @@ function drawForecast(){
   const first=Math.min(...rows.map(r=>Date.parse(r.time)));
   return String(new Date(first).getUTCHours()).padStart(2,'0')+'Z';
  }
- const rrfsCycle=window.cuRRFS95?.cc;
+ const verifiedCycle=(label,fallback)=>/^\d{2}Z$/.test(label||'')?label:fallback;
  const laneLabels=[
   'GFS '+noaaCycleLabel('gfs'),
-  'NAM* —',
-  'HRRR '+noaaCycleLabel('hrrr'),
-  'RRFS '+(rrfsCycle===undefined?'—':String(rrfsCycle).padStart(2,'0')+'Z')
+  'NAM* API',
+  'HRRR '+verifiedCycle(window.cuHRRRRunLabel,noaaCycleLabel('hrrr')),
+  'RRFS '+verifiedCycle(window.cuRRFSRunLabel,'—')
  ];
  ctx.fillStyle='#dce6ed';
  laneLabels.forEach((label,i)=>ctx.fillText(label,L-9,laneTop+i*(laneHeight+4)+12));
@@ -3199,6 +3199,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3531,6 +3532,9 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
   wrapped.__cuParallelWrapped=true;window.drawForecast=wrapped;
  }
  installParallelOverlay();
+ // The operational chart is often initialized asynchronously after this script.
+ // Retry the hook and refresh labels even when the chart is not in live mode.
+ setInterval(()=>{installParallelOverlay();showRRFSBar();},2000);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
  setInterval(refresh,60000);
  // The Open-Meteo GFS/NAM requests finish asynchronously after page load.
@@ -3549,6 +3553,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 
