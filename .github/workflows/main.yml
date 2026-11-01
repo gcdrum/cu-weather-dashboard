@@ -104,12 +104,15 @@ jobs:
                                    'age_minutes': age, 'hours': hours,
                                    'expected_hours': d.get('expected_hours'),
                                    'percent_complete': d.get('percent_complete'),
-                                   'state': 'current' if -5 <= age <= 90 and hours else 'stale',
+                                   'state': ('stale' if not (-5 <= age <= 90 and hours) else
+                                             'current' if d.get('complete') else 'partial'),
+                                   'complete': bool(d.get('complete')),
                                    'errors': d.get('errors', [])[:3]}
               except Exception as e:
                   models[model] = {'state': 'missing', 'error': str(e)[:160]}
           result = {'checked_at': now.isoformat(),
-                    'overall': 'current' if all(v['state'] == 'current' for v in models.values()) else 'degraded',
+                    'overall': ('current' if all(v['state'] == 'current' for v in models.values()) else
+                                'partial' if all(v['state'] in ('current', 'partial') for v in models.values()) else 'degraded'),
                     'models': models}
           Path('forecast_health.json').write_text(json.dumps(result, indent=2) + chr(10))
           print(json.dumps(result, indent=2))
