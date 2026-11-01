@@ -3183,6 +3183,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3335,9 +3336,11 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    window.cuConvectiveScreen=convectiveWindows;
    const activeWindows=convectiveWindows.filter(x=>x.convective_models.length);
    const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ within ±90 minutes of a forecast hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
+   const convectivePoints=activeWindows.map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ff9a36'}));
+   const convectiveMarkers=activeWindows.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+activeWindows.map(x=>'<span style="border:1px solid #a8753c;border-radius:5px;padding:4px 6px;color:#ffd096;font-size:11px">'+esc(x.time.slice(5,16).replace('T',' ')+'Z')+' · '+esc(x.convective_models.join('+').toUpperCase())+' · '+Number(x.local_reflectivity_dbz).toFixed(0)+' dBZ</span>').join('')+'</div>':'';
    window.cuExperimentalOutageTimeline=convectiveWindows;
    const consensusSeries=consensus.filter(x=>x.model_count>=2).map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
-   const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart([consensusSeries],10)+convectivePanel+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
+   const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart([consensusSeries],10)+convectivePanel+convectiveMarkers+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
    const feederSignal=mph=>{const x=Math.max(0,(mph-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1));};
    const near=Date.now()-3600000;
    const rows=names.map((name,i)=>{
@@ -3378,6 +3381,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 

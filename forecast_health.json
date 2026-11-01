@@ -1,11 +1,11 @@
 {
-  "checked_at": "2026-11-01T17:28:34.382721+00:00",
+  "checked_at": "2026-11-01T17:36:29.695904+00:00",
   "overall": "current",
   "models": {
     "hrrr": {
       "cycle": "2026-11-01T16:00:00+00:00",
-      "updated": "2026-11-01T17:27:36.354356+00:00",
-      "age_minutes": 1.0,
+      "updated": "2026-11-01T17:35:38.260593+00:00",
+      "age_minutes": 0.9,
       "hours": 19,
       "expected_hours": 19,
       "percent_complete": 100.0,
@@ -16,7 +16,7 @@
     },
     "rrfs": {
       "cycle": "2026-11-01T15:00:00+00:00",
-      "updated": "2026-11-01T17:27:51.850852+00:00",
+      "updated": "2026-11-01T17:35:45.681701+00:00",
       "age_minutes": 0.7,
       "hours": 18,
       "expected_hours": 60,
