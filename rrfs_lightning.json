@@ -1,0 +1,17 @@
+{
+  "model": "rrfs",
+  "cycle": "2026-11-01T21:00:00+00:00",
+  "status": "validation_required",
+  "units_verified": false,
+  "candidate_fields": [
+    "30:24384979:d=2026110121:LTNG:entire atmosphere:0-1 hour max fcst:"
+  ],
+  "hours": [],
+  "grib_metadata": {
+    "shortName": "ltng",
+    "name": "Lightning",
+    "units": "dimensionless",
+    "stepType": "max",
+    "stepRange": "0-1"
+  }
+}

@@ -8,60 +8,156 @@
       "time": "2026-11-01T21:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "0"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-01T22:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "1"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-01T23:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "2"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-02T00:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "3"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-02T01:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "4"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-02T02:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "5"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-02T03:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "6"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-02T04:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "7"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-02T05:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "8"
+      },
       "units_verified": false
     },
     {
       "time": "2026-11-02T06:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "9"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T07:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "10"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T08:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "11"
+      },
       "units_verified": false
     }
   ],
@@ -75,7 +171,9 @@
     6,
     7,
     8,
-    9
+    9,
+    10,
+    11
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }

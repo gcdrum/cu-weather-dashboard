@@ -1,0 +1,179 @@
+{
+  "model": "hrrr",
+  "cycle": "2026-11-01T18:00:00+00:00",
+  "units": "unverified native GRIB field; not yet flashes/km2/5min",
+  "status": "validation_required",
+  "hours": [
+    {
+      "time": "2026-11-02T13:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "19"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T14:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "20"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T15:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "21"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T16:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "22"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T17:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "23"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T18:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "24"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T19:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "25"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T20:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "26"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T21:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "27"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T22:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "28"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-02T23:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "29"
+      },
+      "units_verified": false
+    },
+    {
+      "time": "2026-11-03T00:00:00+00:00",
+      "peak_raw": 0.026,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "30"
+      },
+      "units_verified": false
+    }
+  ],
+  "checked_leads": [
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "note": "Do not use raw values for operational threat classification until field and units are verified."
+}
