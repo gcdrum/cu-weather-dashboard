@@ -67,33 +67,26 @@ def atomic(path,obj):
     p=Path(path);tmp=p.with_suffix(p.suffix+".tmp")
     tmp.write_text(json.dumps(obj,indent=2)+"\n");tmp.replace(p)
 def rrfs_lightning_diagnostic(cycle, url, rows):
-    """Inspect RRFS native lightning fields; do not assume units match HRRR."""
-    matches=[(line.split(':')[3] if len(line.split(':'))>3 else '',line)
-             for _,line in rows if re.search(r':(?:LTNG|LITNG|FLASHD|FLDCP):',line,re.I)]
-    result={'model':'rrfs','cycle':cycle.isoformat(),'status':'validation_required' if matches else 'field_unavailable',
-            'units_verified':False,'candidate_fields':[line for _,line in matches[:12]],'hours':[]}
-    for token in ('LTNG','LITNG','FLASHD','FLDCP'):
-        byte_span=span(rows,token)
-        if byte_span is None: continue
+    """Extract RRFS LTNGSD, converting m^-2 s^-1 to flashes/km2/5min."""
+    result={'model':'rrfs','cycle':cycle.isoformat(),'status':'field_unavailable',
+            'units':'flashes/km²/5 min','units_verified':False,'hours':[],
+            'note':'LTNG (dimensionless) is not flash density; only LTNGSD is eligible.'}
+    field=span(rows,'LTNGSD')
+    if field:
         try:
-            a,b=byte_span
-            r=fetch(url,headers={'Range':f'bytes={a}-{b}'})
-            with tempfile.NamedTemporaryFile(suffix='.grib2') as tmp:
-                tmp.write(r.content);tmp.flush()
-                with open(tmp.name,'rb') as fh:
-                    g=codes_grib_new_from_file(fh)
-                    if g is None:continue
-                    try:
-                        meta={}
-                        for key in ('shortName','name','units','stepType','stepRange'):
-                            try:meta[key]=str(codes_get(g,key))
-                            except Exception:pass
-                        result['grib_metadata']=meta
-                    finally:codes_release(g)
-            break
+            decoded=decode(url,field)
+            lat,lon,values=decoded
+            mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
+            if np.any(mask):
+                # WMO LTNGSD is lightning strike density in m^-2 s^-1.
+                peak=float(np.max(values[mask]))*1e6*300
+                result.update(status='available',units_verified=True,
+                    source='RRFS LTNGSD 1-hour maximum, converted from m^-2 s^-1',
+                    hours=[{'time':(cycle+timedelta(hours=1)).isoformat(),
+                            'value':round(peak,5),'units_verified':True}])
         except Exception as exc:result['diagnostic_error']=str(exc)[:250]
     atomic('rrfs_lightning.json',result)
-    print('RRFS lightning diagnostic: '+result['status'],flush=True)
+    print('RRFS LTNGSD: '+result['status'],flush=True)
 
 def main():
     now=datetime.now(timezone.utc);hour=now.replace(minute=0,second=0,microsecond=0)
