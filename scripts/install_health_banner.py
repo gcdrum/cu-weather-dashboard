@@ -454,5 +454,37 @@ lightning_patch=r"""\n<script>\nwindow.cuHRRRLightningLevel=function(v){\n if(ty
 if 'window.cuHRRRLightningLevel=' not in html:
     html=html.replace('</body>',lightning_patch+'</body>',1)
 
+# Live Lightning light: use validated native density only; otherwise use corroborated
+# numerical reflectivity/instability and explicitly label that as storm potential.
+# This is an actual tile update, not a cosmetic indicator demo.
+light_update_anchor=" set('Lightning',lightningHit,'V85 corroborated operational lightning screen."
+if light_update_anchor in html and 'cuLightningOperationalV2' not in html:
+    inject=r""" const cuLightningOperationalV2=(()=>{
+   const now=Date.now()-15*60000;
+   const sources=[['hrrr','hrrr_lightning.json'],['rrfs','rrfs_lightning.json']];
+   const candidates=(window.cuLightningDensityForecasts||[]).filter(x=>x&&x.units_verified===true&&x.units==='flashes/km²/5 min'&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
+   const best=candidates.sort((a,b)=>b.value-a.value)[0];
+   const level=best?window.cuHRRRLightningLevel?.(best.value):null;
+   return {best,level};
+ })();
+ if(cuLightningOperationalV2.best&&cuLightningOperationalV2.level){
+   const x=cuLightningOperationalV2.best;
+   threat('Lightning',cuLightningOperationalV2.level.level,
+     x.model.toUpperCase()+' verified native lightning flash density '+x.value+' flashes/km²/5 min, band '+cuLightningOperationalV2.level.band+'.',
+     cuPhaseForTime(Date.parse(x.time)));
+ }else{
+   threat('Lightning',lightningHit?'possible':'waiting',
+     (lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+
+     'Native HRRR/RRFS lightning flash density is not yet verified. '+
+     'No verified native lightning signal; do not interpret missing density as zero.',
+     lightningHit?cuPhaseForTime(lightningHit.ms):{phase:'unknown',label:'AWAITING VERIFIED LIGHTNING DATA'});
+ }
+ """
+    # Replace existing Lightning set call by adding a final overriding tile update
+    # immediately before the Extreme heat tile.
+    target=" set('Extreme heat',first(rows"
+    if target not in html:raise SystemExit('Extreme heat anchor missing')
+    html=html.replace(target,inject+target,1)
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
