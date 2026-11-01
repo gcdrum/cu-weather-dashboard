@@ -3196,6 +3196,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3485,6 +3486,21 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
     ctx.strokeStyle=modelColors[name];ctx.lineWidth=1.6;ctx.globalAlpha=.85;ctx.setLineDash([3,4]);ctx.beginPath();
     data.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
   });
+  // Populate the existing RRFS ingredient lane on the operational canvas.
+  // This is a display-only wind threat lane, not an operational feeder prediction.
+  const rrfsSeries=window.cuFourModelForecast?.rrfs?.points||[];
+  const laneY=535,laneHeight=14;
+  const lanePoints=rrfsSeries.map(p=>({t:Date.parse(p.time),mph:Number(p.gust_mph)})).filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.mph)&&p.t>=first&&p.t<=last);
+  if(lanePoints.length){
+    ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.beginPath();ctx.rect(L,laneY,W-L-R,laneHeight);ctx.clip();
+    for(const p of lanePoints){
+      const width=Math.max(2,3600000/Math.max(1,last-first)*(W-L-R));
+      ctx.fillStyle=p.mph>=60?'#e34462':p.mph>=50?'#ed8550':p.mph>=40?'#e7b54c':p.mph>=30?'#e9d77d':'#426575';
+      ctx.fillRect(x(p.t),laneY,width,laneHeight);
+    }
+    ctx.restore();
+  }
   // RRFS's own wind-only feeder curve, using the same shared time and feeder axes.
   // The model legend is displayed in the adjacent HTML panel, not on the date axis.
   let legend=document.getElementById('cu-ensemble-chart-legend');
@@ -3517,6 +3533,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 
