@@ -103,7 +103,10 @@ def main():
                 try:
                     rows=fields(candidate);url=candidate;break
                 except requests.RequestException:continue
-            if not url:break
+            if not url:
+                errors.append(f'f{lead:03d}: no published RRFS index at any supported path')
+                print('RRFS waiting:', errors[-1], flush=True)
+                break
             gust=sample(decode(url,span(rows,"GUST")))
             ref=sample(decode(url,span(rows,"REFC")))
             u=sample(decode(url,span(rows,"UGRD","10 m above ground")))
@@ -114,9 +117,12 @@ def main():
             newly_decoded += 1
             print(f"RRFS {chosen:%HZ} f{lead:03d} decoded",flush=True)
         except Exception as exc:
-            errors.append(f"f{lead:03d}: {exc}");break
+            errors.append(f"f{lead:03d}: {exc}")
+            print('RRFS decode warning:', errors[-1], flush=True)
+            break
         # Bound each run's new decoding work while allowing incremental catch-up.
         if newly_decoded >= max_new_per_run:break
+    print(f"RRFS {chosen:%HZ}: {len(hours)}/{maxlead} hours available; {newly_decoded} newly decoded; errors={errors[:2]}", flush=True)
     if hours:
         atomic("rrfs_pending.json",{"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),
              "hours":[hours[k] for k in sorted(hours)]})
