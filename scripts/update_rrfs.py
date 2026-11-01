@@ -119,10 +119,11 @@ def main():
             lead,url,rows=future.result()
             if url:indexed[lead]=(url,rows)
     print(f'RRFS index probe: {len(indexed)}/{min(36,len(missing_leads))} missing leads available',flush=True)
+    if missing_leads and not indexed:errors.append('No newly published RRFS hours in current probe window')
     # Keep manual runs bounded, but allow useful catch-up without waiting for
     # several additional dispatches when the NOAA cycle is already published.
     max_new_per_run = 36
-    for lead in range(1,maxlead+1):
+    for lead in sorted(indexed):
         stamp=(chosen+timedelta(hours=lead)).strftime("%Y-%m-%dT%H:%M")
         if stamp in hours:continue
         try:
