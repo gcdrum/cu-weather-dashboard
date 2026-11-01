@@ -28,7 +28,9 @@ jobs:
           if [ $((10#$(date -u +%H) % 3)) -eq 0 ] && [ "$(date -u +%M)" -lt "20" ]; then python scripts/update_reflectivity.py; else echo "GFS skipped (3-hour cadence)"; fi
       - name: Refresh HRRR incrementally (latest REFC first)
         run: python scripts/update_hrrr.py
-      - name: Refresh RRFS independently (non-blocking)\n        run: python scripts/update_rrfs.py || echo 'RRFS unavailable; preserving HRRR/GFS'\n      - name: Validate combined numerical reflectivity
+      - name: Refresh RRFS independently (non-blocking)
+        run: python scripts/update_rrfs.py || echo 'RRFS unavailable; preserving HRRR/GFS'
+      - name: Validate combined numerical reflectivity
         run: |
           python - <<'PYVALID'
           import json
