@@ -85,6 +85,7 @@ def main():
     old=json.loads(previous.read_text()) if previous.exists() else {}
     hours={r["time"]:r for r in old.get("hours",[]) if isinstance(r,dict) and "time" in r} if old.get("cycle")==chosen.isoformat() else {}
     maxlead=84 if chosen.hour%6==0 else 60
+    newly_decoded = 0
     for lead in range(1,maxlead+1):
         stamp=(chosen+timedelta(hours=lead)).strftime("%Y-%m-%dT%H:%M")
         if stamp in hours:continue
@@ -102,10 +103,13 @@ def main():
             wind=[round((a*a+b*b)**.5,2) if a is not None and b is not None else None for a,b in zip(u,v)] if u and v else None
             if gust is None and ref is None and wind is None:raise ValueError("Required fields absent")
             hours[stamp]={"time":stamp,"lead":lead,"gust_ms":gust,"wind_ms":wind,"site_dbz":ref}
+            newly_decoded += 1
             print(f"RRFS {chosen:%HZ} f{lead:03d} decoded",flush=True)
         except Exception as exc:
             errors.append(f"f{lead:03d}: {exc}");break
-        if len(hours)>=6:break
+        # Bound each run's new decoding work while allowing incremental catch-up.
+        # Six hours per run took many runs to complete a cycle; increase to 18.
+        if newly_decoded >= 18:break
     if hours:
         atomic("rrfs_wind.json",{"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),"source":"NOAA operational RRFS 3km 2dfld GRIB2","points":[{"name":n,"lat":y,"lon":x} for n,y,x in POINTS],"hours":[hours[k] for k in sorted(hours)]})
     atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":len(hours),"expected_hours":maxlead,"percent_complete":round(100*len(hours)/maxlead,1),"complete":len(hours)==maxlead,"errors":errors})
