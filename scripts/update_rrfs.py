@@ -89,7 +89,9 @@ def main():
     pending=json.loads(pending_path.read_text()) if pending_path.exists() else {}
     source=old if old.get("cycle")==chosen.isoformat() else pending if pending.get("cycle")==chosen.isoformat() else {}
     hours={r["time"]:r for r in source.get("hours",[]) if isinstance(r,dict) and "time" in r}
-    maxlead=84 if chosen.hour%6==0 else 60
+    # RRFS 3-km 2dfld intermediate 3-hour cycles commonly expose an
+    # 18-hour forecast; do not claim 60 missing hours for those cycles.
+    maxlead=60 if chosen.hour%6==0 else 18
     newly_decoded = 0
     # Keep manual runs bounded, but allow useful catch-up without waiting for
     # several additional dispatches when the NOAA cycle is already published.
