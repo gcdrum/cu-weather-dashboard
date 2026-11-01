@@ -106,6 +106,20 @@ def rrfs_lightning_diagnostic(cycle, url, rows):
                         hours=[{'time':(cycle+timedelta(hours=1)).isoformat(),
                                 'value':round(peak,5),'units_verified':True}])
         except Exception as exc:result['diagnostic_error']=str(exc)[:250]
+    # Merge valid forecast hours from previous cycles, never synthesizing zeros.
+    dest=Path('rrfs_lightning.json')
+    prior=json.loads(dest.read_text()) if dest.exists() else {}
+    merged={}
+    for row in prior.get('hours',[]):
+        if isinstance(row,dict) and row.get('time'):
+            merged[row['time']]=dict(row,source_cycle=row.get('source_cycle',prior.get('cycle','')))
+    for row in result['hours']:
+        merged[row['time']]=dict(row,source_cycle=cycle.isoformat())
+    cutoff=(datetime.now(timezone.utc)-timedelta(hours=1)).isoformat()
+    result['hours']=[merged[k] for k in sorted(merged) if k>=cutoff]
+    result['coverage_policy']='per-valid-hour replacement; older cycle retained until replaced'
+    result['units_verified']=bool(result['hours']) and all(r.get('units_verified') is True for r in result['hours'])
+    if result['hours'] and result['status']!='available':result['status']='retained_previous_cycle'
     atomic('rrfs_lightning.json',result)
     print('RRFS LTNGSD: '+result['status'],flush=True)
 
