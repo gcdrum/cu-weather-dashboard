@@ -293,7 +293,7 @@ def update_lightning_density(cycle, leads, output='hrrr_lightning.json'):
     """Experimental HRRR LTNG/LITNG extraction. Do not convert unknown units."""
     dest=Path(output)
     hours=[]
-    for lead in sorted(leads)[:12]:
+    for lead in sorted(leads)[:24]:
         try:
             root=cycle_root(cycle,lead)
             fields=index_fields(root)
