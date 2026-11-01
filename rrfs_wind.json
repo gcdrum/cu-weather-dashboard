@@ -1,7 +1,7 @@
 {
   "model": "rrfs",
   "cycle": "2026-11-01T21:00:00+00:00",
-  "updated": "2026-11-01T23:44:50.014822+00:00",
+  "updated": "2026-11-01T23:52:36.862878+00:00",
   "source": "NOAA operational RRFS 3km 2dfld GRIB2",
   "points": [
     {

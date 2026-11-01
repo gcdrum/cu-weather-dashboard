@@ -68,5 +68,7 @@
     "localTablesVersion": "1"
   },
   "source": "RRFS LTNGSD; native units unknown",
-  "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced"
+  "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced",
+  "matched_fields": 2,
+  "valid_hours": 0
 }
