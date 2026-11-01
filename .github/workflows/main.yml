@@ -2,7 +2,7 @@ name: NOAA Reflectivity and HRRR Wind Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '7,17,27,37,47,57 * * * *'
+    - cron: '9,19,29,39,49,59 * * * *'
 permissions:
   contents: write
 concurrency:
