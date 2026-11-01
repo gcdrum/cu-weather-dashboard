@@ -3193,6 +3193,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3445,18 +3446,24 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
   const first=Date.parse(c.times[0]+'Z'),last=Date.parse(c.times[c.times.length-1]+'Z');
   const x=t=>L+(t-first)/Math.max(1,last-first)*(W-L-R);
   const points=rows.map(r=>({t:Date.parse(r.time),v:Number(r.feeders)})).filter(r=>Number.isFinite(r.t)&&Number.isFinite(r.v)&&r.t>=first&&r.t<=last).sort((a,b)=>a.t-b.t);
-  if(points.length<2)return;
+  if(points.length>=2){
   ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
   ctx.strokeStyle='#ffb86b';ctx.lineWidth=3;ctx.setLineDash([9,5]);ctx.beginPath();
   points.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
-  // RRFS's own wind-only feeder curve, using the same shared time and feeder axes.
-  const rrfsPoints=rrfs.map(r=>({t:Date.parse(r.time),v:Number(r.feeders)})).filter(r=>Number.isFinite(r.t)&&Number.isFinite(r.v)&&r.t>=first&&r.t<=last).sort((a,b)=>a.t-b.t);
-  if(rrfsPoints.length>=2){
-    ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
-    ctx.strokeStyle='#e7c36c';ctx.lineWidth=2;ctx.setLineDash([3,6]);ctx.beginPath();
-    rrfsPoints.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
   }
-  ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#ffb86b';ctx.font='bold 12px Segoe UI,Arial';ctx.fillText('— — Four-model experimental (orange dashed)',L+12,T+PH+18);ctx.restore();
+  // Overlay each source's wind-only feeder estimate on the SAME time and feeder axes.
+  // These are comparison traces; the existing operational response logic is unchanged.
+  const modelColors={hrrr:'#4db8ff',rrfs:'#e7c36c',gfs:'#8de58a',nam:'#da9bff'};
+  const toFeeders=mph=>mph<30?0:mph<40?(mph-30)*.5:mph<55?5+(mph-40)*2/3:mph<60?15+(mph-55):Math.min(170,20+(mph-60)*2);
+  Object.entries(window.cuFourModelForecast||{}).forEach(([name,model])=>{
+    const data=(model.points||[]).map(p=>({t:Date.parse(p.time),v:toFeeders(Number(p.gust_mph))})).filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.v)&&p.t>=first&&p.t<=last).sort((a,b)=>a.t-b.t);
+    if(data.length<2||!modelColors[name])return;
+    ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
+    ctx.strokeStyle=modelColors[name];ctx.lineWidth=1.6;ctx.globalAlpha=.85;ctx.setLineDash([3,4]);ctx.beginPath();
+    data.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
+  });
+  // RRFS's own wind-only feeder curve, using the same shared time and feeder axes.
+  ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#ffb86b';ctx.font='bold 12px Segoe UI,Arial';ctx.fillText('— — Ensemble orange · HRRR blue · RRFS gold · GFS green · NAM purple (comparison)',L+12,T+PH+18);ctx.restore();
  }
  function installParallelOverlay(){
   if(typeof window.drawForecast!=='function'||window.drawForecast.__cuParallelWrapped)return;
@@ -3483,6 +3490,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 

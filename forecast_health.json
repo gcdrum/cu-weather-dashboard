@@ -1,14 +1,14 @@
 {
-  "checked_at": "2026-11-01T19:43:29.288713+00:00",
+  "checked_at": "2026-11-01T19:48:19.552746+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
       "cycle": "2026-11-01T18:00:00+00:00",
-      "updated": "2026-11-01T19:41:19.975186+00:00",
-      "age_minutes": 2.2,
-      "hours": 26,
+      "updated": "2026-11-01T19:46:29.131040+00:00",
+      "age_minutes": 1.8,
+      "hours": 36,
       "expected_hours": 49,
-      "percent_complete": 40.8,
+      "percent_complete": 49.0,
       "state": "partial",
       "complete": false,
       "errors": [
@@ -17,16 +17,16 @@
     },
     "rrfs": {
       "cycle": "2026-11-01T18:00:00+00:00",
-      "updated": "2026-11-01T19:41:41.799009+00:00",
-      "age_minutes": 1.8,
-      "hours": 13,
+      "updated": "2026-11-01T19:46:49.511343+00:00",
+      "age_minutes": 1.5,
+      "hours": 20,
       "expected_hours": 60,
-      "percent_complete": 21.7,
+      "percent_complete": 33.3,
       "state": "partial",
       "complete": false,
       "errors": [
-        "f014: no published RRFS index at any supported path",
-        "f015: no published RRFS index at any supported path"
+        "f021: no published RRFS index at any supported path",
+        "f022: no published RRFS index at any supported path"
       ]
     }
   }
