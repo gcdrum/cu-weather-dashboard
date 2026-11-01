@@ -961,6 +961,25 @@ function cuScreenHazards(){
      break;
    }
  }
+ const cuMultiModelStormCorroborationV1=(()=>{
+   const now=Date.now()-15*60000;
+   const records=(window.cuNumericalReflectivityV102||[]).filter(r=>['rrfs','gfs','hrrr','nam'].includes(r.model)&&Number.isFinite(Date.parse(r.time))&&Date.parse(r.time)>=now);
+   const groups=new Map();
+   for(const r of records){
+     const local=Number(r.zones?.springfield_area),west=Number(r.zones?.approach_west),upstream=Number(r.zones?.upstream_west);
+     if(![local,west,upstream].some(Number.isFinite))continue;
+     const t=Math.floor(Date.parse(r.time)/3600000)*3600000;
+     const key=r.model+':'+t;
+     groups.set(key,{model:r.model,ms:t,local,west,upstream});
+   }
+   const rows=[...groups.values()].sort((a,b)=>a.ms-b.ms);
+   const capeSupport=ms=>profFuture.some(x=>Math.abs(x.ms-ms)<=90*60000&&cape(x.r)>=500);
+   const shearSupport=ms=>profFuture.some(x=>Math.abs(x.ms-ms)<=90*60000&&cape(x.r)>=500&&shear(x.r)>=30);
+   const lightning=rows.find(x=>capeSupport(x.ms)&&x.local>=35&&[x.west,x.upstream].some(v=>Number.isFinite(v)&&v>=35));
+   const qlcs=rows.find(x=>shearSupport(x.ms)&&x.local>=35&&x.west>=35&&x.upstream>=35&&rows.some(y=>y!==x&&y.model===x.model&&y.ms>x.ms&&y.ms<=x.ms+2*3600000&&y.local>=35&&y.west>=35));
+   return {lightning,qlcs,available:rows.length>0,models:[...new Set(rows.map(x=>x.model))]};
+ })();
+  if(!lightningHit&&cuMultiModelStormCorroborationV1.lightning){const x=cuMultiModelStormCorroborationV1.lightning;lightningHit={ms:x.ms};lightningWhy=x.model.toUpperCase()+' numerical local and upstream reflectivity ≥35 dBZ with CAPE ≥500 J/kg (storm potential; not observed lightning)';}
  set('Lightning',lightningHit,'V85 corroborated operational lightning screen. The tile requires a derived thunderstorm weather code with simultaneous modeled precipitation, CAPE ≥500 J/kg within ±90 minutes, and either ≥2 CU sample points indicating thunderstorm in the same interval or persistence into an adjacent interval. Precipitation+CAPE alone and a single isolated thunderstorm-code hit remain BELOW THRESHOLD. '+(lightningHit?'Qualified because '+lightningWhy+'.':'No forecast interval currently meets the corroborated threshold.')+' This remains thunderstorm/lightning potential, not native HRRR lightning probability or flash-density guidance.');
  set('Extreme heat',first(rows,r=>r.tempMax>=100),'Automated temperature screen. Possible at modeled 2 m temperature ≥100°F.');
  set('Extreme cold',first(rows,r=>r.tempMin<=10),'Automated temperature screen. Possible at modeled 2 m temperature ≤10°F.');
@@ -978,7 +997,8 @@ function cuScreenHazards(){
  const hail=first(pr,r=>cape(r)>=1000 && shear(r)>=25);
  set('Large hail',hail,'Environmental screen: Possible when CAPE ≥1000 J/kg and 0–6 km shear ≥25 kt. Freezing-level/updraft diagnostics are not fully represented.');
  const qlcs=first(pr,r=>cape(r)>=500 && shear(r)>=30);
- set('QLCS',qlcs,'Organization-support screen: Possible when CAPE ≥500 J/kg and 0–6 km shear ≥30 kt. Reflectivity line structure is not diagnosed here, so this is environmental support rather than QLCS identification.');
+ const modelLine=cuMultiModelStormCorroborationV1.qlcs;
+ set('QLCS',qlcs||(modelLine?{ms:modelLine.ms}:null),'Organization-support screen: CAPE ≥500 J/kg and 0–6 km shear ≥30 kt. '+(modelLine?'Corroborating '+modelLine.model.toUpperCase()+' local/west/upstream ≥35 dBZ over adjacent forecast hours; possible organized convection, not confirmed QLCS.':'No corroborated multi-zone persistent line detected. Environmental support alone is not proof of QLCS.'));
  const der=first(pr,r=>cape(r)>=1000 && shear(r)>=35);
  set('Derecho',der,'Organization-support screen only: Possible when CAPE ≥1000 J/kg and 0–6 km shear ≥35 kt. A derecho requires an observed/forecast long-track damaging-wind swath; this panel cannot diagnose that from ingredients alone.');
 }
@@ -3211,6 +3231,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3601,4 +3622,5 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
-</body></html>
+
+\n<script>\nwindow.cuHRRRLightningLevel=function(v){\n if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};\n const band=v<=0.1?0:v<=0.3?1:v<=1?2:v<=3?3:v<=6?4:5;\n return {level:['none','possible','possible','elevated','likely','extreme'][band],band:band+1,units:'flashes/km²/5 min'};\n};\n</script>\n</body></html>
