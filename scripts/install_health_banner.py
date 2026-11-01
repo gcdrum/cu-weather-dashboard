@@ -8,6 +8,7 @@ snippet = r"""
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
+ let testModel=null;
  const esc=s=>String(s??'?').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
  function host(){
   let el=document.getElementById(id);
@@ -65,7 +66,7 @@ snippet = r"""
    const browserPlot=(name,color)=>(browserCache[name]?.rows||[]).map(h=>({time:Date.parse(String(h.time).endsWith('Z')?h.time:h.time+'Z'),value:Number(h.max),color})).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)).sort((a,b)=>a.time-b.time);
    // Explicit simulation is opt-in via ?cu_test_failover=hrrr or rrfs.
    // This changes only this comparison panel, never ingestion or outage predictions.
-   const testModel=new URLSearchParams(location.search).get('cu_test_failover');
+   if(testModel===null){try{testModel=new URLSearchParams(location.search).get('cu_test_failover')||'off';}catch(e){testModel='off';}}
    const simulated=['hrrr','rrfs'].includes(testModel)?testModel:null;
    for(const [name,idx,color] of [['hrrr',0,'#4db8ff'],['rrfs',1,'#f5b95e']]){
      const m=health.models?.[name]||{};
@@ -120,13 +121,15 @@ snippet = r"""
      const coverageNote=(name==='hrrr'||name==='rrfs')&&end<near+48*3600000?' <span style="color:#f2c76e">(limited horizon)</span>':'';
      return '<tr><td>'+name.toUpperCase()+coverageNote+'</td><td>'+peak.value.toFixed(1)+' mph</td><td>'+tier+'</td><td>'+new Date(peak.time).toISOString().slice(5,16).replace('T',' ')+'Z</td></tr>';
    }).join('');
+   const testControls='<div style="margin-top:12px"><strong>Failover simulation (comparison only)</strong><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button data-cu-test="hrrr">Test HRRR</button><button data-cu-test="rrfs">Test RRFS</button><button data-cu-test="off">End test</button></div><small>Simulation: '+(simulated||'off')+'. Does not alter NOAA ingestion.</small></div>';
    const anyFailover=names.some(name=>sourceState[name].label==='OPEN-METEO FAILOVER');
    const failoverBanner=anyFailover?'<div role="status" style="margin-top:12px;padding:9px;border:1px solid #e8b75a;border-radius:7px;color:#ffdf99;font-weight:700">⚠ OPEN-METEO FAILOVER ACTIVE'+(simulated?' — SIMULATION ONLY':'')+'</div>':'';
    const sourceTable='<div style="margin-top:12px"><strong>Forecast data source</strong><div style="font-size:12px;color:#b7c8d2">Source selection and fallback status for this comparison (not yet the main outage engine).</div>'+names.map(name=>{const st=sourceState[name];const color=st.label==='NOAA DIRECT'?'#72d6a5':st.label==='UNAVAILABLE'?'#f5a06a':'#f2c76e';return '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-size:12px"><strong>'+name.toUpperCase()+'</strong><span style="color:'+color+'">'+st.label+'</span></div><div style="font-size:11px;color:#b7c8d2">'+st.reason+'</div>';}).join('')+'</div>';
    const riskTable='<div style="margin-top:14px"><strong>Four-model wind threat screening</strong><div style="font-size:12px;color:#b7c8d2">Peak gust within each model’s available horizon; peaks are not directly comparable when forecast periods differ. Wind-only screening, not a calibrated feeder-outage forecast. Convective reflectivity risk is evaluated separately.</div><div style="overflow-x:auto;margin-top:8px"><table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left"><thead><tr><th>Model</th><th>Peak gust</th><th>Threat</th><th>Peak UTC</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
    const chartEl=document.getElementById('cu-decoded-gust-chart');
    const availability=liveModels.map(([name])=>name.toUpperCase()+': '+coverage[name].hours+' hours ('+coverage[name].source+')').join(' · ');
-   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+failoverBanner+sourceTable+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM forecast availability: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
+   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+failoverBanner+sourceTable+testControls+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM forecast availability: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
+   if(chartEl)chartEl.querySelectorAll('[data-cu-test]').forEach(btn=>btn.addEventListener('click',()=>{testModel=btn.dataset.cuTest;refresh();}));
   }catch(e){el.textContent='⚠ NOAA model health unavailable: '+e.message;}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
