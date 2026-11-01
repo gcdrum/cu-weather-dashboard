@@ -195,9 +195,16 @@ def main():
     records=[bylead[k] for k in sorted(bylead)]
     # Merge atomically, preserving GFS and never replacing newer/same-cycle coverage with less.
     others=[r for r in existing if isinstance(r,dict) and r.get('model')!='hrrr']
-    combined=sorted(others+records,key=lambda r:(r['time'],r['model']))
-    atomic_json(dest,combined)
-    print(f'Published HRRR {chosen:%Y-%m-%d %HZ}: {len(records)} reflectivity hours (f{max(bylead):02d} max); previous {len(same)}',flush=True)
+    # Do not publish a sparse new cycle over a more useful prior cycle.
+    # A future revision should persist candidate cycles separately until complete.
+    prior_count=len(old) if old_cycle!=chosen.isoformat() else 0
+    if prior_count and len(records)<prior_count:
+        print(f'HRRR {chosen:%HZ} reflectivity pending: retaining {old_cycle} '
+              f'({prior_count} hours versus {len(records)} new)',flush=True)
+    else:
+        combined=sorted(others+records,key=lambda r:(r['time'],r['model']))
+        atomic_json(dest,combined)
+        print(f'Published HRRR {chosen:%Y-%m-%d %HZ}: {len(records)} reflectivity hours (f{max(bylead):02d} max); previous {len(same)}',flush=True)
 
     # Wind decoding is independent and optional. Keep the last usable wind cache on failure.
     windpath=Path('hrrr_wind.json')
