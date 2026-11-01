@@ -3198,6 +3198,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3511,6 +3512,12 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
   if(!provenance){provenance=document.createElement('div');provenance.id='cu-model-run-provenance';canvas.insertAdjacentElement('afterend',provenance);}
   provenance.style.cssText='display:flex;flex-wrap:wrap;gap:8px 18px;padding:6px 12px;color:#e3ebef;font:12px Segoe UI,Arial,sans-serif';
   provenance.textContent='NAM: Open-Meteo (run not supplied) | RRFS: '+(window.cuRRFSRunLabel||'?')+' NOAA | HRRR: '+(window.cuHRRRRunLabel||'?')+' NOAA';
+  // Keep run provenance visible on narrow screens, independently of canvas labels.
+  provenance.style.cssText+=';max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;line-height:1.5';
+  let runStrip=document.getElementById('cu-model-run-strip');
+  if(!runStrip){runStrip=document.createElement('div');runStrip.id='cu-model-run-strip';canvas.insertAdjacentElement('beforebegin',runStrip);}
+  runStrip.style.cssText='display:flex;flex-wrap:wrap;gap:5px 12px;padding:7px 10px;max-width:100%;box-sizing:border-box;color:#e5edf2;background:#22333d;font:12px Segoe UI,Arial,sans-serif;border-radius:6px';
+  runStrip.textContent='GFS: Open-Meteo (run unverified) · NAM: Open-Meteo (run unverified) · HRRR: '+(window.cuHRRRRunLabel||'?')+' NOAA · RRFS: '+(window.cuRRFSRunLabel||'?')+' NOAA';
   // The model legend is displayed in the adjacent HTML panel, not on the date axis.
   let legend=document.getElementById('cu-ensemble-chart-legend');
   if(!legend){legend=document.createElement('div');legend.id='cu-ensemble-chart-legend';canvas.insertAdjacentElement('afterend',legend);}
@@ -3542,6 +3549,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 
