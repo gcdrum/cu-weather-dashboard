@@ -122,7 +122,10 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
                 continue
             lat,lon,values=decode(url,field)
             mask=(lat>=36.85)&(lat<=37.65)&(lon>=-94.2)&(lon<=-92.8)&np.isfinite(values)&(values>=0)
-            if not np.any(mask):continue
+            if not np.any(mask):
+                result.setdefault('sample_diagnostics',[]).append({'lead':lead,'level':meta.get('level'),'grid_points':int(len(values)),'finite':int(np.count_nonzero(np.isfinite(values))),'latitude_range':[float(np.nanmin(lat)),float(np.nanmax(lat))],'longitude_range':[float(np.nanmin(lon)),float(np.nanmax(lon))],'nonnegative_in_area':0})
+                continue
+            result.setdefault('sample_diagnostics',[]).append({'lead':lead,'level':meta.get('level'),'nonnegative_in_area':int(np.count_nonzero(mask)),'native_peak':float(np.max(values[mask]))})
             peak=float(np.max(values[mask]))*factor
             result.update(status='available',units_verified=True,
                 grib_metadata=meta,source='RRFS LTNGSD; native units '+meta.get('units',''),
