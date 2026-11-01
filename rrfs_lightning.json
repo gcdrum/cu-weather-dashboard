@@ -53,6 +53,14 @@
     }
   ],
   "units_basis": "GRIB2 0-17-0: m^-2 s^-1 (1-hour maximum); 5-min equivalent rate",
+  "sample_diagnostics": [
+    {
+      "lead": 1,
+      "level": "1",
+      "nonnegative_in_area": 1225,
+      "native_peak": 0.0
+    }
+  ],
   "grib_metadata": {
     "shortName": "unknown",
     "name": "unknown",
