@@ -486,5 +486,11 @@ if light_update_anchor in html and 'cuLightningOperationalV2' not in html:
     if target not in html:raise SystemExit('Extreme heat anchor missing')
     html=html.replace(target,inject+target,1)
 
+# Fetch published lightning data into the existing live threat-light controller.
+# A partial newer cycle cannot turn missing hours into zero-valued forecasts.
+light_fetch_patch=r"""\n<script>\nwindow.cuLightningDensityForecasts=[];\n(async()=>{\n const all=[];\n for(const [model,file] of [['hrrr','hrrr_lightning.json'],['rrfs','rrfs_lightning.json']]){\n  try{\n   const response=await fetch(file+'?t='+Date.now(),{cache:'no-store'});\n   if(!response.ok)continue;\n   const data=await response.json();\n   if(!Array.isArray(data.hours))continue;\n   for(const h of data.hours){\n    if(h.units_verified!==true||!Number.isFinite(h.value))continue;\n    all.push({model,time:h.time,value:h.value,units:'flashes/km²/5 min',\n      units_verified:true,source_cycle:h.source_cycle||data.cycle});\n   }\n  }catch(e){console.warn('Lightning data load',model,e)}\n }\n window.cuLightningDensityForecasts=all;\n try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}\n})();\n</script>\n"""
+if 'window.cuLightningDensityForecasts=[]' not in html:
+    html=html.replace('</body>',light_fetch_patch+'</body>',1)
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
