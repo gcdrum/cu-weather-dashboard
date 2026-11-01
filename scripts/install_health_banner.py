@@ -381,10 +381,22 @@ replacement = """ const verifiedCycle=(label,fallback)=>/^\\d{2}Z$/.test(label||
   'HRRR '+verifiedCycle(window.cuHRRRRunLabel,noaaCycleLabel('hrrr')),
   'RRFS '+verifiedCycle(window.cuRRFSRunLabel,'—')
  ];"""
+# Idempotent migration: existing deployments already have the first label fix.
+previous = """ const verifiedCycle=(label,fallback)=>/^\\d{2}Z$/.test(label||'')?label:fallback;
+ const laneLabels=[
+  'GFS '+noaaCycleLabel('gfs'),
+  'NAM* API',
+  'HRRR '+verifiedCycle(window.cuHRRRRunLabel,noaaCycleLabel('hrrr')),
+  'RRFS '+verifiedCycle(window.cuRRFSRunLabel,'—')
+ ];"""
 if original in html:
     html=html.replace(original,replacement,1)
-elif replacement not in html:
-    raise SystemExit('Original operational canvas lane labels not found; refusing silent success')
+elif previous in html:
+    html=html.replace(previous,replacement,1)
+elif replacement in html:
+    pass  # Already updated; safe on every scheduled workflow run.
+else:
+    raise SystemExit('Operational canvas lane labels changed unexpectedly; refusing silent success')
 
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
