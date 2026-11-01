@@ -337,6 +337,9 @@ snippet = r"""
   wrapped.__cuParallelWrapped=true;window.drawForecast=wrapped;
  }
  installParallelOverlay();
+ // The operational chart is often initialized asynchronously after this script.
+ // Retry the hook and refresh labels even when the chart is not in live mode.
+ setInterval(()=>{installParallelOverlay();showRRFSBar();},2000);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
  setInterval(refresh,60000);
  // The Open-Meteo GFS/NAM requests finish asynchronously after page load.
