@@ -3185,6 +3185,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3346,6 +3347,21 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    const convectivePoints=activeWindows.map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ff9a36'}));
    const convectiveMarkers=activeWindows.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+activeWindows.map(x=>'<span style="border:1px solid #a8753c;border-radius:5px;padding:4px 6px;color:#ffd096;font-size:11px">'+esc(x.time.slice(5,16).replace('T',' ')+'Z')+' · '+esc(x.convective_models.join('+').toUpperCase())+' · '+Number(x.local_reflectivity_dbz).toFixed(0)+' dBZ</span>').join('')+'</div>':'';
    window.cuExperimentalOutageTimeline=convectiveWindows;
+   // Parallel integration in the MAIN forecast panel, not the production engine.
+   const mainChart=document.querySelector('.forecast-chart');
+   if(mainChart){
+     let parallel=document.getElementById('cu-parallel-forecast');
+     if(!parallel){parallel=document.createElement('section');parallel.id='cu-parallel-forecast';parallel.setAttribute('aria-label','Parallel four-model outage forecast');parallel.style.cssText='margin:10px 12px;padding:12px;border:1px solid #ad8650;border-radius:9px;background:#1b2d35;color:#f0f4f6;font:12px system-ui,sans-serif';const bar=mainChart.querySelector('#chart-mode-bar');if(bar)bar.insertAdjacentElement('afterend',parallel);else mainChart.prepend(parallel);}
+     const valid=convectiveWindows.filter(x=>x.model_count>=2);
+     const peak=valid.length?valid.reduce((a,b)=>b.estimated_feeders>a.estimated_feeders?b:a):null;
+     const conv=convectiveWindows.filter(x=>x.convective_models.length);
+     const agreement=peak?peak.model_count:0;
+     const confidence=agreement>=4?'4 models':agreement===3?'3 models':agreement===2?'2 models':'Insufficient';
+     const preview=valid.map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
+     const bands=conv.map(x=>({start:Date.parse(x.time)-30*60000,end:Date.parse(x.time)+30*60000}));
+     parallel.innerHTML='<div style="font-weight:700;font-size:14px">Four-model parallel forecast <span style="font-size:11px;color:#ffcf8c">(EXPERIMENTAL · not operational)</span></div><div style="margin:5px 0;color:#c3d4dc">NOAA HRRR/RRFS + Open-Meteo coverage supplementation; GFS/NAM from Open-Meteo. Original calculated forecast and response stages are unchanged.</div>'+(peak?'<div style="margin:6px 0"><b>Peak wind-only estimate:</b> '+peak.estimated_feeders.toFixed(1)+' feeders · '+esc(peak.time.slice(5,16).replace('T',' ')+'Z')+' · '+confidence+' available at peak</div>':'<div>Insufficient multi-model coverage for feeder estimate</div>')+chart([preview],10,bands)+'<div style="color:#f7be75">■ Shaded: local ≥35 dBZ convection · '+conv.length+' screened hours; '+conv.filter(x=>x.convective_models.length>=2).length+' with multi-model support</div><div style="color:#b9cbd4;margin-top:5px">No convective feeder increment. Forecast is shown alongside the main model for validation, not substituted into the operational prediction.</div>';
+   }
+
    const consensusSeries=consensus.filter(x=>x.model_count>=2).map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
    const convectiveBands=activeWindows.map(x=>({start:Date.parse(x.time)-30*60000,end:Date.parse(x.time)+30*60000}));
    const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart([consensusSeries],10,convectiveBands)+'<div style="color:#ffbd74;font-size:12px">■ Shaded orange: local ≥35 dBZ convective screening (not additional feeder outages)</div>'+convectivePanel+convectiveMarkers+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
@@ -3389,6 +3405,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 
