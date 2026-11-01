@@ -225,6 +225,9 @@ def main():
     atomic_json('hrrr_status.json',{'cycle':chosen.isoformat(),'updated':now.isoformat(),
                 'hours':len(records),'expected_hours':maxlead+1,
                 'last_lead':max(bylead),'wind_hours':len(wind_hours),
-                'complete':len(records)==maxlead+1,'percent_complete':round(100*len(records)/(maxlead+1),1),'errors':errors})
+                'complete':len(records)==maxlead+1 and len(wind_hours)==maxlead+1,
+                'reflectivity_complete':len(records)==maxlead+1,
+                'wind_complete':len(wind_hours)==maxlead+1,
+                'percent_complete':round(100*min(len(records),len(wind_hours))/(maxlead+1),1),'errors':errors})
 
 if __name__=='__main__':main()
