@@ -93,6 +93,7 @@ def main():
     # 18-hour forecast; do not claim 60 missing hours for those cycles.
     maxlead=60 if chosen.hour%6==0 else 18
     newly_decoded = 0
+    missing_streak = 0
     # Keep manual runs bounded, but allow useful catch-up without waiting for
     # several additional dispatches when the NOAA cycle is already published.
     max_new_per_run = 36
@@ -110,8 +111,10 @@ def main():
                 print('RRFS waiting:', errors[-1], flush=True)
                 # A missing lead may be a publication gap; try subsequent hours
                 # before concluding the entire forecast cycle is exhausted.
-                if lead < min(maxlead, 36):
+                missing_streak += 1
+                if missing_streak < 2:
                     continue
+                print('RRFS stopping after two consecutive unpublished forecast hours', flush=True)
                 break
             gust=sample(decode(url,span(rows,"GUST")))
             ref=sample(decode(url,span(rows,"REFC")))
@@ -120,6 +123,7 @@ def main():
             wind=[round((a*a+b*b)**.5,2) if a is not None and b is not None else None for a,b in zip(u,v)] if u and v else None
             if gust is None and ref is None and wind is None:raise ValueError("Required fields absent")
             hours[stamp]={"time":stamp,"lead":lead,"gust_ms":gust,"wind_ms":wind,"site_dbz":ref}
+            missing_streak = 0
             newly_decoded += 1
             print(f"RRFS {chosen:%HZ} f{lead:03d} decoded",flush=True)
         except Exception as exc:
