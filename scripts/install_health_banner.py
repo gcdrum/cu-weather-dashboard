@@ -65,7 +65,7 @@ snippet = r"""
    const browserCache=window.cuSurfaceWindCache||{};
    let published={};
    try { published=(await get('model_winds.json')).models||{}; } catch(e) {}
-   window.cuNAMRunLabel=published.nam?.cycle_verified&&/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}Z$/.test(published.nam.cycle||'')?published.nam.cycle.slice(11,13)+'Z':'API';
+   window.cuNAMRunLabel=published.nam?.cycle_verified&&Number.isFinite(Date.parse(published.nam.cycle||''))?published.nam.cycle.slice(11,13)+'Z':'API';
    const sourceState={};
    const fallbackPlot=(name,color)=>{
      const data=published[name];
