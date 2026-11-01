@@ -3170,6 +3170,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3224,9 +3225,27 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
      const rows=Array.isArray(record?.rows)?record.rows:[];
      series.push(rows.map(h=>({time:Date.parse(String(h.time).endsWith('Z')?h.time:h.time+'Z'),value:Number(h.max),color})).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)).sort((a,b)=>a.time-b.time));
    }
+   // Publish normalized four-model gust data for other dashboard components.
+   // Keep the existing outage engine untouched until numerical and convective calibration is validated.
+   const names=['hrrr','rrfs','gfs','nam'];
+   window.cuFourModelForecast=Object.fromEntries(names.map((name,i)=>[name,{
+     source:i<2?'NOAA decoded GRIB':'Open-Meteo browser sample',
+     points:series[i].map(p=>({time:new Date(p.time).toISOString(),gust_mph:p.value})),
+     available:series[i].length>0
+   }]));
+   const feederSignal=mph=>{const x=Math.max(0,(mph-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1));};
+   const near=Date.now()-3600000;
+   const rows=names.map((name,i)=>{
+     const future=series[i].filter(p=>p.time>=near);
+     if(!future.length)return '<tr><td>'+name.toUpperCase()+'</td><td colspan="3">Unavailable</td></tr>';
+     const peak=future.reduce((a,b)=>b.value>a.value?b:a);
+     const tier=peak.value>=60?'Extreme':peak.value>=50?'Likely':peak.value>=40?'Possible Elevated':peak.value>=30?'Possible':'Below threshold';
+     return '<tr><td>'+name.toUpperCase()+'</td><td>'+peak.value.toFixed(1)+' mph</td><td>'+tier+'</td><td>'+new Date(peak.time).toISOString().slice(5,16).replace('T',' ')+'Z</td></tr>';
+   }).join('');
+   const riskTable='<div style="margin-top:14px"><strong>Four-model wind threat screening</strong><div style="font-size:12px;color:#b7c8d2">Peak 12-site gust by model. Wind-only threshold screening; not a calibrated feeder-outage forecast. Convective reflectivity risk is evaluated separately.</div><div style="overflow-x:auto;margin-top:8px"><table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left"><thead><tr><th>Model</th><th>Peak gust</th><th>Threat</th><th>Peak UTC</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
    const chartEl=document.getElementById('cu-decoded-gust-chart');
    const availability=liveModels.map(([name])=>name.toUpperCase()+': '+(browserCache[name]?.rows?.length||0)+' hours').join(' · ');
-   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM via existing Open-Meteo browser sampling: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
+   if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM via existing Open-Meteo browser sampling: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
   }catch(e){el.textContent='⚠ NOAA model health unavailable: '+e.message;}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
@@ -3247,6 +3266,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  },10000);
 })();
 </script>
+
 
 
 

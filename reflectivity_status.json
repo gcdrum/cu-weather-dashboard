@@ -2,21 +2,13 @@
   "status": "partial",
   "model": "gfs",
   "cycle": "2026-11-01T06:00:00+00:00",
-  "updated": "2026-11-01T15:13:32.815761+00:00",
-  "record_count": 28,
+  "updated": "2026-11-01T15:19:36.093375+00:00",
+  "record_count": 36,
   "errors": [
     "f075: No valid dBZ values in requested region",
     "f084: No valid dBZ values in requested region",
     "f090: No valid dBZ values in requested region",
     "f093: No valid dBZ values in requested region",
-    "f096: No valid dBZ values in requested region",
-    "f099: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl",
-    "f102: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl",
-    "f105: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl",
-    "f108: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl",
-    "f111: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl",
-    "f114: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl",
-    "f117: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl",
-    "f120: NOAA response is not a GRIB2 field: <!doctype html>\n    <html>\n    <head>\n        <title>Over Rate Limit</title>\n        <styl"
+    "f096: No valid dBZ values in requested region"
   ]
 }

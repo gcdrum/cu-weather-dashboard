@@ -1,7 +1,7 @@
 {
   "model": "hrrr",
   "cycle": "2026-11-01T14:00:00+00:00",
-  "updated": "2026-11-01T15:13:40.757799+00:00",
+  "updated": "2026-11-01T15:19:43.408195+00:00",
   "source": "NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)",
   "points": [
     {
@@ -437,10 +437,103 @@
         2.93,
         3.92
       ]
+    },
+    {
+      "time": "2026-11-02T02:00",
+      "gust_ms": [
+        8.95,
+        8.63,
+        7.88,
+        8.51,
+        7.95,
+        7.2,
+        7.88,
+        7.76,
+        7.7,
+        7.57,
+        7.88,
+        8.13
+      ],
+      "wind_ms": [
+        4.48,
+        3.88,
+        4.32,
+        4.7,
+        3.8,
+        2.81,
+        3.84,
+        3.5,
+        2.86,
+        3.28,
+        3.41,
+        4.79
+      ]
+    },
+    {
+      "time": "2026-11-02T03:00",
+      "gust_ms": [
+        8.62,
+        8.43,
+        8.18,
+        8.24,
+        7.62,
+        7.24,
+        7.68,
+        7.49,
+        7.56,
+        7.49,
+        7.81,
+        7.62
+      ],
+      "wind_ms": [
+        4.92,
+        3.97,
+        4.44,
+        4.55,
+        3.5,
+        3.03,
+        3.61,
+        3.31,
+        3.25,
+        2.91,
+        3.43,
+        4.47
+      ]
+    },
+    {
+      "time": "2026-11-02T04:00",
+      "gust_ms": [
+        9.22,
+        8.97,
+        8.41,
+        8.66,
+        8.28,
+        7.66,
+        8.22,
+        8.03,
+        8.09,
+        8.03,
+        8.16,
+        8.16
+      ],
+      "wind_ms": [
+        4.95,
+        3.92,
+        4.36,
+        4.67,
+        3.78,
+        3.07,
+        3.88,
+        3.74,
+        3.59,
+        3.76,
+        3.81,
+        4.63
+      ]
     }
   ],
   "errors": [
     "15Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t15z.wrfsfcf00.grib2.idx",
-    "f12 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t14z.wrfsfcf12.grib2.idx"
+    "f15 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t14z.wrfsfcf15.grib2.idx"
   ]
 }
