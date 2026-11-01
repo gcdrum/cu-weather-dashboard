@@ -234,14 +234,21 @@ def main():
     others=[r for r in existing if isinstance(r,dict) and r.get('model')!='hrrr']
     # Do not publish a sparse new cycle over a more useful prior cycle.
     # A future revision should persist candidate cycles separately until complete.
-    prior_count=len(old) if old_cycle!=chosen.isoformat() else 0
-    if prior_count and len(records)<prior_count:
-        print(f'HRRR {chosen:%HZ} reflectivity pending: retaining {old_cycle} '
-              f'({prior_count} hours versus {len(records)} new)',flush=True)
-    else:
-        combined=sorted(others+records,key=lambda r:(r['time'],r['model']))
-        atomic_json(dest,combined)
-        print(f'Published HRRR {chosen:%Y-%m-%d %HZ}: {len(records)} reflectivity hours (f{max(bylead):02d} max); previous {len(same)}',flush=True)
+    # Retain previous-cycle reflectivity for valid hours not supplied by new run.
+    # Each hour retains its actual cycle; missing forecast hours are never zeroed.
+    merged={}
+    for row in old:
+        if isinstance(row,dict) and row.get('time'):
+            merged[row['time']]=dict(row,source_cycle=row.get('source_cycle',row.get('cycle','')))
+    for row in records:
+        if isinstance(row,dict) and row.get('time'):
+            merged[row['time']]=dict(row,source_cycle=chosen.isoformat())
+    cutoff=(now-timedelta(hours=1)).isoformat()
+    retained=[merged[k] for k in sorted(merged) if k>=cutoff]
+    combined=sorted(others+retained,key=lambda r:(r['time'],r['model']))
+    atomic_json(dest,combined)
+    print(f'Published HRRR reflectivity {len(records)} current-cycle hours; '
+          f'{len(retained)-len(records)} previous-cycle hours retained',flush=True)
 
     # Wind decoding is independent and optional. Keep the last usable wind cache on failure.
     windpath=Path('hrrr_wind.json')
