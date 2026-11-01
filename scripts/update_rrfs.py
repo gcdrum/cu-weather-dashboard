@@ -91,6 +91,9 @@ def main():
     hours={r["time"]:r for r in source.get("hours",[]) if isinstance(r,dict) and "time" in r}
     maxlead=84 if chosen.hour%6==0 else 60
     newly_decoded = 0
+    # Keep manual runs bounded, but allow useful catch-up without waiting for
+    # several additional dispatches when the NOAA cycle is already published.
+    max_new_per_run = 36
     for lead in range(1,maxlead+1):
         stamp=(chosen+timedelta(hours=lead)).strftime("%Y-%m-%dT%H:%M")
         if stamp in hours:continue
@@ -113,8 +116,7 @@ def main():
         except Exception as exc:
             errors.append(f"f{lead:03d}: {exc}");break
         # Bound each run's new decoding work while allowing incremental catch-up.
-        # Six hours per run took many runs to complete a cycle; increase to 18.
-        if newly_decoded >= 18:break
+        if newly_decoded >= max_new_per_run:break
     if hours:
         atomic("rrfs_pending.json",{"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),
              "hours":[hours[k] for k in sorted(hours)]})
