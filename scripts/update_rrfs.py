@@ -73,7 +73,8 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
             'note':'LTNG (dimensionless) is not flash density; only LTNGSD is eligible.'}
     # Probe both documented height variants; unknown ecCodes parameter names
     # are diagnostic only, never grounds for assuming a density conversion.
-    matches=[(lead,url,rows,i,line) for lead,(url,rows) in sorted(indexed_urls.items())\n             for i,(_,line) in enumerate(rows) if ':LTNGSD:' in line]
+    matches=[(lead,url,rows,i,line) for lead,(url,rows) in sorted(indexed_urls.items())
+             for i,(_,line) in enumerate(rows) if ':LTNGSD:' in line]
     result['index_matches']=[{'lead':lead,'line':line[:280]} for lead,_,_,_,line in matches[:60]]
     result['field_variants']=[]
     for lead,url,rows,i,line in matches[:36]:
@@ -97,7 +98,8 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
                             try:meta[key]=str(codes_get(g,key))
                             except Exception:pass
                     finally:codes_release(g)
-            if not any(v.get('index')==line[:280] for v in result['field_variants']):\n                result['field_variants'].append({'index':line[:280],'metadata':meta})
+            if not any(v.get('index')==line[:280] for v in result['field_variants']):
+                result['field_variants'].append({'index':line[:280],'metadata':meta})
             unit=meta.get('units','').replace(' ','').lower()
             factor={'m-2s-1':300000000.0,'m**-2s**-1':300000000.0,
                     '1/m2/s':300000000.0,'m^-2s^-1':300000000.0,
