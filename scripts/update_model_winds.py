@@ -18,7 +18,7 @@ POINTS = [
     ("SE",37.155,-93.220),("Far South / West",37.095,-93.405),
     ("Far South / Central",37.088,-93.300),("Far South / East",37.095,-93.220)
 ]
-MODELS = {"gfs":("gfs_global",7), "nam":("ncep_nam_conus",3)}
+MODELS = {"gfs":("gfs_global",7), "nam":("ncep_nam_conus",3), "hrrr":("ncep_hrrr_conus",2), "rrfs":("ncep_rrfs_conus",3)}
 URL = "https://api.open-meteo.com/v1/gfs"
 OUT = Path("model_winds.json")
 
@@ -78,7 +78,7 @@ def main():
     for name,(api,days) in MODELS.items():
         try:
             result=build(name,api)
-            if result["successful_points"]<6 or len(result["hours"])<12:
+            if result["successful_points"]<9 or len(result["hours"])<12:
                 raise ValueError(f"Insufficient coverage: {result['successful_points']} sites, {len(result['hours'])} hours")
             existing["models"][name]=result
             print(f"{name.upper()}: {len(result['hours'])} hours / {result['successful_points']} sites")
