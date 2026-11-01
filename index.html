@@ -3072,4 +3072,42 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,2000)});
 })();
 </script>
+<script>
+/* CU RRFS live comparison: NOAA-published data, display-only until validated. */
+(function(){
+ const MPH=2.2369362921;
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function max(a){return Array.isArray(a)?Math.max(...a.filter(Number.isFinite),0):0}
+ async function refreshRRFS(){
+  const card=document.getElementById('cu-live-rrfs');
+  const diag=document.getElementById('rrfs94-diag');
+  if(!card)return;
+  try{
+   const [dr,sr]=await Promise.all([fetch('./rrfs_wind.json?ts='+Date.now(),{cache:'no-store'}),fetch('./rrfs_status.json?ts='+Date.now(),{cache:'no-store'})]);
+   if(!dr.ok||!sr.ok)throw Error('RRFS data not yet published');
+   const data=await dr.json(),status=await sr.json();
+   if(data.model!=='rrfs'||!Array.isArray(data.hours)||!Array.isArray(data.points)||data.points.length!==12)throw Error('Unexpected RRFS data structure');
+   const age=(Date.now()-Date.parse(data.cycle))/3600000;
+   if(!Number.isFinite(age)||age<0||age>12)throw Error('RRFS cycle stale ('+Math.round(age)+'h old)');
+   const rows=data.hours.map(h=>({time:h.time,peak:max(h.gust_ms)*MPH,dbz:max(h.site_dbz)}));
+   const peak=rows.reduce((a,b)=>b.peak>a.peak?b:a,{peak:0,time:'—'});
+   const cycle=new Date(data.cycle).toISOString().slice(11,13)+'Z';
+   const pct=Number(status.percent_complete)||0;
+   const fmt=t=>{const d=new Date(t+'Z');return Number.isFinite(d.getTime())?d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric'}):t};
+   card.innerHTML='<div style="font-weight:800">RRFS 3 km <span style="color:#8ad7fa">LIVE NOAA</span></div>'+
+    '<div class="windmeta">Cycle '+esc(cycle)+' · '+esc(pct.toFixed(1))+'% complete · '+data.hours.length+' forecast hours</div>'+
+    '<div style="font-size:19px;font-weight:750;margin:8px 0">Peak '+peak.peak.toFixed(1)+' mph</div>'+
+    '<div class="windmeta">Across 12 sample points · '+esc(fmt(peak.time))+'</div>'+
+    '<div style="max-height:185px;overflow:auto;margin-top:8px;font-size:11px">'+rows.map(r=>'<div style="display:flex;justify-content:space-between;border-bottom:1px solid #34434d;padding:4px 0"><span>'+esc(fmt(r.time))+'</span><span>'+r.peak.toFixed(1)+' mph · '+r.dbz.toFixed(0)+' dBZ</span></div>').join('')+'</div>'+
+    '<div class="windmeta">Comparison only — not yet used in feeder outage predictions.</div>';
+   if(diag)diag.textContent='RRFS '+cycle+' · '+pct.toFixed(1)+'% complete · '+rows.length+' hours · NOAA 12-site gusts / reflectivity';
+   window.cuRRFSForecast=data;window.dispatchEvent(new Event('cu-rrfs-wind-ready'));
+  }catch(e){
+   card.innerHTML='<strong>RRFS 3 km</strong><div class="windmeta">NOAA RRFS unavailable: '+esc(e.message||e)+'</div>';
+   if(diag)diag.textContent='RRFS: '+String(e.message||e);
+  }
+ }
+ document.addEventListener('DOMContentLoaded',()=>{refreshRRFS();document.getElementById('wind-refresh')?.addEventListener('click',refreshRRFS);setInterval(refreshRRFS,600000)});
+})();
+</script>
 </body></html>
