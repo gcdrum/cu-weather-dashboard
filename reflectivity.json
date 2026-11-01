@@ -608,6 +608,38 @@
     "lead": 14
   },
   {
+    "model": "hrrr",
+    "time": "2026-11-02T05:00:00+00:00",
+    "dbz": 18.9,
+    "zone": "regional",
+    "zones": {
+      "upstream_west": 18.9,
+      "approach_west": 6.6,
+      "springfield_area": null,
+      "downstream_east": 15.2
+    },
+    "peak": {
+      "lat": 38.917,
+      "lon": -94.454
+    },
+    "site_dbz": [
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0
+    ],
+    "cycle": "2026-11-01T14:00:00+00:00",
+    "lead": 15
+  },
+  {
     "model": "gfs",
     "time": "2026-11-02T06:00:00+00:00",
     "dbz": 21.1,
@@ -622,6 +654,102 @@
       "lat": 39.0,
       "lon": -94.25
     }
+  },
+  {
+    "model": "hrrr",
+    "time": "2026-11-02T06:00:00+00:00",
+    "dbz": 27.3,
+    "zone": "regional",
+    "zones": {
+      "upstream_west": 23.2,
+      "approach_west": 13.0,
+      "springfield_area": null,
+      "downstream_east": 27.3
+    },
+    "peak": {
+      "lat": 35.66,
+      "lon": -91.864
+    },
+    "site_dbz": [
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0
+    ],
+    "cycle": "2026-11-01T14:00:00+00:00",
+    "lead": 16
+  },
+  {
+    "model": "hrrr",
+    "time": "2026-11-02T07:00:00+00:00",
+    "dbz": 20.7,
+    "zone": "regional",
+    "zones": {
+      "upstream_west": 18.2,
+      "approach_west": 15.7,
+      "springfield_area": 9.9,
+      "downstream_east": 20.7
+    },
+    "peak": {
+      "lat": 35.872,
+      "lon": -91.782
+    },
+    "site_dbz": [
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0
+    ],
+    "cycle": "2026-11-01T14:00:00+00:00",
+    "lead": 17
+  },
+  {
+    "model": "hrrr",
+    "time": "2026-11-02T08:00:00+00:00",
+    "dbz": 17.9,
+    "zone": "regional",
+    "zones": {
+      "upstream_west": 10.5,
+      "approach_west": 16.4,
+      "springfield_area": 10.6,
+      "downstream_east": 17.9
+    },
+    "peak": {
+      "lat": 38.726,
+      "lon": -92.143
+    },
+    "site_dbz": [
+      -5.81,
+      -1.75,
+      3.06,
+      -4.75,
+      -5.62,
+      6.31,
+      -7.5,
+      -9.75,
+      7.56,
+      0.12,
+      -10.0,
+      6.31
+    ],
+    "cycle": "2026-11-01T14:00:00+00:00",
+    "lead": 18
   },
   {
     "model": "gfs",
