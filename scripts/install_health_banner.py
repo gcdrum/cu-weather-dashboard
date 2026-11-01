@@ -398,5 +398,21 @@ elif replacement in html:
 else:
     raise SystemExit('Operational canvas lane labels changed unexpectedly; refusing silent success')
 
+# Keep the full-resolution canvas, but confine its horizontal overflow to the
+# chart viewport instead of allowing the entire dashboard to overflow on phones.
+mobile_css = """<style id="cu-mobile-chart-viewport-fix">
+@media (max-width: 700px) {
+  html,body {max-width:100%;overflow-x:hidden}
+  .forecast-chart {min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;overflow:hidden!important}
+  .forecast-chart .cu-chart-scroll {display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x pan-y}
+  .forecast-chart .cu-chart-scroll canvas {max-width:none!important;flex-shrink:0!important}
+  #cu-model-run-strip,#cu-model-run-provenance {width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  .forecast-chart .cu-chart-mobile-hint {display:block!important;white-space:normal!important}
+}
+</style>"""
+html=re.sub(r'<style id="cu-mobile-chart-viewport-fix">.*?</style>','',html,flags=re.S)
+if '</head>' not in html: raise SystemExit('Missing head for mobile viewport CSS')
+html=html.replace('</head>',mobile_css+'</head>',1)
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
