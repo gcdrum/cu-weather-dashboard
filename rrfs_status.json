@@ -1,13 +1,13 @@
 {
   "status": "partial",
   "cycle": "2026-11-01T18:00:00+00:00",
-  "updated": "2026-11-01T19:46:49.511343+00:00",
-  "hours": 20,
+  "updated": "2026-11-01T19:52:03.861342+00:00",
+  "hours": 25,
   "expected_hours": 60,
-  "percent_complete": 33.3,
+  "percent_complete": 41.7,
   "complete": false,
   "errors": [
-    "f021: no published RRFS index at any supported path",
-    "f022: no published RRFS index at any supported path"
+    "f026: no published RRFS index at any supported path",
+    "f027: no published RRFS index at any supported path"
   ]
 }
