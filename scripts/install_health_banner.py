@@ -53,11 +53,19 @@ snippet = r"""
    const results=await Promise.allSettled([get('hrrr_wind.json'),get('rrfs_wind.json')]);
    const series=results.map((r,i)=>r.status==='fulfilled'?plot(r.value,i===0?'#4db8ff':'#f5b95e'):[]);
    const browserCache=window.cuSurfaceWindCache||{};
+   let published={};
+   try { published=(await get('model_winds.json')).models||{}; } catch(e) {}
    const liveModels=[['gfs','#8de58a'],['nam','#da9bff']];
+   const coverage={};
    for(const [name,color] of liveModels){
-     const record=browserCache[name];
-     const rows=Array.isArray(record?.rows)?record.rows:[];
-     series.push(rows.map(h=>({time:Date.parse(String(h.time).endsWith('Z')?h.time:h.time+'Z'),value:Number(h.max),color})).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)).sort((a,b)=>a.time-b.time));
+     const remote=published[name];
+     const recent=remote?.updated && Date.now()-Date.parse(remote.updated)<8*3600000;
+     const remoteRows=recent&&Array.isArray(remote.hours)?remote.hours:[];
+     const remoteSeries=remoteRows.map(h=>({time:Date.parse(String(h.time).endsWith('Z')?h.time:h.time+'Z'),value:Math.max(0,...(h.gust_mph||[]).filter(Number.isFinite)),color})).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)&&p.value>0).sort((a,b)=>a.time-b.time);
+     const browserRows=Array.isArray(browserCache[name]?.rows)?browserCache[name].rows:[];
+     const browserSeries=browserRows.map(h=>({time:Date.parse(String(h.time).endsWith('Z')?h.time:h.time+'Z'),value:Number(h.max),color})).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)).sort((a,b)=>a.time-b.time);
+     series.push(remoteSeries.length?remoteSeries:browserSeries);
+     coverage[name]={hours:(remoteSeries.length||browserSeries.length),source:remoteSeries.length?'published':'browser'};
    }
    // Publish normalized four-model gust data for other dashboard components.
    // Keep the existing outage engine untouched until numerical and convective calibration is validated.
@@ -78,7 +86,7 @@ snippet = r"""
    }).join('');
    const riskTable='<div style="margin-top:14px"><strong>Four-model wind threat screening</strong><div style="font-size:12px;color:#b7c8d2">Peak 12-site gust by model. Wind-only threshold screening; not a calibrated feeder-outage forecast. Convective reflectivity risk is evaluated separately.</div><div style="overflow-x:auto;margin-top:8px"><table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left"><thead><tr><th>Model</th><th>Peak gust</th><th>Threat</th><th>Peak UTC</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
    const chartEl=document.getElementById('cu-decoded-gust-chart');
-   const availability=liveModels.map(([name])=>name.toUpperCase()+': '+(browserCache[name]?.rows?.length||0)+' hours').join(' · ');
+   const availability=liveModels.map(([name])=>name.toUpperCase()+': '+coverage[name].hours+' hours ('+coverage[name].source+')').join(' · ');
    if(chartEl){chartEl.innerHTML='<strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="font-size:12px;margin:8px 0"><span style="color:#4db8ff">● HRRR</span> &nbsp; <span style="color:#f5b95e">● RRFS</span> &nbsp; <span style="color:#8de58a">● GFS</span> &nbsp; <span style="color:#da9bff">● NAM</span> · maximum across 12 sampling sites</div>'+chart(series)+riskTable+'<div style="font-size:12px;color:#c0d0d9;margin-top:4px">GFS/NAM via existing Open-Meteo browser sampling: '+availability+'. Unavailable models are omitted, not estimated. This comparison does not change outage predictions.</div>';}
   }catch(e){el.textContent='⚠ NOAA model health unavailable: '+e.message;}
  }
