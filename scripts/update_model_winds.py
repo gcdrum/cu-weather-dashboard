@@ -67,7 +67,7 @@ def build(name, api, run=None):
             except Exception as exc:
                 errors.append(f"{POINTS[idx][0]}: {exc}")
     hours=[r for r in sorted(rows.values(),key=lambda r:r["time"]) if any(v is not None for v in r["gust_mph"])]
-    return {"source":"Open-Meteo single-run archive" if run else "Open-Meteo NOAA model API","cycle":run+"Z" if run else None,"cycle_verified":bool(run),"model":name,"updated":datetime.now(timezone.utc).isoformat(),
+    return {"source":"Open-Meteo single-run archive" if run else "Open-Meteo NOAA model API","cycle":run+"Z" if run else None,"cycle_verified":bool(run) and len(hours)>=12 and len(POINTS)-len(errors)>=9,"model":name,"updated":datetime.now(timezone.utc).isoformat(),
             "points":[{"name":p[0],"lat":p[1],"lon":p[2]} for p in POINTS],
             "hours":hours,"successful_points":len(POINTS)-len(errors),"errors":errors[:12]}
 
@@ -104,7 +104,12 @@ def main():
                     # Explicitly request the archived NAM run rather than guessing
                     # the cycle used by a rolling forecast API response.
                     run=datetime.fromisoformat(cycle).strftime("%Y-%m-%dT%H:%M")
-            result=build(name,api,run)
+            try:
+                result=build(name,api,run)
+            except Exception as exc:
+                if name!="nam" or not run: raise
+                print(f"NAM explicit run unavailable ({exc}); falling back to rolling API with unverified cycle")
+                result=build(name,api,None)
 
             if result["successful_points"]<9 or len(result["hours"])<12:
                 raise ValueError(f"Insufficient coverage: {result['successful_points']} sites, {len(result['hours'])} hours")
