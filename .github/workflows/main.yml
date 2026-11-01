@@ -95,11 +95,13 @@ jobs:
           Path('forecast_health.json').write_text(json.dumps(result, indent=2) + chr(10))
           print(json.dumps(result, indent=2))
           PYHEALTH
+      - name: Install dashboard freshness banner
+        run: python scripts/install_health_banner.py
       - name: Commit published model data
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_status.json rrfs_wind.json rrfs_status.json forecast_health.json; do
+          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_status.json rrfs_wind.json rrfs_status.json forecast_health.json index.html; do
             if [ -f "$f" ]; then git add "$f"; fi
           done
           if ! git diff --cached --quiet; then
