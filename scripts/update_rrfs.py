@@ -65,8 +65,7 @@ def sample(field):
     return out
 def atomic(path,obj):
     p=Path(path);tmp=p.with_suffix(p.suffix+".tmp")
-    tmp.write_text(json.dumps(obj,indent=2)+"
-");tmp.replace(p)
+    tmp.write_text(json.dumps(obj, indent=2) + "\n");tmp.replace(p)
 def rrfs_lightning_diagnostic(cycle, indexed_urls):
     """Inspect and decode available RRFS LTNGSD leads; never guess units."""
     result={'model':'rrfs','cycle':cycle.isoformat(),'status':'field_unavailable',
