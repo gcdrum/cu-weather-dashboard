@@ -58,6 +58,7 @@ snippet = r"""
    const bad=reportAge>90||modelEntries.some(({m})=>m.state!=='current'||Date.now()-Date.parse(m.updated)>5400000);
    el.innerHTML='<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><strong style="font-size:17px">NOAA model status</strong><strong style="color:'+(bad?'#ffb08a':'#85dfb5')+'">'+(bad?'⚠ DATA FRESHNESS WARNING':'✓ Data recently updated')+'</strong></div><div style="display:flex;gap:10px;flex-wrap:wrap">'+cards+'</div><div id="cu-decoded-gust-chart" style="margin-top:14px"><strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="padding:10px">Loading gust data…</div></div><div style="font-size:12px;color:#b7c8d2;margin-top:7px">Health report '+reportAge+' min old · Freshness and forecast completeness are different measures</div>';
    const results=await Promise.allSettled([get('hrrr_wind.json'),get('rrfs_wind.json')]);
+   window.cuRRFSRunLabel=results[1]?.status==='fulfilled'&&results[1].value?.cycle?new Date(results[1].value.cycle).getUTCHours().toString().padStart(2,'0')+'Z':'?';
    const series=results.map((r,i)=>r.status==='fulfilled'?plot(r.value,i===0?'#4db8ff':'#f5b95e'):[]);
    const browserCache=window.cuSurfaceWindCache||{};
    let published={};
@@ -77,7 +78,7 @@ snippet = r"""
    for(const [name,idx,color] of [['hrrr',0,'#4db8ff'],['rrfs',1,'#f5b95e']]){
      const m=health.models?.[name]||{};
      const updated=Date.parse(m.updated||'');
-     const valid=series[idx].length>0 && m.state==='current' && Number.isFinite(updated) && Date.now()-updated<90*60000 && reportAge<=90;
+     const valid=series[idx].length>0 && (m.state==='current'||m.state==='partial') && Number.isFinite(updated) && Date.now()-updated<90*60000 && reportAge<=90;
      if(valid && simulated!==name){
        const backup=fallbackPlot(name,color);
        const directEnd=Math.max(...series[idx].map(p=>p.time));
@@ -192,6 +193,7 @@ snippet = r"""
    // Feed the shared main-chart overlay. Only display: never alter engine inputs.
    window.cuParallelOverlayRows=convectiveWindows.filter(x=>x.model_count>=2).map(x=>({time:x.time,feeders:x.estimated_feeders,models:x.model_count}));
    if(typeof window.drawForecast==='function'&&window.cuChartMode==='live')window.drawForecast();
+   else showRRFSBar();
 
    // Parallel integration in the MAIN forecast panel, not the production engine.
    const mainChart=document.querySelector('.forecast-chart');
@@ -246,8 +248,27 @@ snippet = r"""
  }
  // Draw parallel estimates on the SAME operational canvas, using its exact time
  // cursor and piecewise feeder scale. Does not alter the operational curves.
+ function showRRFSBar(){
+  const canvas=document.getElementById('live-forecast-chart'),c=canvas?.__cuTimeCursor;
+  if(!canvas||!c?.times?.length)return;
+  let bar=document.getElementById('cu-rrfs-timeline');
+  if(!bar){bar=document.createElement('div');bar.id='cu-rrfs-timeline';canvas.insertAdjacentElement('afterend',bar);}
+  const points=window.cuFourModelForecast?.rrfs?.points||[];
+  const first=Date.parse(c.times[0]+'Z'),last=Date.parse(c.times[c.times.length-1]+'Z');
+  const rows=points.filter(p=>Number.isFinite(Number(p.gust_mph))&&Date.parse(p.time)>=first&&Date.parse(p.time)<=last);
+  const cycle=window.cuRRFSRunLabel||'?';
+  bar.style.cssText='margin:3px 8px 10px;display:flex;align-items:center;gap:8px;color:#d5e3ea;font:11px Segoe UI,Arial,sans-serif';
+  let svg='<svg viewBox="0 0 900 20" preserveAspectRatio="none" style="width:100%;height:20px;display:block;background:#233742;border:1px solid #536470" aria-label="RRFS forecast wind threat strip">';
+  for(const p of rows){const t=Date.parse(p.time),x=(t-first)/Math.max(1,last-first)*900,w=Math.max(2,3600000/Math.max(1,last-first)*900),v=Number(p.gust_mph);
+   const color=v>=60?'#e34462':v>=50?'#ed8550':v>=40?'#e7b54c':v>=30?'#e9d77d':'#3d6476';
+   svg+='<rect x="'+x.toFixed(2)+'" y="0" width="'+w.toFixed(2)+'" height="20" fill="'+color+'"><title>'+new Date(t).toISOString().slice(0,16)+'Z: '+v.toFixed(1)+' mph</title></rect>';
+  }
+  svg+='</svg>';
+  bar.innerHTML='<strong style="white-space:nowrap;min-width:105px">RRFS '+esc(cycle)+'</strong><div style="flex:1;min-width:0">'+svg+'</div><span style="white-space:nowrap">'+rows.length+' h</span>';
+ }
  function overlayParallel(){
   const canvas=document.getElementById('live-forecast-chart');
+  showRRFSBar();
   const c=canvas?.__cuTimeCursor,rows=window.cuParallelOverlayRows||[];
   const rrfs=window.cuRRFSFeederCurve||[];
   if(!canvas||!c||(!rows.length&&!rrfs.length)||window.cuChartMode!=='live')return;
