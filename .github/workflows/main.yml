@@ -66,11 +66,40 @@ jobs:
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
               f.write(summary)
           PYSUM
+      - name: Check published forecast freshness
+        if: always()
+        run: |
+          python - <<'PYHEALTH'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          now = datetime.now(timezone.utc)
+          models = {}
+          for model in ('hrrr', 'rrfs'):
+              try:
+                  d = json.loads(Path(model + '_status.json').read_text())
+                  updated = datetime.fromisoformat(d['updated'].replace('Z', '+00:00'))
+                  age = round((now - updated).total_seconds() / 60, 1)
+                  hours = int(d.get('hours', 0))
+                  models[model] = {'cycle': d.get('cycle'), 'updated': d['updated'],
+                                   'age_minutes': age, 'hours': hours,
+                                   'expected_hours': d.get('expected_hours'),
+                                   'percent_complete': d.get('percent_complete'),
+                                   'state': 'current' if -5 <= age <= 90 and hours else 'stale',
+                                   'errors': d.get('errors', [])[:3]}
+              except Exception as e:
+                  models[model] = {'state': 'missing', 'error': str(e)[:160]}
+          result = {'checked_at': now.isoformat(),
+                    'overall': 'current' if all(v['state'] == 'current' for v in models.values()) else 'degraded',
+                    'models': models}
+          Path('forecast_health.json').write_text(json.dumps(result, indent=2) + '\\n')
+          print(json.dumps(result, indent=2))
+          PYHEALTH
       - name: Commit published model data
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_status.json rrfs_wind.json rrfs_status.json; do
+          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_status.json rrfs_wind.json rrfs_status.json forecast_health.json; do
             if [ -f "$f" ]; then git add "$f"; fi
           done
           if ! git diff --cached --quiet; then
