@@ -68,9 +68,10 @@ def atomic(path,obj):
 def main():
     now=datetime.now(timezone.utc);hour=now.replace(minute=0,second=0,microsecond=0)
     errors=[];chosen=None;first_url=None
-    for back in range(7):
+    for back in range(0,13):
         cycle=hour-timedelta(hours=back)
-        for url in candidates(cycle,0):
+        if cycle.hour % 3: continue
+        for url in candidates(cycle,1):
             try:
                 rows=fields(url)
                 if span(rows,"GUST") or span(rows,"REFC"):
@@ -83,8 +84,8 @@ def main():
     previous=Path("rrfs_wind.json")
     old=json.loads(previous.read_text()) if previous.exists() else {}
     hours={r["time"]:r for r in old.get("hours",[]) if isinstance(r,dict) and "time" in r} if old.get("cycle")==chosen.isoformat() else {}
-    maxlead=84 if chosen.hour%6==0 else 18
-    for lead in range(maxlead+1):
+    maxlead=84 if chosen.hour%6==0 else 60
+    for lead in range(1,maxlead+1):
         stamp=(chosen+timedelta(hours=lead)).strftime("%Y-%m-%dT%H:%M")
         if stamp in hours:continue
         try:
@@ -104,8 +105,8 @@ def main():
             print(f"RRFS {chosen:%HZ} f{lead:03d} decoded",flush=True)
         except Exception as exc:
             errors.append(f"f{lead:03d}: {exc}");break
-        if len(hours)>=12:break
+        if len(hours)>=6:break
     if hours:
         atomic("rrfs_wind.json",{"model":"rrfs","cycle":chosen.isoformat(),"updated":now.isoformat(),"source":"NOAA operational RRFS 3km 2dfld GRIB2","points":[{"name":n,"lat":y,"lon":x} for n,y,x in POINTS],"hours":[hours[k] for k in sorted(hours)]})
-    atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":len(hours),"expected_hours":maxlead+1,"percent_complete":round(100*len(hours)/(maxlead+1),1),"complete":len(hours)==maxlead+1,"errors":errors})
+    atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":len(hours),"expected_hours":maxlead,"percent_complete":round(100*len(hours)/maxlead,1),"complete":len(hours)==maxlead,"errors":errors})
 if __name__=="__main__":main()
