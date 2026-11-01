@@ -274,13 +274,6 @@ snippet = r"""
     data.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
   });
   // RRFS's own wind-only feeder curve, using the same shared time and feeder axes.
-  const rrfsPoints=[]; // RRFS is drawn in the per-model overlay above.
-  /* const legacyRRFS=rrfs.map(r=>({t:Date.parse(r.time),v:Number(r.feeders)})).filter(r=>Number.isFinite(r.t)&&Number.isFinite(r.v)&&r.t>=first&&r.t<=last).sort((a,b)=>a.t-b.t); */
-  if(rrfsPoints.length>=2){
-    ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
-    ctx.strokeStyle='#e7c36c';ctx.lineWidth=2;ctx.setLineDash([3,6]);ctx.beginPath();
-    rrfsPoints.forEach((p,i)=>{if(i)ctx.lineTo(x(p.t),y(p.v));else ctx.moveTo(x(p.t),y(p.v));});ctx.stroke();ctx.restore();
-  }
   ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#ffb86b';ctx.font='bold 12px Segoe UI,Arial';ctx.fillText('— — Ensemble orange · HRRR blue · RRFS gold · GFS green · NAM purple (comparison)',L+12,T+PH+18);ctx.restore();
  }
  function installParallelOverlay(){
