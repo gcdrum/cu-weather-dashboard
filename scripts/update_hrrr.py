@@ -183,7 +183,7 @@ def main():
     maxlead=48 if chosen.hour%6==0 else 18
     # Bound per-run work: publish the first new hours quickly, fill remaining hours next run.
     missing=[lead for lead in range(1,maxlead+1) if lead not in bylead]
-    for lead in missing[:6]:
+    for lead in missing[:10]:
         try:
             bylead[lead]=process_reflectivity(chosen,lead)
             print(f'HRRR {chosen:%HZ} f{lead:02d}: REFC decoded',flush=True)
@@ -207,7 +207,7 @@ def main():
     for lead in sorted(bylead):
         stamp=(chosen+timedelta(hours=lead)).strftime('%Y-%m-%dT%H:%M')
         if stamp not in wind_hours: wind_leads.append(lead)
-    for lead in wind_leads[:3]:
+    for lead in wind_leads[:4]:
         try:
             _,wind=process(chosen,lead)
             wind_hours[wind['time']]=wind
@@ -225,6 +225,6 @@ def main():
     atomic_json('hrrr_status.json',{'cycle':chosen.isoformat(),'updated':now.isoformat(),
                 'hours':len(records),'expected_hours':maxlead+1,
                 'last_lead':max(bylead),'wind_hours':len(wind_hours),
-                'complete':len(records)==maxlead+1,'errors':errors})
+                'complete':len(records)==maxlead+1,'percent_complete':round(100*len(records)/(maxlead+1),1),'errors':errors})
 
 if __name__=='__main__':main()
