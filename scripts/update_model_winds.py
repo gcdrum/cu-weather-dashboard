@@ -20,17 +20,19 @@ POINTS = [
 ]
 MODELS = {"gfs":("gfs_global",7), "nam":("ncep_nam_conus",3), "hrrr":("ncep_hrrr_conus",2), "rrfs":("ncep_rrfs_conus",3)}
 URL = "https://api.open-meteo.com/v1/gfs"
+SINGLE_RUN_URL = "https://single-runs-api.open-meteo.com/v1/forecast"
 OUT = Path("model_winds.json")
 
-def fetch(model, point):
+def fetch(model, point, run=None):
     _, lat, lon = point
     params = {"latitude":lat,"longitude":lon,"hourly":"wind_gusts_10m,wind_speed_10m",
               "models":model,"wind_speed_unit":"mph","timezone":"UTC",
               "forecast_days":MODELS_BY_API[model],"cell_selection":"nearest"}
+    if run is not None: params["run"]=run
     last = None
     for attempt in range(2):
         try:
-            r=requests.get(URL,params=params,timeout=(4,9),headers={"User-Agent":"CU-Weather-Dashboard/1.0"})
+            r=requests.get(SINGLE_RUN_URL if run else URL,params=params,timeout=(4,12),headers={"User-Agent":"CU-Weather-Dashboard/1.0"})
             r.raise_for_status()
             data=r.json()
             if data.get("error"): raise ValueError(data.get("reason","API error"))
@@ -48,11 +50,11 @@ def fetch(model, point):
 
 MODELS_BY_API={api:days for api,days in MODELS.values()}
 
-def build(name, api):
+def build(name, api, run=None):
     rows={}
     errors=[]
     with ThreadPoolExecutor(max_workers=12) as pool:
-        futures={pool.submit(fetch,api,p):i for i,p in enumerate(POINTS)}
+        futures={pool.submit(fetch,api,p,run):i for i,p in enumerate(POINTS)}
         for fut in as_completed(futures):
             idx=futures[fut]
             try:
@@ -65,7 +67,7 @@ def build(name, api):
             except Exception as exc:
                 errors.append(f"{POINTS[idx][0]}: {exc}")
     hours=[r for r in sorted(rows.values(),key=lambda r:r["time"]) if any(v is not None for v in r["gust_mph"])]
-    return {"source":"Open-Meteo NOAA model API","model":name,"updated":datetime.now(timezone.utc).isoformat(),
+    return {"source":"Open-Meteo single-run archive" if run else "Open-Meteo NOAA model API","cycle":run+"Z" if run else None,"cycle_verified":bool(run),"model":name,"updated":datetime.now(timezone.utc).isoformat(),
             "points":[{"name":p[0],"lat":p[1],"lon":p[2]} for p in POINTS],
             "hours":hours,"successful_points":len(POINTS)-len(errors),"errors":errors[:12]}
 
@@ -94,7 +96,16 @@ def main():
     existing.setdefault("models",{})
     for name,(api,days) in MODELS.items():
         try:
-            result=build(name,api)
+            run=None
+            if name=="nam":
+                status=latest_noaa_nam_cycle()
+                cycle=status.get("cycle")
+                if cycle:
+                    # Explicitly request the archived NAM run rather than guessing
+                    # the cycle used by a rolling forecast API response.
+                    run=datetime.fromisoformat(cycle).strftime("%Y-%m-%dT%H:%M")
+            result=build(name,api,run)
+
             if result["successful_points"]<9 or len(result["hours"])<12:
                 raise ValueError(f"Insufficient coverage: {result['successful_points']} sites, {len(result['hours'])} hours")
             existing["models"][name]=result
