@@ -7,7 +7,7 @@ import json
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 import requests
 
 POINTS = [
@@ -28,9 +28,9 @@ def fetch(model, point):
               "models":model,"wind_speed_unit":"mph","timezone":"UTC",
               "forecast_days":MODELS_BY_API[model],"cell_selection":"nearest"}
     last = None
-    for attempt in range(3):
+    for attempt in range(2):
         try:
-            r=requests.get(URL,params=params,timeout=28,headers={"User-Agent":"CU-Weather-Dashboard/1.0"})
+            r=requests.get(URL,params=params,timeout=(4,9),headers={"User-Agent":"CU-Weather-Dashboard/1.0"})
             r.raise_for_status()
             data=r.json()
             if data.get("error"): raise ValueError(data.get("reason","API error"))
@@ -43,7 +43,7 @@ def fetch(model, point):
             return {"time":times,"gust":gust,"wind":wind}
         except (requests.RequestException,ValueError) as exc:
             last=str(exc)
-            time.sleep(1+attempt)
+            time.sleep(0.5+attempt*0.5)
     raise RuntimeError(last)
 
 MODELS_BY_API={api:days for api,days in MODELS.values()}
@@ -51,7 +51,7 @@ MODELS_BY_API={api:days for api,days in MODELS.values()}
 def build(name, api):
     rows={}
     errors=[]
-    with ThreadPoolExecutor(max_workers=4) as pool:
+    with ThreadPoolExecutor(max_workers=12) as pool:
         futures={pool.submit(fetch,api,p):i for i,p in enumerate(POINTS)}
         for fut in as_completed(futures):
             idx=futures[fut]
