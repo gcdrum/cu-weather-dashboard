@@ -221,7 +221,15 @@ def main():
                  'source':'NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)',
                  'points':[{'name':n,'lat':y,'lon':x} for n,y,x in POINTS],
                  'hours':[wind_hours[k] for k in sorted(wind_hours)],'errors':errors}
-        atomic_json(windpath,payload)
+        # Keep the previous usable forecast until the incoming cycle has at least
+        # as many valid wind hours. Never replace a useful forecast with f00 alone.
+        prior_hours=prior.get('hours',[]) if isinstance(prior,dict) else []
+        prior_cycle=prior.get('cycle','') if isinstance(prior,dict) else ''
+        if prior_cycle == chosen.isoformat() or not prior_hours or len(wind_hours)>=len(prior_hours):
+            atomic_json(windpath,payload)
+        else:
+            print(f'HRRR incoming {chosen:%HZ}: retaining prior wind cycle {prior_cycle} '
+                  f'({len(prior_hours)} hours vs {len(wind_hours)} incoming)',flush=True)
     atomic_json('hrrr_status.json',{'cycle':chosen.isoformat(),'updated':now.isoformat(),
                 'hours':len(records),'expected_hours':maxlead+1,
                 'last_lead':max(bylead),'wind_hours':len(wind_hours),
