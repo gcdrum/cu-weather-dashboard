@@ -206,13 +206,17 @@ def main():
                  "source":"NOAA operational RRFS 3km 2dfld GRIB2",
                  "points":[{"name":n,"lat":y,"lon":x} for n,y,x in POINTS],
                  "hours":[hours[k] for k in sorted(hours)]}
-        # Preserve the more useful earlier run while the incoming RRFS cycle fills.
-        old_hours=old.get("hours",[]) if isinstance(old,dict) else []
-        old_cycle=old.get("cycle","") if isinstance(old,dict) else ""
-        if old_cycle==chosen.isoformat() or not old_hours or len(hours)>=len(old_hours):
-            atomic("rrfs_wind.json",payload)
-        else:
-            print(f"RRFS incoming {chosen:%HZ}: retaining {old_cycle} with "
-                  f"{len(old_hours)} hours (incoming {len(hours)})",flush=True)
+        # Per-valid-hour replacement, retaining older extended-horizon forecasts.
+        merged={}
+        for row in old.get('hours',[]):
+            if isinstance(row,dict) and row.get('time'):
+                merged[row['time']]=dict(row,source_cycle=row.get('source_cycle',old.get('cycle','')))
+        for row in payload['hours']:
+            if isinstance(row,dict) and row.get('time'):
+                merged[row['time']]=dict(row,source_cycle=chosen.isoformat())
+        cutoff=(now-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
+        payload['hours']=[merged[k] for k in sorted(merged) if k>=cutoff]
+        payload['coverage_policy']='latest available value per valid hour; source_cycle per hour'
+        atomic("rrfs_wind.json",payload)
     atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":len(hours),"expected_hours":maxlead,"percent_complete":round(100*len(hours)/maxlead,1),"complete":len(hours)==maxlead,"errors":errors})
 if __name__=="__main__":main()
