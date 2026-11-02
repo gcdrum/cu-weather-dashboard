@@ -132,6 +132,33 @@ jobs:
           print('Extracted generated forecast monitor for JavaScript validation')
           PYJS
           node --check /tmp/cu-forecast-monitor.js
+          python - <<'PYALLJS'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.active=False; self.parts=[]; self.scripts=[]
+              def handle_starttag(self,tag,attrs):
+                  if tag=='script':
+                      a=dict(attrs); self.active=not a.get('src') and a.get('type','text/javascript') in ('text/javascript','module','')
+                      self.parts=[]
+              def handle_data(self,data):
+                  if self.active:self.parts.append(data)
+              def handle_endtag(self,tag):
+                  if tag=='script' and self.active:
+                      self.scripts.append(''.join(self.parts));self.active=False
+          p=Scripts();p.feed(Path('index.html').read_text(encoding='utf-8'))
+          print('Checking',len(p.scripts),'inline JavaScript blocks')
+          for i,code in enumerate(p.scripts):
+              f=Path('/tmp/cu-inline-%03d.js'%i);f.write_text(code,encoding='utf-8')
+              result=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
+              if result.returncode:
+                  raise SystemExit('Inline script %d syntax failure: %s'%(i,result.stderr[:1500]))
+          if not any('cuLightningDensityForecasts' in code for code in p.scripts):
+              raise SystemExit('Lightning data loader missing')
+          print('All inline dashboard scripts passed syntax validation')
+          PYALLJS
       - name: Commit published model data
         run: |
           git config user.name 'github-actions[bot]'
