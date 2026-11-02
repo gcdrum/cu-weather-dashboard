@@ -12,10 +12,36 @@ S=requests.Session();S.headers.update({'User-Agent':'CU-Weather-Dashboard/1.0'})
 def field(cycle,lead):
     filename=f"nam.t{cycle:%H}z.conusnest.hiresf{lead:02d}.tm00.grib2"
     params={'file':filename,'var_REFC':'on','lev_entire_atmosphere':'on','subregion':'','leftlon':'264.5','rightlon':'268.5','toplat':'39','bottomlat':'35.5','dir':f"/nam.{cycle:%Y%m%d}/{cycle:%H}/atmos"}
-    response=S.get(BASE,params=params,timeout=45);response.raise_for_status()
-    if not response.content.startswith(b'GRIB'):raise ValueError('NAM response is not GRIB')
+    try:
+        response=S.get(BASE,params=params,timeout=25);response.raise_for_status()
+        content=response.content
+        if not content.startswith(b'GRIB'):raise ValueError('NAM filter returned non-GRIB content')
+    except (requests.RequestException,ValueError) as exc:
+        # NOAA direct GRIB2 index allows downloading only the REFC message.
+        # Never fetch the multi-gigabyte full-domain file.
+        root=f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/nam/v4.2/nam.{cycle:%Y%m%d}"
+        url=f"{root}/{filename}"
+        index=S.get(url+'.idx',timeout=25);index.raise_for_status()
+        entries=[]
+        for line in index.text.splitlines():
+            parts=line.split(':')
+            if len(parts)>4 and parts[1].isdigit():
+                entries.append((int(parts[1]),line))
+        match=next((i for i,(_,line) in enumerate(entries) if ':REFC:' in line),None)
+        if match is None:raise ValueError('NAM direct index has no REFC field') from exc
+        start=entries[match][0]
+        end=entries[match+1][0]-1 if match+1<len(entries) else None
+        if end is None:raise ValueError('NAM REFC is last field; no safe range boundary')
+        result=S.get(url,headers={'Range':f'bytes={start}-{end}'},timeout=45)
+        result.raise_for_status()
+        if result.status_code!=206:raise ValueError('NAM server ignored byte-range request')
+        content=result.content
+        if len(content)!=end-start+1 or not content.startswith(b'GRIB'):
+            raise ValueError('NAM REFC range incomplete or invalid')
+        print('NAM direct indexed REFC fallback',cycle.isoformat(),lead,flush=True)
+
     with tempfile.NamedTemporaryFile(suffix='.grib2') as f:
-        f.write(response.content);f.flush()
+        f.write(content);f.flush()
         with open(f.name,'rb') as src:
             handle=codes_grib_new_from_file(src)
             if handle is None:raise ValueError('No NAM GRIB field')
