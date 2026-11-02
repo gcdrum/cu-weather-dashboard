@@ -828,5 +828,87 @@ if start>=0 and end>start:
         chunk=chunk.replace(needle,normalizer+needle,1)
     html=html[:start]+chunk+html[end:]
 
+
+# V126: Feed native RRFS site reflectivity into the EXISTING main chart lane.
+# This does not add outage feeders or claim that dBZ predicts damaging winds.
+rrfs_lane=r"""
+<script id="cu-rrfs-main-lane-sync">
+(()=>{
+ const utc=s=>{const v=String(s||'');return Date.parse(/[zZ]$|[+-]\d\d:\d\d$/.test(v)?v:v+'Z')};
+ async function sync(){
+  try{
+   const response=await fetch('./rrfs_reflectivity.json?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return;
+   const data=await response.json();
+   if(!Array.isArray(data.hours))return;
+   const rows=data.hours.map(h=>{
+    const sites=Array.isArray(h.site_dbz)?h.site_dbz.map(Number).filter(Number.isFinite):[];
+    const ms=utc(h.time);
+    if(!Number.isFinite(ms)||!sites.length)return null;
+    const local=Math.max(...sites);
+    return {model:'rrfs',time:new Date(ms).toISOString().slice(0,16)+'Z',dbz:local,
+     site_dbz:sites,zones:{springfield_area:local,approach_west:null,upstream_west:null,downstream_east:null},
+     source_cycle:h.source_cycle||data.cycle,zone:'local'};
+   }).filter(Boolean);
+   if(!rows.length)return;
+   const current=window.cuNumericalReflectivityV102||[];
+   const old=current.filter(r=>r.model!=='rrfs');
+   window.cuNumericalReflectivityV102=[...old,...rows];
+   window.drawForecast?.();
+  }catch(e){console.warn('RRFS main lane unavailable',e)}
+ }
+ window.addEventListener('load',()=>setTimeout(sync,1800));
+ document.addEventListener('cu-reflectivity-updated',()=>setTimeout(sync,200));
+ setInterval(sync,60000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-rrfs-main-lane-sync">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',rrfs_lane+'</body>',1) if '</body>' in html else html+rrfs_lane
+
+# Replace the broken legacy lightning overlay with a single authoritative
+# provisional lightning signal. No verified physical density => POSSIBLE only.
+lightning_bridge=r"""
+<script id="cu-lightning-visible-bridge">
+(()=>{
+ const utc=s=>{const v=String(s||'');return Date.parse(/[zZ]$|[+-]\d\d:\d\d$/.test(v)?v:v+'Z')};
+ let forecast=[],loaded=false;
+ async function load(){
+  try{
+   const r=await fetch('./rrfs_lightning.json?t='+Date.now(),{cache:'no-store'});
+   if(!r.ok)return;
+   const d=await r.json();
+   if(!Array.isArray(d.hours))return;
+   forecast=d.hours.map(h=>({time:utc(h.time),value:Number(h.value),native:h.native_index===true}))
+     .filter(h=>Number.isFinite(h.time)&&Number.isFinite(h.value)&&h.native&&h.value>=0&&h.value<=15);
+   loaded=true;refresh();
+  }catch(e){console.warn('RRFS lightning forecast unavailable',e)}
+ }
+ function refresh(){
+  const tile=document.querySelector('[data-threat-key="Lightning"]')?.closest('.threat-row');
+  const status=tile?.querySelector('.threat-time'),dot=tile?.querySelector('.threat-dot');
+  if(!status)return;
+  const future=forecast.filter(h=>h.time>=Date.now()-15*60000).sort((a,b)=>a.time-b.time);
+  const first=future.find(h=>h.value>0);
+  if(!first){
+   if(!loaded)return;
+   // A missing future horizon is UNKNOWN, not a verified no-lightning forecast.
+   if(!future.length){status.textContent='WAITING FOR DATA';status.dataset.status='waiting';if(dot)dot.dataset.status='waiting'}
+   return;
+  }
+  const clock=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:true}).format(new Date(first.time));
+  const upcoming=first.time>Date.now()+15*60000;
+  status.textContent='POSSIBLE'+(upcoming?' · '+clock:'');
+  status.dataset.status='possible';status.dataset.phase=upcoming?'upcoming':'forecast';
+  status.title='RRFS native lightning index is positive; units not calibrated. Possible lightning, not a confirmed observation or severity tier.';
+  if(dot)dot.dataset.status='possible';
+ }
+ load();setInterval(load,60000);setInterval(refresh,1500);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-lightning-visible-bridge">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',lightning_bridge+'</body>',1) if '</body>' in html else html+lightning_bridge
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
