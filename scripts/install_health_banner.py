@@ -187,7 +187,7 @@ snippet = r"""
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
      const local=Number(r.zones?.springfield_area);
      const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
-     const dbz=Math.max(Number.isFinite(local)?local:-10,site);
+     const dbz=Number.isFinite(local)?local:site;
      return {time,model:String(r.model).toLowerCase(),dbz};
    }).filter(r=>Number.isFinite(r.time)&&r.time>=Date.now()-3600000&&r.dbz>=35);
    const convectiveWindows=consensus.map(row=>{
@@ -202,7 +202,7 @@ snippet = r"""
    window.cuConvectiveScreen=convectiveWindows;
    const activeWindows=convectiveWindows.filter(x=>x.convective_models.length);
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
-   const shadeHours=[...new Set(convective.map(x=>x.time))].sort((a,b)=>a-b);
+   const shadeHours=[...new Set(convective.filter(x=>Number.isFinite(x.dbz)&&x.dbz>=35).map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
    window.cuLocalConvectiveShadeHours=shadeHours.map(t=>new Date(t).toISOString().slice(0,13));
    if(typeof window.drawForecast==='function')window.drawForecast();
