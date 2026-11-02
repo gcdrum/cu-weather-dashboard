@@ -557,6 +557,17 @@ if legacy_function>=0:
     if chr(92)+'n' in legacy:
         html=html[:legacy_start]+legacy.replace(chr(92)+'n',chr(10))+html[legacy_end+len('</script>'):]
 
+# Repair the legacy async lightning loader, too. Older HTML contains a
+# distinct literal-backslash-n script, separate from the lightning-level script.
+loader_function=html.find('window.cuLightningDensityForecasts=[]')
+if loader_function>=0:
+    loader_start=html.rfind('<script',0,loader_function)
+    loader_end=html.find('</script>',loader_function)
+    if loader_start<0 or loader_end<0: raise SystemExit('Lightning loader boundaries missing')
+    legacy=html[loader_start:loader_end+len('</script>')]
+    if chr(92)+'n' in legacy:
+        html=html[:loader_start]+legacy.replace(chr(92)+'n',chr(10))+html[loader_end+len('</script>'):]
+
 # Fix invalid backslash-n sequences already embedded in older generated HTML.
 # Match a literal backslash followed by n, not a real line break.
 html=html.replace("+" + chr(92) + "n     (rawHit?", "+" + chr(10) + "     (rawHit?")
