@@ -1037,5 +1037,43 @@ diagnostic=r"""
 html=re.sub(r'<script id="cu-model-average-audit">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',diagnostic+'</body>',1) if '</body>' in html else html+diagnostic
 
+
+# Recalculate the main chart after asynchronous model arrivals. The underlying
+# drawForecast() computes the mean from the current source arrays each time.
+reactive=r"""
+<script id="cu-average-reactive-redraw">
+(()=>{
+ let last='',pending=false;
+ const utc=v=>{const s=String(v||'');const n=Date.parse(/[zZ]$|[+-]\d\d:\d\d$/.test(s)?s:s+'Z');return Number.isFinite(n)?n:0};
+ const signature=()=>{
+  const cache=window.cuSurfaceWindCache||{};
+  const inputs=['gfs','nam','hrrr'].map(id=>{
+   const rows=cache[id]?.rows||[];
+   let hash=0;
+   for(const r of rows){hash=(hash*33+Math.round((Number(r.forecastFeeders)||0)*100)+utc(r.time)/3600000)>>>0;}
+   return id+':'+rows.length+':'+hash;
+  });
+  const rr=window.cuRRFS95||{};
+  const rows=rr.rows||window.cuRRFSComparisonRows||[];
+  let hash=0;
+  for(const r of rows){hash=(hash*33+Math.round((Number(r.forecastFeeders)||0)*100)+utc(r.time)/3600000)>>>0;}
+  inputs.push('rrfs:'+rows.length+':'+hash);
+  return inputs.join('|');
+ };
+ function check(){
+  if(window.cuChartMode!=='live'||typeof window.drawForecast!=='function')return;
+  const next=signature();if(next===last||pending)return;
+  last=next;pending=true;
+  requestAnimationFrame(()=>{pending=false;try{window.drawForecast()}catch(e){console.warn('Model average redraw',e)}});
+ }
+ setInterval(check,1200);
+ window.addEventListener('cu-rrfs-updated',check);
+ window.addEventListener('cu-hrrr-updated',check);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-average-reactive-redraw">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',reactive+'</body>',1) if '</body>' in html else html+reactive
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
