@@ -151,6 +151,18 @@ snippet = r"""
    // establish that thunderstorms threaten the utility service territory.
    let reflectivity=[];
    try {const raw=await get('reflectivity.json');reflectivity=Array.isArray(raw)?raw:[];} catch(e){}
+   // RRFS publishes REFC separately from the legacy GFS/HRRR file.
+   // Merge by model and valid time, retaining high-resolution source identity.
+   try {
+     const rrfs=await get('rrfs_reflectivity.json');
+     if(Array.isArray(rrfs?.hours)){
+       const byKey=new Map(reflectivity.map(x=>[String(x.model).toLowerCase()+'|'+x.time,x]));
+       for(const x of rrfs.hours){
+         if(x?.time&&Array.isArray(x.site_dbz))byKey.set('rrfs|'+x.time,{...x,model:'rrfs'});
+       }
+       reflectivity=[...byKey.values()];
+     }
+   } catch(e){console.warn('RRFS reflectivity unavailable',e)}
    const convective=reflectivity.filter(r=>['gfs','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(r.time);
      const local=Number(r.zones?.springfield_area);
