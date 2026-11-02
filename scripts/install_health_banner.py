@@ -606,7 +606,6 @@ lightning_ui_bridge=r"""
   const strongest=valid.reduce((a,b)=>a.value>=b.value?a:b);
   const classification=window.cuHRRRLightningLevel?.(strongest.value);
   const label=labels[classification?.level];if(!label)return;
-  const exact=[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()==='Lightning');
   const heading=document.querySelector('[data-threat-key="Lightning"]');
   const tile=heading?.closest('.threat-row');
   const status=tile?.querySelector('.threat-time');
@@ -624,6 +623,9 @@ lightning_ui_bridge=r"""
  }
  document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
  window.addEventListener('load',refresh);
+ // Legacy V85 recalculations can overwrite the display after data arrives.
+ // Keep the verified lightning density status synchronized without changing other threats.
+ setInterval(refresh,500);
  window.cuRefreshLightningTile=refresh;
 })();
 </script>
