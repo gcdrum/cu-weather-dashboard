@@ -204,6 +204,8 @@ snippet = r"""
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
    const shadeHours=[...new Set(convective.map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
+   window.cuLocalConvectiveShadeHours=shadeHours.map(t=>new Date(t).toISOString().slice(0,13));
+   if(typeof window.drawForecast==='function')window.drawForecast();
    const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ at the forecast valid hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
    const convectivePoints=activeWindows.map(x=>({time:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'),value:x.estimated_feeders,color:'#ff9a36'}));
    const convectiveMarkers=activeWindows.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+activeWindows.map(x=>'<span style="border:1px solid #a8753c;border-radius:5px;padding:4px 6px;color:#ffd096;font-size:11px">'+esc(x.time.slice(5,16).replace('T',' ')+'Z')+' · '+esc(x.convective_models.join('+').toUpperCase())+' · '+Number(x.local_reflectivity_dbz).toFixed(0)+' dBZ</span>').join('')+'</div>':'';
@@ -923,6 +925,36 @@ lightning_bridge=r"""
 """
 html=re.sub(r'<script id="cu-lightning-visible-bridge">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',lightning_bridge+'</body>',1) if '</body>' in html else html+lightning_bridge
+
+
+# The legacy main chart shaded sounding ingredients, not the local REFC
+# intervals shown by the parallel chart. Reuse one shared valid-hour source.
+main_start=html.find('function drawForecast(){')
+main_end=html.find('const overlayInfo=document.getElementById',main_start)
+if main_start>=0 and main_end>main_start:
+    main=html[main_start:main_end]
+    shade_start=main.find(' // Hourly model-derived environmental ingredient shading')
+    if shade_start>=0:
+        main=main[:shade_start]+r""" // Shared local ≥35 dBZ reflectivity shading; no feeder multiplier.
+ const localHours=window.cuLocalConvectiveShadeHours;
+ const shadeCounts={local:0,unavailable:0};
+ if(window.cuShowIngredientOverlay!==false && Array.isArray(localHours)){
+  const active=new Set(localHours);
+  times.forEach((t,i)=>{
+   if(!active.has(t.slice(0,13)))return;
+   const dx=PW/(times.length-1),left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
+   ctx.fillStyle='#ff9a3638';ctx.fillRect(left,T,right-left,PH);
+   shadeCounts.local++;
+  });
+ }
+""" 
+        html=html[:main_start]+main+html[main_end:]
+        html=html.replace("if(overlayInfo)overlayInfo.textContent=window.cuShowIngredientOverlay===false?'Environmental shading is hidden.':'Environmental shading active: '+shadeCounts.independent+' hours supported by GFS/HRRR, '+shadeCounts.hybridOnly+' additional NAM*-only hours (hatched), '+shadeCounts.unavailable+' hours without usable screening. Shading is not a storm probability or feeder-outage prediction.';",
+          "if(overlayInfo)overlayInfo.textContent=window.cuShowIngredientOverlay===false?'Local convective shading hidden.':Array.isArray(window.cuLocalConvectiveShadeHours)?'Local ≥35 dBZ reflectivity: '+shadeCounts.local+' forecast hours shaded (shared with experimental chart). No feeder increment.':'Waiting for local reflectivity screening data.';")
+    else:
+        print('WARNING: original shading block not found')
+else:
+    print('WARNING: original chart renderer not found')
 
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
