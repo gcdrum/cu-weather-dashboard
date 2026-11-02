@@ -1052,6 +1052,16 @@ function drawForecast(){
    };
  }).filter(Boolean);
  const rrfs=(window.cuRRFSHourlyFeeders?.length?window.cuRRFSHourlyFeeders:rrfsLegacy);
+
+ const hourKey=v=>{
+  const raw=String(v||'');
+  const ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');
+  return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13)+':00':null;
+ };
+ for(const rows of [g,n,h,rrfs])for(const row of rows){
+  const key=hourKey(row.time);if(key)row.time=key;
+ }
+ window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs};
  if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;
  const hourUTC=v=>{
   const raw=String(v??'').trim();
@@ -3302,6 +3312,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3758,6 +3769,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3785,6 +3797,25 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4124,7 +4155,8 @@ window.cuLightningDensityForecasts=[];
   if(!host){host=document.createElement('details');host.id='cu-model-average-audit-panel';host.style.cssText='margin:10px 8px;padding:10px;border:1px solid #516675;border-radius:6px;color:#d9e5ee;background:#132632;font:12px Segoe UI,Arial';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',host);}
   const first=rows[0],peak=rows.reduce((a,b)=>b.forecastFeeders>a.forecastFeeders?b:a,first);
   const selected=[first,peak,rows[Math.floor(rows.length/2)],rows[rows.length-1]].filter((r,i,a)=>a.findIndex(q=>q.time===r.time)===i).sort((a,b)=>a.time.localeCompare(b.time));
-  const datasets=[['GFS',cache.gfs?.rows||[]],['NAM',cache.nam?.rows||[]],['HRRR',cache.hrrr?.rows||[]],['RRFS',rrfs]];
+  const source=window.cuAverageSourceRows||{};
+  const datasets=[['GFS',source.gfs||[]],['NAM',source.nam||[]],['HRRR',source.hrrr||[]],['RRFS',source.rrfs||[]]];
   const value=(set,t)=>{const x=set.find(r=>r.time===t);return Number.isFinite(x?.forecastFeeders)?x.forecastFeeders:null};
   const fmt=v=>Number.isFinite(v)?v.toFixed(2):'—';
   const trs=selected.map(row=>{
