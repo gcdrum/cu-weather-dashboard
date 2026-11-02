@@ -1397,7 +1397,7 @@ function drawForecast(){
    if(valid.length){
     const first=valid[0],last=valid[valid.length-1];
     const left=Math.max(L,Math.min(L+PW,x(0)-step/2));
-    const endIdx=times.findIndex(t=>Date.parse(t)>last);
+    const endIdx=times.findIndex(t=>Date.parse(t.endsWith('Z')?t:t+'Z')>last);
     const edge=endIdx>=0?Math.max(L,Math.min(L+PW,x(endIdx)-step/2)):L+PW;
     ctx.save();
     ctx.strokeStyle='#8ed4ef';ctx.lineWidth=1.3;ctx.setLineDash([3,3]);
@@ -3269,6 +3269,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3709,6 +3710,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3736,6 +3738,13 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
 
 
 
