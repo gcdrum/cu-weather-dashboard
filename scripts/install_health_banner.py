@@ -1261,8 +1261,9 @@ html=html.replace("NO HRRR FORECAST AVAILABLE","NO HRRR REFLECTIVITY AVAILABLE")
 # after the qualified/integrated arrays exist; do not depend on obsolete
 # plotQualifiedArray call signatures.
 start=html.find('function drawForecast(){')
-end=html.find('const viewportWidth=',start)
+end=html.find(' const qCount=qImpact.filter(Number.isFinite).length;',start)
 if start>=0 and end>start:
+    end+=len(' const qCount=qImpact.filter(Number.isFinite).length;')
     block=html[start:end]
     if 'const qIntegrated=times.map(' in block and 'const qImpact=times.map(' in block:
         # Rename the earlier four-model average so existing plot code still
