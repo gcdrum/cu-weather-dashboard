@@ -129,6 +129,17 @@ jobs:
           PYHEALTH
       - name: Install dashboard freshness banner
         run: python scripts/install_health_banner.py
+      - name: Guard absent RRFS diagnostic controls
+        run: |
+          python - <<'PYFIX'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          old="document.getElementById('rrfs-test')?.addEventListener('click',test);links();"
+          new="document.getElementById('rrfs-test')?.addEventListener('click',test);if(document.getElementById('rrfs-cycle')&&document.getElementById('rrfs-hour'))links();"
+          s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          PYFIX
       - name: Validate generated dashboard JavaScript and model updater syntax
         run: |
           python -m py_compile scripts/update_hrrr.py scripts/update_rrfs.py scripts/install_health_banner.py
