@@ -44,7 +44,7 @@ const path=require('path');
      if(hits===0)throw Error('Lightning JSON was never requested by dashboard');
      if(!report.density.length)throw Error('Lightning data did not enter global forecast state');
      if(report.level?.level!==expected)throw Error('Lightning classifier failed in browser: '+JSON.stringify(report.level));
-     const visible=report.excerpt.match(/Lightning\\s+([^\\n]+)/i)?.[1]?.trim()||'';
+     const visible=report.excerpt.match(/Lightning\s+([^\n]+)/i)?.[1]?.trim()||'';
      const expectedVisible={none:'BELOW THRESHOLD',possible:'POSSIBLE',elevated:'ELEVATED',likely:'LIKELY',extreme:'EXTREME'}[expected];
      if(!visible.toUpperCase().includes(expectedVisible))throw Error('Visible Lightning tile mismatch: expected '+expectedVisible+', got '+visible+'; browser errors: '+errors.join(' | '));
      await page.close();
