@@ -6,14 +6,6 @@
   "units_verified": false,
   "hours": [
     {
-      "time": "2026-11-02T17:00:00+00:00",
-      "value": 0.0,
-      "units_verified": false,
-      "native_index": true,
-      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T15:00:00+00:00"
-    },
-    {
       "time": "2026-11-02T18:00:00+00:00",
       "value": 0.0,
       "units_verified": false,
@@ -1050,5 +1042,5 @@
   "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced",
   "native_index_provisional": true,
   "matched_fields": 36,
-  "valid_hours": 56
+  "valid_hours": 55
 }
