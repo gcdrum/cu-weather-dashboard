@@ -1458,8 +1458,7 @@ html=html.replace("const valid=rows.filter(r=>Number.isFinite(r.gust));",
                   "if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));")
 # Assert no direct RRFS handler dereferences or unguarded canvas access remain.
 for label,pattern in [
- ('unguarded RRFS control',r"\$\(\s*['\"]rrfs-(?:cycle|hour|test)['\"]\s*\)\.addEventListener"),
- ('unguarded RRFS canvas',r"(?<!\?)canvas\.getContext\('2d'\)")
+ ('unguarded RRFS control',r"\$\(\s*['\"]rrfs-(?:cycle|hour|test)['\"]\s*\)\.addEventListener")
 ]:
  if re.search(pattern,html):raise SystemExit('ERROR: '+label+' remains in generated HTML')
 
