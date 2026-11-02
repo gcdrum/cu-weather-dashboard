@@ -893,7 +893,7 @@ lightning_bridge=r"""
   if(!first){
    if(!loaded)return;
    // A missing future horizon is UNKNOWN, not a verified no-lightning forecast.
-   if(!future.length){status.textContent='WAITING FOR DATA';status.dataset.status='waiting';if(dot)dot.dataset.status='waiting'}
+   // Leave verified lightning classification untouched when provisional data is absent.
    return;
   }
   const clock=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:true}).format(new Date(first.time));
