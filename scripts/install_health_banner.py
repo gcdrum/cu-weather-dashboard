@@ -736,14 +736,14 @@ main_timeline=r"""
 </style>
 <script id="cu-main-timeline-bridge">
 (()=>{
- const parseUTC=s=>Date.parse(/[zZ]|[+-]\\d\\d:\\d\\d$/.test(s)?s:s+'Z');
+ const parseUTC=s=>Date.parse(/[zZ]|[+-]\d\d:\d\d$/.test(s)?s:s+'Z');
  const local=t=>new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',weekday:'short',hour:'numeric',hour12:true}).format(new Date(t));
  async function render(){
   try{
    const r=await fetch('./rrfs_reflectivity.json?t='+Date.now(),{cache:'no-store'});
    if(!r.ok)return;
    const d=await r.json();
-   const rows=(d.hours||[]).map(h=>({t:parseUTC(h.time),dbz:Number(h.dbz)})).filter(h=>Number.isFinite(h.t)&&Number.isFinite(h.dbz)&&h.t>=Date.now()-3600000).sort((a,b)=>a.t-b.t).slice(0,48);
+   const rows=(d.hours||[]).map(h=>({t:parseUTC(h.time),dbz:Array.isArray(h.site_dbz)&&h.site_dbz.some(Number.isFinite)?Math.max(...h.site_dbz.filter(Number.isFinite)):Number(h.dbz)})).filter(h=>Number.isFinite(h.t)&&Number.isFinite(h.dbz)&&h.t>=Date.now()-3600000).sort((a,b)=>a.t-b.t).slice(0,48);
    if(!rows.length)return;
    let el=document.getElementById('cu-rrfs-storm-window');
    if(!el){el=document.createElement('section');el.id='cu-rrfs-storm-window';const chart=document.querySelector('canvas');(chart?.parentElement||document.body).insertAdjacentElement('afterend',el)}
