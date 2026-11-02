@@ -6,6 +6,7 @@ on:
       - '.github/workflows/main.yml'
       - 'scripts/install_health_banner.py'
       - 'scripts/update_rrfs.py'
+      - 'scripts/update_nam_reflectivity.py'
       - 'scripts/test_lightning_browser.cjs'
   workflow_dispatch:
   schedule:
@@ -37,6 +38,8 @@ jobs:
           if [ $((10#$(date -u +%H) % 3)) -eq 0 ] && [ "$(date -u +%M)" -lt "20" ]; then python scripts/update_reflectivity.py; else echo "GFS skipped (3-hour cadence)"; fi
       - name: Refresh HRRR incrementally (latest REFC first)
         run: python scripts/update_hrrr.py
+      - name: Refresh NOAA NAM composite reflectivity (non-blocking)
+        run: python scripts/update_nam_reflectivity.py || echo 'NAM reflectivity unavailable; preserving previous records'
       - name: Refresh RRFS independently (non-blocking)
         run: python scripts/update_rrfs.py || echo 'RRFS unavailable; preserving HRRR/GFS'
       - name: Refresh GFS and NAM wind samples (non-blocking)
