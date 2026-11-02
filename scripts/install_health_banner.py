@@ -487,7 +487,8 @@ if light_update_anchor in html and 'cuLightningOperationalV2' not in html:
    // A positive raw signal only supports Possible pending calibration.
    const rawHit=signal&&signal.value>0;
    threat('Lightning',lightningHit||rawHit?'possible':'waiting',
-     (lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+\n     (rawHit?'HRRR uncalibrated lightning guidance '+signal.value+' (dimensionless; Possible screening only). ':'')+
+     (lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+
+     (rawHit?'HRRR uncalibrated lightning guidance '+signal.value+' (dimensionless; Possible screening only). ':'')+
      'Native HRRR/RRFS lightning flash density is not yet verified. '+
      'No verified native lightning signal; do not interpret missing density as zero.',
      lightningHit?cuPhaseForTime(lightningHit.ms):rawHit?cuPhaseForTime(Date.parse(signal.time)):{phase:'unknown',label:'AWAITING VERIFIED LIGHTNING DATA'});
