@@ -160,7 +160,7 @@ snippet = r"""
    }));
    const consensus=[...hoursMap.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,models])=>{
      const values=models.map(x=>x.gust).sort((a,b)=>a-b);
-     const median=values.length%2?values[(values.length-1)/2]:(values[values.length/2-1]+values[values.length/2])/2;
+     const median=values.reduce((sum,v)=>sum+v,0)/values.length;
      // User-calibrated nonconvective outage curve, capped by 170 feeders.
      const feederEstimate=Math.max(0,Math.min(170,median<30?0:median<40?(median-30)*0.5:median<55?5+(median-40)*2/3:median<60?15+(median-55):20+(median-60)*2));
      const feeders=Math.round(feederEstimate*10)/10;
@@ -183,7 +183,7 @@ snippet = r"""
        reflectivity=[...byKey.values()];
      }
    } catch(e){console.warn('RRFS reflectivity unavailable',e)}
-   const convective=reflectivity.filter(r=>['gfs','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
+   const convective=reflectivity.filter(r=>['gfs','nam','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
      const local=Number(r.zones?.springfield_area);
      const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
