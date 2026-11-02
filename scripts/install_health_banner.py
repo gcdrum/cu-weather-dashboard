@@ -605,10 +605,22 @@ lightning_ui_bridge=r"""
 <script id="cu-lightning-visible-bridge">
 (()=>{
  const labels={none:'BELOW THRESHOLD',possible:'POSSIBLE',elevated:'ELEVATED',likely:'LIKELY',extreme:'EXTREME'};
+ let directRRFS=[];
+ async function loadRRFS(){
+  try{
+   const response=await fetch('rrfs_lightning.json?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return;
+   const data=await response.json();
+   if(!Array.isArray(data.hours))return;
+   directRRFS=data.hours.filter(h=>h.native_index===true&&Number.isFinite(h.value)&&h.value>=0&&h.value<=15).map(h=>({model:'rrfs',time:h.time,value:h.value,source_cycle:h.source_cycle||data.cycle}));
+   window.cuLightningProvisionalForecasts=directRRFS;
+   refresh();
+  }catch(e){console.warn('RRFS lightning tile fetch',e)}
+ }
  function refresh(){
   const now=Date.now()-15*60000;
   const valid=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
-  const provisional=(window.cuLightningProvisionalForecasts||[]).filter(x=>Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
+  const provisional=[...(window.cuLightningProvisionalForecasts||[]),...directRRFS].filter(x=>Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
   if(!valid.length&&!provisional.length)return;
   const provisionalPeak=provisional.length?provisional.reduce((a,b)=>a.value>=b.value?a:b):null;
   const provisionalPositive=provisionalPeak?.value>0;
@@ -633,6 +645,7 @@ lightning_ui_bridge=r"""
   status.style.color=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
   if(dot)dot.style.backgroundColor=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
  }
+ loadRRFS();setInterval(loadRRFS,60000);
  document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
  window.addEventListener('load',refresh);
  // Legacy V85 recalculations can overwrite the display after data arrives.
