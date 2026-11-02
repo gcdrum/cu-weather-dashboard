@@ -544,5 +544,9 @@ window.addEventListener('load',()=>{
 if 'window.cuLightningDensityForecasts=[]' not in html:
     html=html.replace('</body>',light_fetch_patch+'</body>',1)
 
+# Repair legacy literal-backslash newline emitted into the operational controller.
+# Previous installer versions left this in index.html and skipped reinsertion.
+html=html.replace("(lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+\\\\n     (rawHit?", "(lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+\\n     (rawHit?")
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
