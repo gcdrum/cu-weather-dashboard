@@ -1416,5 +1416,20 @@ html=html.replace("['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean',
 # Remove a misleading fallback label when derived curves have no valid values.
 html=html.replace("All curves (2–6)","All available curves (2–6)")
 
+
+# Repair confirmed browser exceptions in generated legacy panels.
+# The model inventory uses updateGlobal() even when the old helper is absent.
+html=html.replace("  updateGlobal();return;","  if(typeof updateGlobal==='function')updateGlobal();return;")
+# RRFS developer probe controls are optional; avoid terminating the page's script.
+html=html.replace("  $('rrfs-cycle').addEventListener('change',links);$('rrfs-hour').addEventListener('change',links);",
+                  "  if($('rrfs-cycle'))$('rrfs-cycle').addEventListener('change',links);if($('rrfs-hour'))$('rrfs-hour').addEventListener('change',links);")
+html=html.replace("  $('rrfs-test').addEventListener('click',test);links();",
+                  "  if($('rrfs-test'))$('rrfs-test').addEventListener('click',test);if($('rrfs-cycle')&&$('rrfs-hour'))links();")
+# RRFS chart container may have been replaced by the newer main chart.
+# Do not dereference an absent canvas.
+html=html.replace("const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d');",
+                  "const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas.getContext('2d');if(!ctx)return;")
+print('Patched three observed browser exception sites')
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
