@@ -3258,6 +3258,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3404,6 +3405,18 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    // establish that thunderstorms threaten the utility service territory.
    let reflectivity=[];
    try {const raw=await get('reflectivity.json');reflectivity=Array.isArray(raw)?raw:[];} catch(e){}
+   // RRFS publishes REFC separately from the legacy GFS/HRRR file.
+   // Merge by model and valid time, retaining high-resolution source identity.
+   try {
+     const rrfs=await get('rrfs_reflectivity.json');
+     if(Array.isArray(rrfs?.hours)){
+       const byKey=new Map(reflectivity.map(x=>[String(x.model).toLowerCase()+'|'+x.time,x]));
+       for(const x of rrfs.hours){
+         if(x?.time&&Array.isArray(x.site_dbz))byKey.set('rrfs|'+x.time,{...x,model:'rrfs'});
+       }
+       reflectivity=[...byKey.values()];
+     }
+   } catch(e){console.warn('RRFS reflectivity unavailable',e)}
    const convective=reflectivity.filter(r=>['gfs','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(r.time);
      const local=Number(r.zones?.springfield_area);
@@ -3675,6 +3688,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3702,6 +3716,8 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
 
 
 
