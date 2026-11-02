@@ -4,6 +4,24 @@ import re
 
 path = Path("index.html")
 html = path.read_text(encoding="utf-8")
+
+# Main chart repair: fixed UTC hourly timeline. The former union of irregular
+# model timestamps spaced every observation equally, compressing/expanding days.
+# Keep missing model hours missing rather than inventing zero gusts/outages.
+chart_start=html.find('function drawForecast(){')
+if chart_start>=0:
+    chart_end=html.find('const viewportWidth=',chart_start)
+    if chart_end>chart_start:
+        block=html[chart_start:chart_end]
+        old="const times=[...new Set([...g,...n,...h,...rrfs].map(r=>r.time).filter(t=>Date.parse(t+'Z')>=now))].sort().slice(0,144); window.cuV50MainTimes=times.slice();"
+        new="""const startUTC=Math.floor(Date.now()/3600000)*3600000;
+ const times=Array.from({length:169},(_,i)=>new Date(startUTC+i*3600000).toISOString().slice(0,16));
+ window.cuV50MainTimes=times.slice();"""
+        if old in block:
+            html=html[:chart_start]+block.replace(old,new)+html[chart_end:]
+        elif new not in block:
+            print('WARNING: main chart timeline pattern not found; no timeline replacement')
+
 snippet = r"""
 <script id="cu-forecast-health-monitor">
 (() => {
