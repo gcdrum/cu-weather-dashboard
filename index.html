@@ -353,7 +353,7 @@ if(m.id==='refs'){
   document.getElementById('a-'+m.id).textContent='Not confirmed';
   states[m.id]={ok:false};
  }
- updateGlobal();return;
+ if(typeof updateGlobal==='function')updateGlobal();return;
 }
 if(m.id==='rrfs'){
  try{
@@ -375,7 +375,7 @@ if(m.id==='rrfs'){
   document.getElementById('a-'+m.id).textContent='Not confirmed';
   states[m.id]={ok:false};
  }
- updateGlobal();return;
+ if(typeof updateGlobal==='function')updateGlobal();return;
 }
  for(let back=0;back<3;back++){
  const d=cycleAt(m.hours,back);
@@ -1020,7 +1020,7 @@ function updateDowndraftScreen(){
 }
 function drawForecast(){
  updateDowndraftScreen();
- const canvas=document.getElementById('live-forecast-chart'),ctx=canvas.getContext('2d');
+ const canvas=document.getElementById('live-forecast-chart'),ctx=canvas?.getContext('2d');
  // Attach mobile-friendly scenario selector once, without changing chart dimensions.
  if(!document.getElementById('cu-conditional-gust-select')){
   const host=document.createElement('div');host.id='cu-retired-conditional-scenario';host.style.cssText='display:none;'+'padding:10px 12px;margin:8px 0;border:1px solid #385b70;border-radius:8px;background:#102532;color:#dceaf2;font:13px Segoe UI,Arial';
@@ -1984,8 +1984,8 @@ setTimeout(startProfiles,45000);
   }catch(e){messages.push('Public RRFS directory listing: '+e.message)}
   out.textContent=messages.join('\n');$('rrfs-test').disabled=false;
  }
- $('rrfs-cycle').addEventListener('change',links);$('rrfs-hour').addEventListener('change',links);
- $('rrfs-test').addEventListener('click',test);links();
+ document.getElementById('rrfs-cycle')?.addEventListener('change',links);document.getElementById('rrfs-hour')?.addEventListener('change',links);
+ document.getElementById('rrfs-test')?.addEventListener('click',test);if(document.getElementById('rrfs-cycle')&&document.getElementById('rrfs-hour'))links();
 })();
 </script>
 <script>
@@ -2089,7 +2089,7 @@ const chicagoDay=t=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',
 const dayLabel=d=>new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'}).format(new Date(d+'T12:00:00Z'));
 const localHour=t=>new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:true}).format(new Date(t+'Z'));
 function rowsFor(id){const arr=id==='noaaMaxWind'?(window.cuNoaaMaxWindPoints||[]): (window.cuPointData?.[id]||[]);const map=new Map();for(const p of arr){if(!p||!Array.isArray(p.time))continue;for(let i=0;i<p.time.length;i++){const v=p.gust?.[i];if(!Number.isFinite(v))continue;let r=map.get(p.time[i]);if(!r){r=[];map.set(p.time[i],r)}r.push(v)}}return [...map].map(([time,values])=>({time,max:Math.max(...values),mean:values.reduce((a,b)=>a+b,0)/values.length,n:values.length})).sort((a,b)=>a.time.localeCompare(b.time))}
-function draw(){const all=models.map(([id,label,color])=>({id,label,color,rows:rowsFor(id)}));const days=[...new Set(all.flatMap(m=>m.rows.map(r=>chicagoDay(r.time))))].sort();const prev=sel.value;sel.innerHTML=days.map(d=>'<option value="'+d+'">'+dayLabel(d)+'</option>').join('');if(days.includes(prev))sel.value=prev;else if(days.length)sel.value=days[0];const day=sel.value,subset=all.map(m=>({...m,rows:m.rows.filter(r=>chicagoDay(r.time)===day)}));const times=[...new Set(subset.flatMap(m=>m.rows.map(r=>r.time)))].sort();const status=document.getElementById('cu-gust-audit-status'),details=document.getElementById('cu-gust-audit-details');const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);if(!times.length){status.textContent='No valid gust values retrieved.';details.textContent='No forecast values. This is unknown, not zero.';return}
+function draw(){const all=models.map(([id,label,color])=>({id,label,color,rows:rowsFor(id)}));const days=[...new Set(all.flatMap(m=>m.rows.map(r=>chicagoDay(r.time))))].sort();const prev=sel.value;sel.innerHTML=days.map(d=>'<option value="'+d+'">'+dayLabel(d)+'</option>').join('');if(days.includes(prev))sel.value=prev;else if(days.length)sel.value=days[0];const day=sel.value,subset=all.map(m=>({...m,rows:m.rows.filter(r=>chicagoDay(r.time)===day)}));const times=[...new Set(subset.flatMap(m=>m.rows.map(r=>r.time)))].sort();const status=document.getElementById('cu-gust-audit-status'),details=document.getElementById('cu-gust-audit-details');const ctx=canvas?.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);if(!times.length){status.textContent='No valid gust values retrieved.';details.textContent='No forecast values. This is unknown, not zero.';return}
 const w=canvas.width,h=canvas.height,L=48,R=20,T=16,B=44;const high=Math.max(40,...subset.flatMap(m=>m.rows.map(r=>r.max)));const ceiling=Math.ceil(high/10)*10;const x=i=>L+(w-L-R)*(times.length<=1?.5:i/(times.length-1));const y=v=>h-B-(h-T-B)*v/ceiling;
 ctx.font='12px system-ui';ctx.lineWidth=1;ctx.textAlign='right';for(let v=0;v<=ceiling;v+=10){ctx.strokeStyle='#304958';ctx.beginPath();ctx.moveTo(L,y(v));ctx.lineTo(w-R,y(v));ctx.stroke();ctx.fillStyle='#a6c3d5';ctx.fillText(v,L-7,y(v)+4)}ctx.textAlign='center';const step=Math.max(1,Math.ceil(times.length/8));times.forEach((t,i)=>{if(i%step&&i!==times.length-1)return;ctx.fillStyle='#a6c3d5';ctx.fillText(localHour(t),x(i),h-18)});
 subset.forEach(m=>{const byTime=new Map(m.rows.map(r=>[r.time,r]));ctx.strokeStyle=m.color;ctx.lineWidth=2.5;ctx.beginPath();let started=false;times.forEach((t,i)=>{const r=byTime.get(t);if(!r){started=false;return}if(!started){ctx.moveTo(x(i),y(r.max));started=true}else ctx.lineTo(x(i),y(r.max))});ctx.stroke();ctx.globalAlpha=.5;ctx.setLineDash([5,5]);ctx.lineWidth=1.5;ctx.beginPath();started=false;times.forEach((t,i)=>{const r=byTime.get(t);if(!r){started=false;return}if(!started){ctx.moveTo(x(i),y(r.mean));started=true}else ctx.lineTo(x(i),y(r.mean))});ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1});
@@ -2270,7 +2270,7 @@ async function getAllPoints(){
  throw Error(errs.slice(-4).join(' | '));
 }
 function draw(){
- const d=dataset.filter(x=>day(x.t)===sel.value),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+ const d=dataset.filter(x=>day(x.t)===sel.value),ctx=canvas?.getContext('2d'),w=canvas.width,h=canvas.height;
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#102b3a';ctx.fillRect(0,0,w,h);
  const left=52,right=w-18,top=20,bottom=h-44; canvas.__cuTimeCursor={times:d.map(x=>x.t),left,right,logicalWidth:w,kind:'hrrr'};
  if(!d.length){ctx.fillStyle='#b6d4e5';ctx.font='16px sans-serif';ctx.fillText('No verified 15-minute HRRR data for this day',55,70);return}
@@ -3243,8 +3243,8 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
   target.insertAdjacentElement('afterend',node);return node;
  }
  function render(panel,rows,cycle,status){
-  const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d');
-  const valid=rows.filter(r=>Number.isFinite(r.gust));
+  const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
+  if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3279,6 +3279,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3508,7 +3509,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    }));
    const consensus=[...hoursMap.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,models])=>{
      const values=models.map(x=>x.gust).sort((a,b)=>a-b);
-     const median=values.length%2?values[(values.length-1)/2]:(values[values.length/2-1]+values[values.length/2])/2;
+     const median=values.reduce((sum,v)=>sum+v,0)/values.length;
      // User-calibrated nonconvective outage curve, capped by 170 feeders.
      const feederEstimate=Math.max(0,Math.min(170,median<30?0:median<40?(median-30)*0.5:median<55?5+(median-40)*2/3:median<60?15+(median-55):20+(median-60)*2));
      const feeders=Math.round(feederEstimate*10)/10;
@@ -3531,7 +3532,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
        reflectivity=[...byKey.values()];
      }
    } catch(e){console.warn('RRFS reflectivity unavailable',e)}
-   const convective=reflectivity.filter(r=>['gfs','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
+   const convective=reflectivity.filter(r=>['gfs','nam','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
      const local=Number(r.zones?.springfield_area);
      const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
@@ -3660,7 +3661,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
   const c=canvas?.__cuTimeCursor,rows=window.cuParallelOverlayRows||[];
   const rrfs=window.cuRRFSFeederCurve||[];
   if(!canvas||!c||(!rows.length&&!rrfs.length)||window.cuChartMode!=='live')return;
-  const ctx=canvas.getContext('2d'),dpr=Math.max(1,window.devicePixelRatio||1);
+  const ctx=canvas?.getContext('2d'),dpr=Math.max(1,window.devicePixelRatio||1);
   const W=c.logicalWidth,H=675,L=108,R=87,T=76,B=259,PH=H-T-B;
   const y=v=>{v=Math.max(0,Math.min(80,v));return T+PH-((v<=10?2*v:20+(v-10))/90)*PH};
   const first=Date.parse(c.times[0]+'Z'),last=Date.parse(c.times[c.times.length-1]+'Z');
@@ -3835,6 +3836,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3862,6 +3864,29 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

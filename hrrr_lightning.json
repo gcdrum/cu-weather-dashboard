@@ -1,51 +1,9 @@
 {
   "model": "hrrr",
-  "cycle": "2026-11-02T19:00:00+00:00",
+  "cycle": "2026-11-02T22:00:00+00:00",
   "units": "unverified native GRIB field; not yet flashes/km2/5min",
   "status": "validation_required",
   "hours": [
-    {
-      "time": "2026-11-02T20:00:00+00:00",
-      "peak_raw": 0.0,
-      "field": "LTNG/LITNG",
-      "grib_metadata": {
-        "shortName": "ltng",
-        "name": "Lightning",
-        "units": "dimensionless",
-        "stepType": "instant",
-        "stepRange": "1"
-      },
-      "units_verified": false,
-      "source_cycle": "2026-11-02T19:00:00+00:00"
-    },
-    {
-      "time": "2026-11-02T21:00:00+00:00",
-      "peak_raw": 0.0,
-      "field": "LTNG/LITNG",
-      "grib_metadata": {
-        "shortName": "ltng",
-        "name": "Lightning",
-        "units": "dimensionless",
-        "stepType": "instant",
-        "stepRange": "2"
-      },
-      "units_verified": false,
-      "source_cycle": "2026-11-02T19:00:00+00:00"
-    },
-    {
-      "time": "2026-11-02T22:00:00+00:00",
-      "peak_raw": 0.0,
-      "field": "LTNG/LITNG",
-      "grib_metadata": {
-        "shortName": "ltng",
-        "name": "Lightning",
-        "units": "dimensionless",
-        "stepType": "instant",
-        "stepRange": "3"
-      },
-      "units_verified": false,
-      "source_cycle": "2026-11-02T19:00:00+00:00"
-    },
     {
       "time": "2026-11-02T23:00:00+00:00",
       "peak_raw": 0.0,
@@ -160,17 +118,17 @@
     },
     {
       "time": "2026-11-03T07:00:00+00:00",
-      "peak_raw": 0.039,
+      "peak_raw": 0.173,
       "field": "LTNG/LITNG",
       "grib_metadata": {
         "shortName": "ltng",
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "12"
+        "stepRange": "9"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-02T19:00:00+00:00"
+      "source_cycle": "2026-11-02T22:00:00+00:00"
     },
     {
       "time": "2026-11-03T08:00:00+00:00",
@@ -273,24 +231,7 @@
   ],
   "checked_leads": [
     0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18
+    9
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }
