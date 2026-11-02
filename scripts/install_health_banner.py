@@ -544,6 +544,15 @@ window.addEventListener('load',()=>{
 if 'window.cuLightningDensityForecasts=[]' not in html:
     html=html.replace('</body>',light_fetch_patch+'</body>',1)
 
+# Normalize the entire previously generated lightning-level script. Earlier builds
+# emitted literal backslash-n sequences; idempotent insertion kept them forever.
+legacy_start=html.find('<script>\\\\nwindow.cuHRRRLightningLevel=')
+if legacy_start>=0:
+    legacy_end=html.find('</script>',legacy_start)
+    if legacy_end<0: raise SystemExit('Malformed legacy lightning script has no closing tag')
+    legacy=html[legacy_start:legacy_end+len('</script>')]
+    html=html[:legacy_start]+legacy.replace(chr(92)+'n',chr(10))+html[legacy_end+len('</script>'):]
+
 # Fix invalid backslash-n sequences already embedded in older generated HTML.
 # Match a literal backslash followed by n, not a real line break.
 html=html.replace("+" + chr(92) + "n     (rawHit?", "+" + chr(10) + "     (rawHit?")
