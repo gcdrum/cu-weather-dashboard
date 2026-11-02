@@ -159,6 +159,30 @@ jobs:
               raise SystemExit('Lightning data loader missing')
           print('All inline dashboard scripts passed syntax validation')
           PYALLJS
+      - name: Test lightning thresholds with synthetic values (never publish test data)
+        run: |
+          python - <<'PYLIGHT'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          match=re.search(r'window\\.cuHRRRLightningLevel=function\\(v\\)\\{.*?\\n\\};',html,re.S)
+          if not match:raise SystemExit('Lightning classification function missing from generated HTML')
+          Path('/tmp/cu-lightning-classifier.js').write_text(match.group(0),encoding='utf-8')
+          print('Extracted actual published Lightning classifier')
+          PYLIGHT
+          node - <<'JSLIGHT'
+          const fs=require('fs'),vm=require('vm');
+          const context={window:{}};vm.createContext(context);
+          vm.runInContext(fs.readFileSync('/tmp/cu-lightning-classifier.js','utf8'),context);
+          const classify=context.window.cuHRRRLightningLevel;
+          const cases=[[0,'none',1],[0.05,'none',1],[0.2,'possible',2],[0.7,'possible',3],[2,'elevated',4],[4,'likely',5],[8,'extreme',6],[-1,'waiting',null]];
+          for(const [value,level,band] of cases){
+            const actual=classify(value);
+            if(actual.level!==level||actual.band!==band)throw Error('Lightning '+value+': expected '+level+'/'+band+', got '+JSON.stringify(actual));
+            console.log('PASS lightning',value,'=>',actual.level,'band',actual.band);
+          }
+          console.log('PASS all Lightning threat classifications; synthetic data never written to forecast JSON');
+          JSLIGHT
       - name: Commit published model data
         run: |
           git config user.name 'github-actions[bot]'
