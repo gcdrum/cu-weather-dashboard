@@ -1052,6 +1052,16 @@ function drawForecast(){
    };
  }).filter(Boolean);
  if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;
+ const hourUTC=v=>{
+  const raw=String(v??'').trim();
+  if(!raw)return '';
+  const iso=/[zZ]$|[+-]\d\d:?\d\d$/.test(raw)?raw:raw+'Z';
+  const ms=Date.parse(iso);
+  return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13)+':00':'';
+ };
+ for(const rows of [g,n,h,rrfs]){
+  for(const r of rows){const t=hourUTC(r.time);if(t)r.time=t;}
+ }
  const now=Date.now()-3600000;
  const startUTC=Math.floor(Date.now()/3600000)*3600000;
  const times=Array.from({length:73},(_,i)=>new Date(startUTC+i*3600000).toISOString().slice(0,16));
@@ -3270,6 +3280,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3711,6 +3722,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3738,6 +3750,13 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
 
 
 
