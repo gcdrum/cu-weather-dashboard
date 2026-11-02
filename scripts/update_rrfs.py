@@ -295,5 +295,24 @@ def main():
         payload['hours']=[merged[k] for k in sorted(merged) if k>=cutoff]
         payload['coverage_policy']='latest available value per valid hour; source_cycle per hour'
         atomic("rrfs_wind.json",payload)
+        # Publish native RRFS composite reflectivity independently of wind.
+        # Keep the same per-hour provenance and never substitute missing data
+        # with zero or regional maxima outside the 12 CU sampling points.
+        refl=[]
+        for row in payload['hours']:
+            samples=row.get('site_dbz')
+            if not isinstance(samples,list) or not any(isinstance(v,(int,float)) for v in samples):
+                continue
+            valid=[float(v) for v in samples if isinstance(v,(int,float))]
+            refl.append({'model':'rrfs','time':row['time'],
+                         'dbz':round(max(valid),2),'site_dbz':samples,
+                         'source_cycle':row.get('source_cycle',chosen.isoformat()),
+                         'source':'RRFS REFC 3km, CU 12-point maximum'})
+        atomic('rrfs_reflectivity.json',{
+            'model':'rrfs','cycle':chosen.isoformat(),'updated':now.isoformat(),
+            'coverage_policy':'per-valid-hour replacement; no synthetic zero',
+            'points':payload['points'],'hours':refl})
+        print(f'RRFS reflectivity: {len(refl)} valid CU-sampled forecast hours',flush=True)
+
     atomic("rrfs_status.json",{"status":"partial" if hours else "unavailable","cycle":chosen.isoformat(),"updated":now.isoformat(),"hours":sum(1 for k in hours if chosen.strftime("%Y-%m-%d") and 1 <= round((datetime.fromisoformat(k)-chosen.replace(tzinfo=None)).total_seconds()/3600) <= maxlead),"expected_hours":maxlead,"percent_complete":round(100*min(maxlead,sum(1 for k in hours if 1 <= round((datetime.fromisoformat(k)-chosen.replace(tzinfo=None)).total_seconds()/3600) <= maxlead))/maxlead,1),"complete":sum(1 for k in hours if 1 <= round((datetime.fromisoformat(k)-chosen.replace(tzinfo=None)).total_seconds()/3600) <= maxlead)>=maxlead,"errors":errors})
 if __name__=="__main__":main()
