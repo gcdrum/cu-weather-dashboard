@@ -790,5 +790,12 @@ html=html.replace("Date.parse(a.time)", "Date.parse(String(a.time).match(/(?:Z|[
 html=html.replace("Date.parse(b.time)", "Date.parse(String(b.time).match(/(?:Z|[+-]\\\\d{2}:\\\\d{2})$/i)?b.time:String(b.time)+'Z')")
 html=html.replace("provisionalPeak.value", "(provisional.find(x=>x.value>0)?.value??'unknown')")
 
+# The operational chart is an actionable 72-hour window, not a seven-day
+# view that compresses Tuesday's event into the first 15% of its width.
+html=html.replace('Array.from({length:169},(_,i)=>new Date(startUTC+i*3600000)', 'Array.from({length:73},(_,i)=>new Date(startUTC+i*3600000)')
+# A few older published versions use the same generated axis with a 169-hour
+# horizon; preserve the same time coordinates and missing-data gaps.
+
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
