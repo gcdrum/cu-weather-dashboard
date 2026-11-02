@@ -1,57 +1,17 @@
 {
   "model": "rrfs",
-  "cycle": "2026-11-02T00:00:00+00:00",
+  "cycle": "2026-11-02T06:00:00+00:00",
   "status": "retained_previous_cycle",
   "units": "flashes/km\u00b2/5 min",
   "units_verified": false,
   "hours": [
-    {
-      "time": "2026-11-02T04:00:00+00:00",
-      "value": 0.0,
-      "units_verified": false,
-      "native_index": true,
-      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
-    },
-    {
-      "time": "2026-11-02T05:00:00+00:00",
-      "value": 0.0,
-      "units_verified": false,
-      "native_index": true,
-      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
-    },
-    {
-      "time": "2026-11-02T06:00:00+00:00",
-      "value": 0.0,
-      "units_verified": false,
-      "native_index": true,
-      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
-    },
-    {
-      "time": "2026-11-02T07:00:00+00:00",
-      "value": 0.0,
-      "units_verified": false,
-      "native_index": true,
-      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
-    },
-    {
-      "time": "2026-11-02T08:00:00+00:00",
-      "value": 0.0,
-      "units_verified": false,
-      "native_index": true,
-      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
-    },
     {
       "time": "2026-11-02T09:00:00+00:00",
       "value": 0.0,
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T10:00:00+00:00",
@@ -59,7 +19,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T11:00:00+00:00",
@@ -67,7 +27,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T12:00:00+00:00",
@@ -75,7 +35,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T13:00:00+00:00",
@@ -83,7 +43,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T14:00:00+00:00",
@@ -91,7 +51,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T15:00:00+00:00",
@@ -99,7 +59,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T16:00:00+00:00",
@@ -107,7 +67,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T17:00:00+00:00",
@@ -115,7 +75,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T18:00:00+00:00",
@@ -123,7 +83,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T19:00:00+00:00",
@@ -131,7 +91,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T20:00:00+00:00",
@@ -139,7 +99,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T21:00:00+00:00",
@@ -147,7 +107,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T22:00:00+00:00",
@@ -155,7 +115,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-02T23:00:00+00:00",
@@ -163,7 +123,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T00:00:00+00:00",
@@ -171,7 +131,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T01:00:00+00:00",
@@ -179,7 +139,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T02:00:00+00:00",
@@ -187,7 +147,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T03:00:00+00:00",
@@ -195,7 +155,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T04:00:00+00:00",
@@ -203,7 +163,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T05:00:00+00:00",
@@ -211,7 +171,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T06:00:00+00:00",
@@ -219,7 +179,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T07:00:00+00:00",
@@ -227,55 +187,55 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T08:00:00+00:00",
-      "value": 2.06,
+      "value": 2.9,
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T09:00:00+00:00",
-      "value": 0.0,
+      "value": 6.42,
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T10:00:00+00:00",
-      "value": 1.54,
+      "value": 6.53,
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T11:00:00+00:00",
-      "value": 1.76,
+      "value": 5.87,
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T12:00:00+00:00",
-      "value": 0.0,
+      "value": 2.82,
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T13:00:00+00:00",
-      "value": 0.0,
+      "value": 3.88,
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T14:00:00+00:00",
@@ -283,7 +243,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T15:00:00+00:00",
@@ -291,7 +251,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T16:00:00+00:00",
@@ -299,7 +259,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T17:00:00+00:00",
@@ -307,7 +267,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T18:00:00+00:00",
@@ -315,7 +275,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T19:00:00+00:00",
@@ -323,7 +283,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T20:00:00+00:00",
@@ -331,7 +291,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T21:00:00+00:00",
@@ -339,7 +299,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T22:00:00+00:00",
@@ -347,7 +307,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-03T23:00:00+00:00",
@@ -355,7 +315,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T00:00:00+00:00",
@@ -363,7 +323,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T01:00:00+00:00",
@@ -371,7 +331,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T02:00:00+00:00",
@@ -379,7 +339,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T03:00:00+00:00",
@@ -387,7 +347,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T04:00:00+00:00",
@@ -395,7 +355,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T05:00:00+00:00",
@@ -403,7 +363,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T06:00:00+00:00",
@@ -411,7 +371,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T07:00:00+00:00",
@@ -419,7 +379,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T08:00:00+00:00",
@@ -427,7 +387,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T09:00:00+00:00",
@@ -435,7 +395,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T10:00:00+00:00",
@@ -443,7 +403,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T11:00:00+00:00",
@@ -451,7 +411,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     },
     {
       "time": "2026-11-04T12:00:00+00:00",
@@ -459,255 +419,303 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T06:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T13:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T06:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T14:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T06:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T15:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T06:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T16:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T06:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T17:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T06:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T18:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T06:00:00+00:00"
     }
   ],
   "note": "LTNG (dimensionless) is not flash density; only LTNGSD is eligible.",
   "index_matches": [
     {
       "lead": 1,
-      "line": "28:24246938:d=2026110200:LTNGSD:1 m above ground:0-1 hour max fcst:"
+      "line": "28:24505050:d=2026110206:LTNGSD:1 m above ground:0-1 hour max fcst:"
     },
     {
       "lead": 1,
-      "line": "29:24252857:d=2026110200:LTNGSD:2 m above ground:0-1 hour max fcst:"
+      "line": "29:24509909:d=2026110206:LTNGSD:2 m above ground:0-1 hour max fcst:"
     },
     {
       "lead": 2,
-      "line": "28:24129516:d=2026110200:LTNGSD:1 m above ground:1-2 hour max fcst:"
+      "line": "28:24821003:d=2026110206:LTNGSD:1 m above ground:1-2 hour max fcst:"
     },
     {
       "lead": 2,
-      "line": "29:24134111:d=2026110200:LTNGSD:2 m above ground:1-2 hour max fcst:"
+      "line": "29:24825877:d=2026110206:LTNGSD:2 m above ground:1-2 hour max fcst:"
     },
     {
       "lead": 3,
-      "line": "28:24928013:d=2026110200:LTNGSD:1 m above ground:2-3 hour max fcst:"
+      "line": "28:25062812:d=2026110206:LTNGSD:1 m above ground:2-3 hour max fcst:"
     },
     {
       "lead": 3,
-      "line": "29:24931629:d=2026110200:LTNGSD:2 m above ground:2-3 hour max fcst:"
+      "line": "29:25067346:d=2026110206:LTNGSD:2 m above ground:2-3 hour max fcst:"
     },
     {
       "lead": 4,
-      "line": "28:24199873:d=2026110200:LTNGSD:1 m above ground:3-4 hour max fcst:"
+      "line": "28:24378370:d=2026110206:LTNGSD:1 m above ground:3-4 hour max fcst:"
     },
     {
       "lead": 4,
-      "line": "29:24204544:d=2026110200:LTNGSD:2 m above ground:3-4 hour max fcst:"
+      "line": "29:24382713:d=2026110206:LTNGSD:2 m above ground:3-4 hour max fcst:"
     },
     {
       "lead": 5,
-      "line": "28:24411563:d=2026110200:LTNGSD:1 m above ground:4-5 hour max fcst:"
+      "line": "28:24553502:d=2026110206:LTNGSD:1 m above ground:4-5 hour max fcst:"
     },
     {
       "lead": 5,
-      "line": "29:24415423:d=2026110200:LTNGSD:2 m above ground:4-5 hour max fcst:"
+      "line": "29:24557870:d=2026110206:LTNGSD:2 m above ground:4-5 hour max fcst:"
     },
     {
       "lead": 6,
-      "line": "28:26000910:d=2026110200:LTNGSD:1 m above ground:5-6 hour max fcst:"
+      "line": "28:24725907:d=2026110206:LTNGSD:1 m above ground:5-6 hour max fcst:"
     },
     {
       "lead": 6,
-      "line": "29:26004211:d=2026110200:LTNGSD:2 m above ground:5-6 hour max fcst:"
+      "line": "29:24728761:d=2026110206:LTNGSD:2 m above ground:5-6 hour max fcst:"
     },
     {
       "lead": 7,
-      "line": "28:25134741:d=2026110200:LTNGSD:1 m above ground:6-7 hour max fcst:"
+      "line": "28:25219850:d=2026110206:LTNGSD:1 m above ground:6-7 hour max fcst:"
     },
     {
       "lead": 7,
-      "line": "29:25137651:d=2026110200:LTNGSD:2 m above ground:6-7 hour max fcst:"
+      "line": "29:25221813:d=2026110206:LTNGSD:2 m above ground:6-7 hour max fcst:"
     },
     {
       "lead": 8,
-      "line": "28:25158171:d=2026110200:LTNGSD:1 m above ground:7-8 hour max fcst:"
+      "line": "28:24688961:d=2026110206:LTNGSD:1 m above ground:7-8 hour max fcst:"
     },
     {
       "lead": 8,
-      "line": "29:25160827:d=2026110200:LTNGSD:2 m above ground:7-8 hour max fcst:"
+      "line": "29:24691023:d=2026110206:LTNGSD:2 m above ground:7-8 hour max fcst:"
     },
     {
       "lead": 9,
-      "line": "28:25422776:d=2026110200:LTNGSD:1 m above ground:8-9 hour max fcst:"
+      "line": "28:24638290:d=2026110206:LTNGSD:1 m above ground:8-9 hour max fcst:"
     },
     {
       "lead": 9,
-      "line": "29:25426082:d=2026110200:LTNGSD:2 m above ground:8-9 hour max fcst:"
+      "line": "29:24640530:d=2026110206:LTNGSD:2 m above ground:8-9 hour max fcst:"
     },
     {
       "lead": 10,
-      "line": "28:24737637:d=2026110200:LTNGSD:1 m above ground:9-10 hour max fcst:"
+      "line": "28:24760807:d=2026110206:LTNGSD:1 m above ground:9-10 hour max fcst:"
     },
     {
       "lead": 10,
-      "line": "29:24740571:d=2026110200:LTNGSD:2 m above ground:9-10 hour max fcst:"
+      "line": "29:24762535:d=2026110206:LTNGSD:2 m above ground:9-10 hour max fcst:"
     },
     {
       "lead": 11,
-      "line": "28:24916297:d=2026110200:LTNGSD:1 m above ground:10-11 hour max fcst:"
+      "line": "28:24996385:d=2026110206:LTNGSD:1 m above ground:10-11 hour max fcst:"
     },
     {
       "lead": 11,
-      "line": "29:24918993:d=2026110200:LTNGSD:2 m above ground:10-11 hour max fcst:"
+      "line": "29:24998408:d=2026110206:LTNGSD:2 m above ground:10-11 hour max fcst:"
     },
     {
       "lead": 12,
-      "line": "28:24875302:d=2026110200:LTNGSD:1 m above ground:11-12 hour max fcst:"
+      "line": "28:24726649:d=2026110206:LTNGSD:1 m above ground:11-12 hour max fcst:"
     },
     {
       "lead": 12,
-      "line": "29:24877401:d=2026110200:LTNGSD:2 m above ground:11-12 hour max fcst:"
+      "line": "29:24728368:d=2026110206:LTNGSD:2 m above ground:11-12 hour max fcst:"
     },
     {
       "lead": 13,
-      "line": "28:24746542:d=2026110200:LTNGSD:1 m above ground:12-13 hour max fcst:"
+      "line": "28:24852717:d=2026110206:LTNGSD:1 m above ground:12-13 hour max fcst:"
     },
     {
       "lead": 13,
-      "line": "29:24749015:d=2026110200:LTNGSD:2 m above ground:12-13 hour max fcst:"
+      "line": "29:24854699:d=2026110206:LTNGSD:2 m above ground:12-13 hour max fcst:"
     },
     {
       "lead": 14,
-      "line": "28:24776231:d=2026110200:LTNGSD:1 m above ground:13-14 hour max fcst:"
+      "line": "28:24446924:d=2026110206:LTNGSD:1 m above ground:13-14 hour max fcst:"
     },
     {
       "lead": 14,
-      "line": "29:24778756:d=2026110200:LTNGSD:2 m above ground:13-14 hour max fcst:"
+      "line": "29:24449999:d=2026110206:LTNGSD:2 m above ground:13-14 hour max fcst:"
     },
     {
       "lead": 15,
-      "line": "28:25184201:d=2026110200:LTNGSD:1 m above ground:14-15 hour max fcst:"
+      "line": "28:24528767:d=2026110206:LTNGSD:1 m above ground:14-15 hour max fcst:"
     },
     {
       "lead": 15,
-      "line": "29:25185905:d=2026110200:LTNGSD:2 m above ground:14-15 hour max fcst:"
+      "line": "29:24531714:d=2026110206:LTNGSD:2 m above ground:14-15 hour max fcst:"
     },
     {
       "lead": 16,
-      "line": "28:24417429:d=2026110200:LTNGSD:1 m above ground:15-16 hour max fcst:"
+      "line": "28:24663553:d=2026110206:LTNGSD:1 m above ground:15-16 hour max fcst:"
     },
     {
       "lead": 16,
-      "line": "29:24418840:d=2026110200:LTNGSD:2 m above ground:15-16 hour max fcst:"
+      "line": "29:24668217:d=2026110206:LTNGSD:2 m above ground:15-16 hour max fcst:"
     },
     {
       "lead": 17,
-      "line": "28:24531359:d=2026110200:LTNGSD:1 m above ground:16-17 hour max fcst:"
+      "line": "28:25034763:d=2026110206:LTNGSD:1 m above ground:16-17 hour max fcst:"
     },
     {
       "lead": 17,
-      "line": "29:24532566:d=2026110200:LTNGSD:2 m above ground:16-17 hour max fcst:"
+      "line": "29:25041074:d=2026110206:LTNGSD:2 m above ground:16-17 hour max fcst:"
     },
     {
       "lead": 18,
-      "line": "28:24359076:d=2026110200:LTNGSD:1 m above ground:17-18 hour max fcst:"
+      "line": "28:25009574:d=2026110206:LTNGSD:1 m above ground:17-18 hour max fcst:"
     },
     {
       "lead": 18,
-      "line": "29:24360422:d=2026110200:LTNGSD:2 m above ground:17-18 hour max fcst:"
+      "line": "29:25016748:d=2026110206:LTNGSD:2 m above ground:17-18 hour max fcst:"
     },
     {
       "lead": 19,
-      "line": "28:25090948:d=2026110200:LTNGSD:1 m above ground:18-19 hour max fcst:"
+      "line": "28:25426356:d=2026110206:LTNGSD:1 m above ground:18-19 hour max fcst:"
     },
     {
       "lead": 19,
-      "line": "29:25092469:d=2026110200:LTNGSD:2 m above ground:18-19 hour max fcst:"
+      "line": "29:25433697:d=2026110206:LTNGSD:2 m above ground:18-19 hour max fcst:"
     },
     {
       "lead": 20,
-      "line": "28:25164165:d=2026110200:LTNGSD:1 m above ground:19-20 hour max fcst:"
+      "line": "28:25085892:d=2026110206:LTNGSD:1 m above ground:19-20 hour max fcst:"
     },
     {
       "lead": 20,
-      "line": "29:25167649:d=2026110200:LTNGSD:2 m above ground:19-20 hour max fcst:"
+      "line": "29:25095401:d=2026110206:LTNGSD:2 m above ground:19-20 hour max fcst:"
     },
     {
       "lead": 21,
-      "line": "28:26446585:d=2026110200:LTNGSD:1 m above ground:20-21 hour max fcst:"
+      "line": "28:25499057:d=2026110206:LTNGSD:1 m above ground:20-21 hour max fcst:"
     },
     {
       "lead": 21,
-      "line": "29:26451064:d=2026110200:LTNGSD:2 m above ground:20-21 hour max fcst:"
+      "line": "29:25508718:d=2026110206:LTNGSD:2 m above ground:20-21 hour max fcst:"
     },
     {
       "lead": 22,
-      "line": "28:24853154:d=2026110200:LTNGSD:1 m above ground:21-22 hour max fcst:"
+      "line": "28:25145493:d=2026110206:LTNGSD:1 m above ground:21-22 hour max fcst:"
     },
     {
       "lead": 22,
-      "line": "29:24858766:d=2026110200:LTNGSD:2 m above ground:21-22 hour max fcst:"
+      "line": "29:25155466:d=2026110206:LTNGSD:2 m above ground:21-22 hour max fcst:"
     },
     {
       "lead": 23,
-      "line": "28:24841709:d=2026110200:LTNGSD:1 m above ground:22-23 hour max fcst:"
+      "line": "28:25589608:d=2026110206:LTNGSD:1 m above ground:22-23 hour max fcst:"
     },
     {
       "lead": 23,
-      "line": "29:24848545:d=2026110200:LTNGSD:2 m above ground:22-23 hour max fcst:"
+      "line": "29:25598253:d=2026110206:LTNGSD:2 m above ground:22-23 hour max fcst:"
     },
     {
       "lead": 24,
-      "line": "28:24882258:d=2026110200:LTNGSD:1 m above ground:23-24 hour max fcst:"
+      "line": "28:25659150:d=2026110206:LTNGSD:1 m above ground:23-24 hour max fcst:"
     },
     {
       "lead": 24,
-      "line": "29:24889926:d=2026110200:LTNGSD:2 m above ground:23-24 hour max fcst:"
+      "line": "29:25666190:d=2026110206:LTNGSD:2 m above ground:23-24 hour max fcst:"
     },
     {
       "lead": 25,
-      "line": "28:25386976:d=2026110200:LTNGSD:1 m above ground:24-25 hour max fcst:"
+      "line": "28:25137974:d=2026110206:LTNGSD:1 m above ground:24-25 hour max fcst:"
     },
     {
       "lead": 25,
-      "line": "29:25395574:d=2026110200:LTNGSD:2 m above ground:24-25 hour max fcst:"
+      "line": "29:25144224:d=2026110206:LTNGSD:2 m above ground:24-25 hour max fcst:"
     },
     {
       "lead": 26,
-      "line": "28:24824046:d=2026110200:LTNGSD:1 m above ground:25-26 hour max fcst:"
+      "line": "28:25176127:d=2026110206:LTNGSD:1 m above ground:25-26 hour max fcst:"
     },
     {
       "lead": 26,
-      "line": "29:24833317:d=2026110200:LTNGSD:2 m above ground:25-26 hour max fcst:"
+      "line": "29:25181653:d=2026110206:LTNGSD:2 m above ground:25-26 hour max fcst:"
     },
     {
       "lead": 27,
-      "line": "28:25329767:d=2026110200:LTNGSD:1 m above ground:26-27 hour max fcst:"
+      "line": "28:25308370:d=2026110206:LTNGSD:1 m above ground:26-27 hour max fcst:"
     },
     {
       "lead": 27,
-      "line": "29:25339219:d=2026110200:LTNGSD:2 m above ground:26-27 hour max fcst:"
+      "line": "29:25313178:d=2026110206:LTNGSD:2 m above ground:26-27 hour max fcst:"
     },
     {
       "lead": 28,
-      "line": "28:25365303:d=2026110200:LTNGSD:1 m above ground:27-28 hour max fcst:"
+      "line": "28:25167442:d=2026110206:LTNGSD:1 m above ground:27-28 hour max fcst:"
     },
     {
       "lead": 28,
-      "line": "29:25373807:d=2026110200:LTNGSD:2 m above ground:27-28 hour max fcst:"
+      "line": "29:25170824:d=2026110206:LTNGSD:2 m above ground:27-28 hour max fcst:"
     },
     {
       "lead": 29,
-      "line": "28:25359834:d=2026110200:LTNGSD:1 m above ground:28-29 hour max fcst:"
+      "line": "28:25047282:d=2026110206:LTNGSD:1 m above ground:28-29 hour max fcst:"
     },
     {
       "lead": 29,
-      "line": "29:25367594:d=2026110200:LTNGSD:2 m above ground:28-29 hour max fcst:"
+      "line": "29:25050620:d=2026110206:LTNGSD:2 m above ground:28-29 hour max fcst:"
     },
     {
       "lead": 30,
-      "line": "28:25447503:d=2026110200:LTNGSD:1 m above ground:29-30 hour max fcst:"
+      "line": "28:25025860:d=2026110206:LTNGSD:1 m above ground:29-30 hour max fcst:"
     },
     {
       "lead": 30,
-      "line": "29:25454461:d=2026110200:LTNGSD:2 m above ground:29-30 hour max fcst:"
+      "line": "29:25028802:d=2026110206:LTNGSD:2 m above ground:29-30 hour max fcst:"
     }
   ],
   "field_variants": [
     {
-      "index": "28:24246938:d=2026110200:LTNGSD:1 m above ground:0-1 hour max fcst:",
+      "index": "28:24505050:d=2026110206:LTNGSD:1 m above ground:0-1 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -724,7 +732,7 @@
       }
     },
     {
-      "index": "28:24129516:d=2026110200:LTNGSD:1 m above ground:1-2 hour max fcst:",
+      "index": "28:24821003:d=2026110206:LTNGSD:1 m above ground:1-2 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -741,7 +749,7 @@
       }
     },
     {
-      "index": "28:24928013:d=2026110200:LTNGSD:1 m above ground:2-3 hour max fcst:",
+      "index": "28:25062812:d=2026110206:LTNGSD:1 m above ground:2-3 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -758,7 +766,7 @@
       }
     },
     {
-      "index": "28:24199873:d=2026110200:LTNGSD:1 m above ground:3-4 hour max fcst:",
+      "index": "28:24378370:d=2026110206:LTNGSD:1 m above ground:3-4 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -775,7 +783,7 @@
       }
     },
     {
-      "index": "28:24411563:d=2026110200:LTNGSD:1 m above ground:4-5 hour max fcst:",
+      "index": "28:24553502:d=2026110206:LTNGSD:1 m above ground:4-5 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -792,7 +800,7 @@
       }
     },
     {
-      "index": "28:26000910:d=2026110200:LTNGSD:1 m above ground:5-6 hour max fcst:",
+      "index": "28:24725907:d=2026110206:LTNGSD:1 m above ground:5-6 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -809,7 +817,7 @@
       }
     },
     {
-      "index": "28:25134741:d=2026110200:LTNGSD:1 m above ground:6-7 hour max fcst:",
+      "index": "28:25219850:d=2026110206:LTNGSD:1 m above ground:6-7 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -826,7 +834,7 @@
       }
     },
     {
-      "index": "28:25158171:d=2026110200:LTNGSD:1 m above ground:7-8 hour max fcst:",
+      "index": "28:24688961:d=2026110206:LTNGSD:1 m above ground:7-8 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -843,7 +851,7 @@
       }
     },
     {
-      "index": "28:25422776:d=2026110200:LTNGSD:1 m above ground:8-9 hour max fcst:",
+      "index": "28:24638290:d=2026110206:LTNGSD:1 m above ground:8-9 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -860,7 +868,7 @@
       }
     },
     {
-      "index": "28:24737637:d=2026110200:LTNGSD:1 m above ground:9-10 hour max fcst:",
+      "index": "28:24760807:d=2026110206:LTNGSD:1 m above ground:9-10 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -877,7 +885,7 @@
       }
     },
     {
-      "index": "28:24916297:d=2026110200:LTNGSD:1 m above ground:10-11 hour max fcst:",
+      "index": "28:24996385:d=2026110206:LTNGSD:1 m above ground:10-11 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -894,7 +902,7 @@
       }
     },
     {
-      "index": "28:24875302:d=2026110200:LTNGSD:1 m above ground:11-12 hour max fcst:",
+      "index": "28:24726649:d=2026110206:LTNGSD:1 m above ground:11-12 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -911,7 +919,7 @@
       }
     },
     {
-      "index": "28:24746542:d=2026110200:LTNGSD:1 m above ground:12-13 hour max fcst:",
+      "index": "28:24852717:d=2026110206:LTNGSD:1 m above ground:12-13 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -928,7 +936,7 @@
       }
     },
     {
-      "index": "28:24776231:d=2026110200:LTNGSD:1 m above ground:13-14 hour max fcst:",
+      "index": "28:24446924:d=2026110206:LTNGSD:1 m above ground:13-14 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -945,7 +953,7 @@
       }
     },
     {
-      "index": "28:25184201:d=2026110200:LTNGSD:1 m above ground:14-15 hour max fcst:",
+      "index": "28:24528767:d=2026110206:LTNGSD:1 m above ground:14-15 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -962,7 +970,7 @@
       }
     },
     {
-      "index": "28:24417429:d=2026110200:LTNGSD:1 m above ground:15-16 hour max fcst:",
+      "index": "28:24663553:d=2026110206:LTNGSD:1 m above ground:15-16 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -979,7 +987,7 @@
       }
     },
     {
-      "index": "28:24531359:d=2026110200:LTNGSD:1 m above ground:16-17 hour max fcst:",
+      "index": "28:25034763:d=2026110206:LTNGSD:1 m above ground:16-17 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -996,7 +1004,7 @@
       }
     },
     {
-      "index": "28:24359076:d=2026110200:LTNGSD:1 m above ground:17-18 hour max fcst:",
+      "index": "28:25009574:d=2026110206:LTNGSD:1 m above ground:17-18 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1013,7 +1021,7 @@
       }
     },
     {
-      "index": "28:25090948:d=2026110200:LTNGSD:1 m above ground:18-19 hour max fcst:",
+      "index": "28:25426356:d=2026110206:LTNGSD:1 m above ground:18-19 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1030,7 +1038,7 @@
       }
     },
     {
-      "index": "28:25164165:d=2026110200:LTNGSD:1 m above ground:19-20 hour max fcst:",
+      "index": "28:25085892:d=2026110206:LTNGSD:1 m above ground:19-20 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1047,7 +1055,7 @@
       }
     },
     {
-      "index": "28:26446585:d=2026110200:LTNGSD:1 m above ground:20-21 hour max fcst:",
+      "index": "28:25499057:d=2026110206:LTNGSD:1 m above ground:20-21 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1064,7 +1072,7 @@
       }
     },
     {
-      "index": "28:24853154:d=2026110200:LTNGSD:1 m above ground:21-22 hour max fcst:",
+      "index": "28:25145493:d=2026110206:LTNGSD:1 m above ground:21-22 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1081,7 +1089,7 @@
       }
     },
     {
-      "index": "28:24841709:d=2026110200:LTNGSD:1 m above ground:22-23 hour max fcst:",
+      "index": "28:25589608:d=2026110206:LTNGSD:1 m above ground:22-23 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1098,7 +1106,7 @@
       }
     },
     {
-      "index": "28:24882258:d=2026110200:LTNGSD:1 m above ground:23-24 hour max fcst:",
+      "index": "28:25659150:d=2026110206:LTNGSD:1 m above ground:23-24 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1115,7 +1123,7 @@
       }
     },
     {
-      "index": "28:25386976:d=2026110200:LTNGSD:1 m above ground:24-25 hour max fcst:",
+      "index": "28:25137974:d=2026110206:LTNGSD:1 m above ground:24-25 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1132,7 +1140,7 @@
       }
     },
     {
-      "index": "28:24824046:d=2026110200:LTNGSD:1 m above ground:25-26 hour max fcst:",
+      "index": "28:25176127:d=2026110206:LTNGSD:1 m above ground:25-26 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1149,7 +1157,7 @@
       }
     },
     {
-      "index": "28:25329767:d=2026110200:LTNGSD:1 m above ground:26-27 hour max fcst:",
+      "index": "28:25308370:d=2026110206:LTNGSD:1 m above ground:26-27 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1166,7 +1174,7 @@
       }
     },
     {
-      "index": "28:25365303:d=2026110200:LTNGSD:1 m above ground:27-28 hour max fcst:",
+      "index": "28:25167442:d=2026110206:LTNGSD:1 m above ground:27-28 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1183,7 +1191,7 @@
       }
     },
     {
-      "index": "28:25359834:d=2026110200:LTNGSD:1 m above ground:28-29 hour max fcst:",
+      "index": "28:25047282:d=2026110206:LTNGSD:1 m above ground:28-29 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1200,7 +1208,7 @@
       }
     },
     {
-      "index": "28:25447503:d=2026110200:LTNGSD:1 m above ground:29-30 hour max fcst:",
+      "index": "28:25025860:d=2026110206:LTNGSD:1 m above ground:29-30 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1217,7 +1225,7 @@
       }
     },
     {
-      "index": "28:25563315:d=2026110200:LTNGSD:1 m above ground:30-31 hour max fcst:",
+      "index": "28:24992592:d=2026110206:LTNGSD:1 m above ground:30-31 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1234,7 +1242,7 @@
       }
     },
     {
-      "index": "28:24958721:d=2026110200:LTNGSD:1 m above ground:31-32 hour max fcst:",
+      "index": "28:24719233:d=2026110206:LTNGSD:1 m above ground:31-32 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1251,7 +1259,7 @@
       }
     },
     {
-      "index": "28:24986252:d=2026110200:LTNGSD:1 m above ground:32-33 hour max fcst:",
+      "index": "28:24624714:d=2026110206:LTNGSD:1 m above ground:32-33 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1268,7 +1276,7 @@
       }
     },
     {
-      "index": "28:24999534:d=2026110200:LTNGSD:1 m above ground:33-34 hour max fcst:",
+      "index": "28:24283606:d=2026110206:LTNGSD:1 m above ground:33-34 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1285,7 +1293,7 @@
       }
     },
     {
-      "index": "28:25052636:d=2026110200:LTNGSD:1 m above ground:34-35 hour max fcst:",
+      "index": "28:24618977:d=2026110206:LTNGSD:1 m above ground:34-35 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1302,7 +1310,7 @@
       }
     },
     {
-      "index": "28:25150166:d=2026110200:LTNGSD:1 m above ground:35-36 hour max fcst:",
+      "index": "28:24130541:d=2026110206:LTNGSD:1 m above ground:35-36 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1319,7 +1327,7 @@
       }
     },
     {
-      "index": "28:24883666:d=2026110200:LTNGSD:1 m above ground:36-37 hour max fcst:",
+      "index": "28:23731488:d=2026110206:LTNGSD:1 m above ground:36-37 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1336,7 +1344,7 @@
       }
     },
     {
-      "index": "28:24685628:d=2026110200:LTNGSD:1 m above ground:37-38 hour max fcst:",
+      "index": "28:23647754:d=2026110206:LTNGSD:1 m above ground:37-38 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1353,7 +1361,7 @@
       }
     },
     {
-      "index": "28:24497436:d=2026110200:LTNGSD:1 m above ground:38-39 hour max fcst:",
+      "index": "28:23659957:d=2026110206:LTNGSD:1 m above ground:38-39 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1370,7 +1378,7 @@
       }
     },
     {
-      "index": "28:24289415:d=2026110200:LTNGSD:1 m above ground:39-40 hour max fcst:",
+      "index": "28:23486836:d=2026110206:LTNGSD:1 m above ground:39-40 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1387,7 +1395,7 @@
       }
     },
     {
-      "index": "28:24250949:d=2026110200:LTNGSD:1 m above ground:40-41 hour max fcst:",
+      "index": "28:23652783:d=2026110206:LTNGSD:1 m above ground:40-41 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1404,7 +1412,7 @@
       }
     },
     {
-      "index": "28:23855404:d=2026110200:LTNGSD:1 m above ground:41-42 hour max fcst:",
+      "index": "28:23504452:d=2026110206:LTNGSD:1 m above ground:41-42 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1421,7 +1429,7 @@
       }
     },
     {
-      "index": "28:23815656:d=2026110200:LTNGSD:1 m above ground:42-43 hour max fcst:",
+      "index": "28:23492816:d=2026110206:LTNGSD:1 m above ground:42-43 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1438,7 +1446,7 @@
       }
     },
     {
-      "index": "28:24174851:d=2026110200:LTNGSD:1 m above ground:43-44 hour max fcst:",
+      "index": "28:23877843:d=2026110206:LTNGSD:1 m above ground:43-44 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1455,7 +1463,7 @@
       }
     },
     {
-      "index": "28:24244106:d=2026110200:LTNGSD:1 m above ground:44-45 hour max fcst:",
+      "index": "28:24000605:d=2026110206:LTNGSD:1 m above ground:44-45 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1472,7 +1480,7 @@
       }
     },
     {
-      "index": "28:23665607:d=2026110200:LTNGSD:1 m above ground:45-46 hour max fcst:",
+      "index": "28:24044033:d=2026110206:LTNGSD:1 m above ground:45-46 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1489,7 +1497,7 @@
       }
     },
     {
-      "index": "28:24134224:d=2026110200:LTNGSD:1 m above ground:46-47 hour max fcst:",
+      "index": "28:23526290:d=2026110206:LTNGSD:1 m above ground:46-47 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1506,7 +1514,7 @@
       }
     },
     {
-      "index": "28:23735608:d=2026110200:LTNGSD:1 m above ground:47-48 hour max fcst:",
+      "index": "28:24175221:d=2026110206:LTNGSD:1 m above ground:47-48 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1523,7 +1531,7 @@
       }
     },
     {
-      "index": "28:24183875:d=2026110200:LTNGSD:1 m above ground:48-49 hour max fcst:",
+      "index": "28:24272860:d=2026110206:LTNGSD:1 m above ground:48-49 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1540,7 +1548,7 @@
       }
     },
     {
-      "index": "28:23556604:d=2026110200:LTNGSD:1 m above ground:49-50 hour max fcst:",
+      "index": "28:23862305:d=2026110206:LTNGSD:1 m above ground:49-50 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1557,7 +1565,7 @@
       }
     },
     {
-      "index": "28:24046687:d=2026110200:LTNGSD:1 m above ground:50-51 hour max fcst:",
+      "index": "28:23727252:d=2026110206:LTNGSD:1 m above ground:50-51 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1574,7 +1582,7 @@
       }
     },
     {
-      "index": "28:23521546:d=2026110200:LTNGSD:1 m above ground:51-52 hour max fcst:",
+      "index": "28:25594768:d=2026110206:LTNGSD:1 m above ground:51-52 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1591,7 +1599,7 @@
       }
     },
     {
-      "index": "28:23570066:d=2026110200:LTNGSD:1 m above ground:52-53 hour max fcst:",
+      "index": "28:24515930:d=2026110206:LTNGSD:1 m above ground:52-53 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1608,7 +1616,7 @@
       }
     },
     {
-      "index": "28:23577868:d=2026110200:LTNGSD:1 m above ground:53-54 hour max fcst:",
+      "index": "28:24026262:d=2026110206:LTNGSD:1 m above ground:53-54 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1625,7 +1633,7 @@
       }
     },
     {
-      "index": "28:23626868:d=2026110200:LTNGSD:1 m above ground:54-55 hour max fcst:",
+      "index": "28:24082489:d=2026110206:LTNGSD:1 m above ground:54-55 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1642,7 +1650,7 @@
       }
     },
     {
-      "index": "28:23717380:d=2026110200:LTNGSD:1 m above ground:55-56 hour max fcst:",
+      "index": "28:24486733:d=2026110206:LTNGSD:1 m above ground:55-56 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1659,7 +1667,7 @@
       }
     },
     {
-      "index": "28:23823356:d=2026110200:LTNGSD:1 m above ground:56-57 hour max fcst:",
+      "index": "28:23776645:d=2026110206:LTNGSD:1 m above ground:56-57 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1676,7 +1684,7 @@
       }
     },
     {
-      "index": "28:24321591:d=2026110200:LTNGSD:1 m above ground:57-58 hour max fcst:",
+      "index": "28:23539190:d=2026110206:LTNGSD:1 m above ground:57-58 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1693,7 +1701,7 @@
       }
     },
     {
-      "index": "28:23957253:d=2026110200:LTNGSD:1 m above ground:58-59 hour max fcst:",
+      "index": "28:23377261:d=2026110206:LTNGSD:1 m above ground:58-59 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1710,7 +1718,7 @@
       }
     },
     {
-      "index": "28:23942234:d=2026110200:LTNGSD:1 m above ground:59-60 hour max fcst:",
+      "index": "28:23202381:d=2026110206:LTNGSD:1 m above ground:59-60 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -1883,43 +1891,43 @@
       "lead": 26,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 0.0
+      "native_peak": 2.9
     },
     {
       "lead": 27,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 0.0
+      "native_peak": 6.42
     },
     {
       "lead": 28,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 0.0
+      "native_peak": 6.53
     },
     {
       "lead": 29,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 0.0
+      "native_peak": 5.87
     },
     {
       "lead": 30,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 0.0
+      "native_peak": 2.82
     },
     {
       "lead": 31,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 0.0
+      "native_peak": 3.88
     },
     {
       "lead": 32,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 2.06
+      "native_peak": 0.0
     },
     {
       "lead": 33,
@@ -1931,13 +1939,13 @@
       "lead": 34,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 1.54
+      "native_peak": 0.0
     },
     {
       "lead": 35,
       "level": "1",
       "nonnegative_in_area": 1225,
-      "native_peak": 1.76
+      "native_peak": 0.0
     },
     {
       "lead": 36,
@@ -2120,5 +2128,5 @@
   "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced",
   "native_index_provisional": true,
   "matched_fields": 120,
-  "valid_hours": 57
+  "valid_hours": 58
 }
