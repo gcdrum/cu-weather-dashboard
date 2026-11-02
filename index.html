@@ -3281,6 +3281,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3723,6 +3724,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3822,64 +3824,14 @@ window.cuLightningDensityForecasts=[];
 
 
 
-<script id="cu-lightning-visible-bridge">
-(()=>{
- const labels={none:'BELOW THRESHOLD',possible:'POSSIBLE',elevated:'ELEVATED',likely:'LIKELY',extreme:'EXTREME'};
- let directRRFS=[];
- async function loadRRFS(){
-  try{
-   const response=await fetch('rrfs_lightning.json?t='+Date.now(),{cache:'no-store'});
-   if(!response.ok)return;
-   const data=await response.json();
-   if(!Array.isArray(data.hours))return;
-   directRRFS=data.hours.filter(h=>h.native_index===true&&Number.isFinite(h.value)&&h.value>=0&&h.value<=15).map(h=>({model:'rrfs',time:h.time,value:h.value,source_cycle:h.source_cycle||data.cycle}));
-   window.cuLightningProvisionalForecasts=directRRFS;
-   refresh();
-  }catch(e){console.warn('RRFS lightning tile fetch',e)}
- }
- function refresh(){
-  const now=Date.now()-15*60000;
-  const valid=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'))&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=now);
-  const provisional=[...(window.cuLightningProvisionalForecasts||[]),...directRRFS].filter(x=>Number.isFinite(x.value)&&Number.isFinite(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'))&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=now);
-  if(!valid.length&&!provisional.length)return;
-  const positive=[...valid,...provisional].filter(x=>x.value>0).sort((a,b)=>Date.parse(String(a.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?a.time:String(a.time)+'Z')-Date.parse(String(b.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?b.time:String(b.time)+'Z'));
-  const onset=positive.length?Date.parse(positive[0].time):null;
-  const strongest=valid.length?valid.reduce((a,b)=>a.value>=b.value?a:b):null;
-  const classification=strongest?window.cuHRRRLightningLevel?.(strongest.value):null;
-  const provisionalPositive=provisional.some(x=>x.value>0);
-  const uncertain=(!classification||classification.level==='none')&&(window.cuLightningDensityUnverified===true||provisionalPositive);
-  const provisionalAlert=uncertain&&provisionalPositive;
-  const level=provisionalAlert?'possible':uncertain?'waiting':classification?.level;
-  const label=provisionalAlert?'POSSIBLE':uncertain?'WAITING':labels[classification?.level];
-  if(!label)return;
-  // A future lightning forecast must not look like an ongoing observation.
-  const future=onset!==null&&onset>Date.now()+15*60000;
-  const clock=onset===null?'':new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(onset)).replace(':00','');
-  const displayLabel=future?label+' · '+clock:label;
-  const heading=document.querySelector('[data-threat-key="Lightning"]');
-  const tile=heading?.closest('.threat-row');
-  const status=tile?.querySelector('.threat-time');
-  const dot=tile?.querySelector('.threat-dot');
-  if(!status)return;
-  status.textContent=displayLabel;
-  status.dataset.cuLightningLevel=level;
-  status.dataset.status=level;
-  status.dataset.phase=future?'upcoming':'forecast';
-  status.title=provisionalAlert?'RRFS provisional lightning signal '+(provisional.find(x=>x.value>0)?.value??'unknown')+' (scale not calibrated; intensity tier withheld)':uncertain?'RRFS lightning units unverified':strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
-  if(dot)dot.dataset.status=level;
-  const colors={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'};
-  status.style.color=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
-  if(dot)dot.style.backgroundColor=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
- }
- loadRRFS();setInterval(loadRRFS,60000);
- document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
- window.addEventListener('load',refresh);
- // Legacy V85 recalculations can overwrite the display after data arrives.
- // Keep the verified lightning density status synchronized without changing other threats.
- setInterval(refresh,500);
- window.cuRefreshLightningTile=refresh;
-})();
-</script>
+
+
+
+
+
+
+
+
 
 <script id="cu-convective-onset-bridge">
 (()=>{
@@ -3944,6 +3896,86 @@ window.cuLightningDensityForecasts=[];
   }catch(e){console.warn('RRFS chart strip unavailable',e)}
  }
  window.addEventListener('load',render);setInterval(render,60000);
+})();
+</script>
+
+<script id="cu-rrfs-main-lane-sync">
+(()=>{
+ const utc=s=>{const v=String(s||'');return Date.parse(/[zZ]$|[+-]\d\d:\d\d$/.test(v)?v:v+'Z')};
+ async function sync(){
+  try{
+   const response=await fetch('./rrfs_reflectivity.json?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return;
+   const data=await response.json();
+   if(!Array.isArray(data.hours))return;
+   const rows=data.hours.map(h=>{
+    const sites=Array.isArray(h.site_dbz)?h.site_dbz.map(Number).filter(Number.isFinite):[];
+    const ms=utc(h.time);
+    if(!Number.isFinite(ms)||!sites.length)return null;
+    const local=Math.max(...sites);
+    return {model:'rrfs',time:new Date(ms).toISOString().slice(0,16)+'Z',dbz:local,
+     site_dbz:sites,zones:{springfield_area:local,approach_west:null,upstream_west:null,downstream_east:null},
+     source_cycle:h.source_cycle||data.cycle,zone:'local'};
+   }).filter(Boolean);
+   if(!rows.length)return;
+   const current=window.cuNumericalReflectivityV102||[];
+   const old=current.filter(r=>r.model!=='rrfs');
+   window.cuNumericalReflectivityV102=[...old,...rows];
+   window.drawForecast?.();
+  }catch(e){console.warn('RRFS main lane unavailable',e)}
+ }
+ window.addEventListener('load',()=>setTimeout(sync,1800));
+ document.addEventListener('cu-reflectivity-updated',()=>setTimeout(sync,200));
+ setInterval(sync,60000);
+})();
+</script>
+
+<script id="cu-lightning-visible-bridge">
+(()=>{
+ const utc=s=>{const v=String(s||'');return Date.parse(/[zZ]$|[+-]\d\d:\d\d$/.test(v)?v:v+'Z')};
+ let forecast=[],loaded=false;
+ async function load(){
+  try{
+   const r=await fetch('./rrfs_lightning.json?t='+Date.now(),{cache:'no-store'});
+   if(!r.ok)return;
+   const d=await r.json();
+   if(!Array.isArray(d.hours))return;
+   forecast=d.hours.map(h=>({time:utc(h.time),value:Number(h.value),native:h.native_index===true}))
+     .filter(h=>Number.isFinite(h.time)&&Number.isFinite(h.value)&&h.native&&h.value>=0&&h.value<=15);
+   window.cuLightningProvisionalForecasts=forecast.map(h=>({model:'rrfs',time:new Date(h.time).toISOString(),value:h.value,native_index:true,units_verified:false}));
+   loaded=true;refresh();
+  }catch(e){console.warn('RRFS lightning forecast unavailable',e)}
+ }
+ function refresh(){
+  const tile=document.querySelector('[data-threat-key="Lightning"]')?.closest('.threat-row');
+  const status=tile?.querySelector('.threat-time'),dot=tile?.querySelector('.threat-dot');
+  if(!status)return;
+  const now=Date.now();
+  const verified=(window.cuLightningDensityForecasts||[]).filter(h=>Number.isFinite(utc(h.time))&&utc(h.time)>=now-15*60000&&Number.isFinite(Number(h.value)));
+  const provisional=forecast.filter(h=>h.time>=now-15*60000);
+  const positiveVerified=verified.filter(h=>Number(h.value)>0);
+  const positiveProvisional=provisional.filter(h=>h.value>0);
+  if(!positiveVerified.length&&!positiveProvisional.length)return;
+  const top=positiveVerified.reduce((m,h)=>Math.max(m,Number(h.value)),0);
+  const classification=top>=6?'EXTREME':top>=3?'LIKELY':top>=1?'ELEVATED':'POSSIBLE';
+  const onset=Math.min(...positiveVerified.map(h=>utc(h.time)),...positiveProvisional.map(h=>h.time));
+  const clock=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:true}).format(new Date(onset));
+  const upcoming=onset>now+15*60000;
+  status.textContent=(positiveVerified.length?classification:'POSSIBLE')+(upcoming?' · '+clock:'');
+  status.dataset.status=(positiveVerified.length?classification:'POSSIBLE').toLowerCase();
+  status.dataset.phase=upcoming?'upcoming':'forecast';
+  status.title=positiveVerified.length?'Verified-unit model lightning density forecast':'RRFS provisional lightning index; uncalibrated';
+  if(dot)dot.dataset.status=status.dataset.status;
+ }
+
+ // Legacy threat rendering runs after the density feed; reapply after each render.
+ const originalUpdate=window.cuUpdateThreats;
+ if(typeof originalUpdate==='function'&&!originalUpdate.__lightningWrapped){
+   const wrapped=function(...args){const result=originalUpdate.apply(this,args);queueMicrotask(refresh);return result;};
+   wrapped.__lightningWrapped=true;
+   window.cuUpdateThreats=wrapped;
+ }
+ load();setInterval(load,60000);setInterval(refresh,200);
 })();
 </script>
 </body></html>
