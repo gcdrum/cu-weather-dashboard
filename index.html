@@ -3282,6 +3282,8 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
   return hours.map(h=>({time:Date.parse(h.time.endsWith('Z')?h.time:h.time+'Z'),value:Math.max(0,...h.gust_ms.filter(Number.isFinite))*2.236936})).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)).sort((a,b)=>a.time-b.time).map(p=>({...p,color}));
  }
  function chart(series,minimumScale=40,windows=[]){
+  const horizonStart=Date.now()-3600000,horizonEnd=Date.now()+48*3600000;
+  series=series.map(points=>points.filter(p=>Number.isFinite(p.time)&&p.time>=horizonStart&&p.time<=horizonEnd));
   const all=series.flat(),W=720,H=180,L=40,R=14,T=12,B=27;
   if(!all.length)return '<div style="padding:12px;color:#ffcf91">No decoded gust samples available</div>';
   const lo=Math.min(...all.map(p=>p.time)),hi=Math.max(...all.map(p=>p.time)),max=Math.max(minimumScale,Math.ceil(Math.max(...all.map(p=>p.value))/5)*5);
