@@ -779,5 +779,16 @@ html=re.sub(r'<script id="cu-main-timeline-bridge">.*?</script>','',html,flags=r
 html=html.replace('</body>',main_timeline+'</body>',1) if '</body>' in html else html+main_timeline
 
 
+
+# Repair the existing lightning indicator: RRFS provisional flashes are not
+# verified physical density, so show POSSIBLE only, never a calibrated tier.
+# The previous code referenced an undefined provisionalPeak and parsed naive
+# UTC forecast timestamps as local time.
+html=html.replace("const now=Date.now()-15*60000;\\n  const valid=", "const now=Date.now()-15*60000;\\n  const valid=")
+html=html.replace("Date.parse(x.time)", "Date.parse(String(x.time).match(/(?:Z|[+-]\\\\d{2}:\\\\d{2})$/i)?x.time:String(x.time)+'Z')")
+html=html.replace("Date.parse(a.time)", "Date.parse(String(a.time).match(/(?:Z|[+-]\\\\d{2}:\\\\d{2})$/i)?a.time:String(a.time)+'Z')")
+html=html.replace("Date.parse(b.time)", "Date.parse(String(b.time).match(/(?:Z|[+-]\\\\d{2}:\\\\d{2})$/i)?b.time:String(b.time)+'Z')")
+html=html.replace("provisionalPeak.value", "(provisional.find(x=>x.value>0)?.value??'unknown')")
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
