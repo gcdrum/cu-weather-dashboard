@@ -1256,5 +1256,64 @@ html=html.replace("NO HRRR FORECAST AVAILABLE","NO HRRR REFLECTIVITY AVAILABLE")
 # Six-curve renderer patch disabled: source anchors do not match current chart.
 # Preserve the last successfully installed dashboard until verified repair.
 
+
+# Repair six-curve DISPLAY mean against the actual current renderer. Insert
+# after the qualified/integrated arrays exist; do not depend on obsolete
+# plotQualifiedArray call signatures.
+start=html.find('function drawForecast(){')
+end=html.find('const viewportWidth=',start)
+if start>=0 and end>start:
+    block=html[start:end]
+    if 'const qIntegrated=times.map(' in block and 'window.cuMainModelAverage=averageRows' in block:
+        # Rename the earlier four-model average so existing plot code still
+        # renders, then overlay the correctly computed six-curve display mean.
+        block=block.replace('window.cuMainModelAverage=averageRows;', 'window.cuWindOnlyAverage=averageRows;',1)
+        # Retain legacy average plot for diagnostics; six-curve line draws last.
+        insertion=r"""
+ // Composite of ALL visible feeder curves (4 model + 2 derived).
+ // Not an independent multi-model consensus; derived curves share HRRR inputs.
+ const compositeSources=[g,n,h,rrfs,
+   times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),
+   times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))];
+ const compositeRows=times.map(t=>{
+  const members=compositeSources.map(rows=>rows.find(r=>r.time===t)?.forecastFeeders);
+  const valid=members.filter(Number.isFinite);
+  return valid.length>=2?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,
+   modelCount:valid.length,values:members}:null;
+ }).filter(Boolean);
+ window.cuMainModelAverage=compositeRows;
+ window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,
+  qualified:compositeSources[4],integrated:compositeSources[5]};
+ // Draw the six-curve composite over the old four-model average.
+ if(compositeRows.length){
+  ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4;ctx.setLineDash([]);
+  ctx.beginPath();let active=false,prev=-2;
+  compositeRows.forEach(r=>{
+   const i=times.indexOf(r.time);
+   if(i!==prev+1)active=false;
+   if(!active)ctx.moveTo(x(i),y(r.forecastFeeders));
+   else ctx.lineTo(x(i),y(r.forecastFeeders));
+   active=true;prev=i;
+  });
+  ctx.stroke();ctx.restore();
+ }
+"""
+        needle=" const qCount=qImpact.filter(Number.isFinite).length;"
+        if needle in block and 'const compositeSources=' not in block:
+            block=block.replace(needle,insertion+needle,1)
+            html=html[:start]+block+html[end:]
+            html=html.replace('Model average (2–4)','All curves (2–6)')
+            print('Installed six-curve composite mean')
+        else: print('NOTICE: composite plot anchor unavailable or already installed')
+    else: print('NOTICE: existing model-average or convective arrays unavailable')
+else: print('NOTICE: chart renderer not found')
+# Align audit with plotted composite rows. The audit reads the same exact
+# values array rather than recomputing from a potentially stale cache.
+html=html.replace("const vals=datasets.map(([,set])=>value(set,row.time));",
+ "const vals=Array.isArray(row.values)?row.values:datasets.map(([,set])=>value(set,row.time));")
+html=html.replace("['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean','Check']",
+ "['UTC hour','GFS','NAM','HRRR','RRFS','Qualified','Integrated','Count','Plotted mean','Check']")
+html=html.replace("Model average audit · ","All-curve average audit · ")
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
