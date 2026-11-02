@@ -881,6 +881,7 @@ lightning_bridge=r"""
    if(!Array.isArray(d.hours))return;
    forecast=d.hours.map(h=>({time:utc(h.time),value:Number(h.value),native:h.native_index===true}))
      .filter(h=>Number.isFinite(h.time)&&Number.isFinite(h.value)&&h.native&&h.value>=0&&h.value<=15);
+   window.cuLightningProvisionalForecasts=forecast.map(h=>({model:'rrfs',time:new Date(h.time).toISOString(),value:h.value,native_index:true,units_verified:false}));
    loaded=true;refresh();
   }catch(e){console.warn('RRFS lightning forecast unavailable',e)}
  }
