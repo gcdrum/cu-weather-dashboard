@@ -679,5 +679,48 @@ if '</body>' in html:
 else:
     html+=lightning_ui_bridge
 
+# Forecast timing bridge: separate future convective risk from ongoing events.
+# Uses the published CU-point RRFS reflectivity, not a fixed event date.
+timing_bridge=r"""
+<script id="cu-convective-onset-bridge">
+(()=>{
+ let hours=[];
+ async function load(){
+  try{
+   const r=await fetch('./rrfs_reflectivity.json?t='+Date.now(),{cache:'no-store'});
+   if(!r.ok)return;
+   const d=await r.json();
+   hours=(d.hours||[]).filter(x=>Number.isFinite(Number(x.dbz))&&Number(x.dbz)>=30&&Number.isFinite(Date.parse(x.time+'Z')))
+      .map(x=>({t:Date.parse(x.time+'Z'),dbz:Number(x.dbz)})).sort((a,b)=>a.t-b.t);
+   update();
+  }catch(e){console.warn('Convective timing feed unavailable',e)}
+ }
+ function update(){
+  const now=Date.now();
+  const next=hours.find(x=>x.t>=now-30*60000);
+  if(!next)return;
+  const future=next.t>now+30*60000;
+  if(!future)return; // Do not suppress a genuinely ongoing event.
+  const clock=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(next.t)).replace(':00','');
+  const heading=document.querySelector('[data-threat-key="Downburst"]');
+  const tile=heading?.closest('.threat-row');
+  const status=tile?.querySelector('.threat-time');
+  const dot=tile?.querySelector('.threat-dot');
+  if(!status)return;
+  // Reflectivity supports a possible future convective window, not a confirmed downburst.
+  status.textContent='POSSIBLE · '+clock;
+  status.dataset.phase='upcoming';
+  status.dataset.status='possible';
+  status.title='Future RRFS convective reflectivity signal; downburst potential is not a confirmed event';
+  status.style.color='#e8c35b';
+  if(dot){dot.dataset.status='possible';dot.style.backgroundColor='#e8c35b'}
+ }
+ load();setInterval(load,60000);setInterval(update,1500);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-convective-onset-bridge">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',timing_bridge+'</body>',1) if '</body>' in html else html+timing_bridge
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
