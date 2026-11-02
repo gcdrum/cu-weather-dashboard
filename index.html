@@ -1054,7 +1054,7 @@ function drawForecast(){
  if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;
  const now=Date.now()-3600000;
  const startUTC=Math.floor(Date.now()/3600000)*3600000;
- const times=Array.from({length:169},(_,i)=>new Date(startUTC+i*3600000).toISOString().slice(0,16));
+ const times=Array.from({length:73},(_,i)=>new Date(startUTC+i*3600000).toISOString().slice(0,16));
  window.cuV50MainTimes=times.slice();
  if(times.length<2)return;
  const viewportWidth=canvas.parentElement.clientWidth||canvas.getBoundingClientRect().width||980;

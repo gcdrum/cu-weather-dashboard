@@ -153,10 +153,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "12"
+        "stepRange": "11"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-02T14:00:00+00:00"
+      "source_cycle": "2026-11-02T15:00:00+00:00"
     },
     {
       "time": "2026-11-03T03:00:00+00:00",
@@ -167,10 +167,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "13"
+        "stepRange": "12"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-02T14:00:00+00:00"
+      "source_cycle": "2026-11-02T15:00:00+00:00"
     },
     {
       "time": "2026-11-03T04:00:00+00:00",
