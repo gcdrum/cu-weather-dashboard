@@ -546,12 +546,16 @@ if 'window.cuLightningDensityForecasts=[]' not in html:
 
 # Normalize the entire previously generated lightning-level script. Earlier builds
 # emitted literal backslash-n sequences; idempotent insertion kept them forever.
-legacy_start=html.find('<script>\\\\nwindow.cuHRRRLightningLevel=')
-if legacy_start>=0:
-    legacy_end=html.find('</script>',legacy_start)
-    if legacy_end<0: raise SystemExit('Malformed legacy lightning script has no closing tag')
+# Repair all old versions of the lightning-level script by locating its
+# function declaration, regardless of how the opening script tag was spaced.
+legacy_function=html.find('window.cuHRRRLightningLevel=function(v)')
+if legacy_function>=0:
+    legacy_start=html.rfind('<script',0,legacy_function)
+    legacy_end=html.find('</script>',legacy_function)
+    if legacy_start<0 or legacy_end<0: raise SystemExit('Lightning script boundaries missing')
     legacy=html[legacy_start:legacy_end+len('</script>')]
-    html=html[:legacy_start]+legacy.replace(chr(92)+'n',chr(10))+html[legacy_end+len('</script>'):]
+    if chr(92)+'n' in legacy:
+        html=html[:legacy_start]+legacy.replace(chr(92)+'n',chr(10))+html[legacy_end+len('</script>'):]
 
 # Fix invalid backslash-n sequences already embedded in older generated HTML.
 # Match a literal backslash followed by n, not a real line break.
