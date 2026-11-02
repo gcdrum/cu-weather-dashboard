@@ -199,6 +199,18 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
           node scripts/test_lightning_browser.cjs
+      - name: Diagnose generated HTML runtime error locations
+        if: failure()
+        run: |
+          python - <<'PYDIAG'
+          from pathlib import Path
+          lines=Path('index.html').read_text(encoding='utf-8').splitlines()
+          for target in (378,1987,3246,3272):
+              print(f'::group::Generated HTML near line {target}')
+              for n in range(max(1,target-12),min(len(lines),target+12)+1):
+                  print(f'{n:5}: {lines[n-1][:240]}')
+              print('::endgroup::')
+          PYDIAG
       - name: Commit published model data
         run: |
           git config user.name 'github-actions[bot]'
