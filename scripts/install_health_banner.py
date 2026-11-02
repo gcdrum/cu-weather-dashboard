@@ -506,6 +506,7 @@ light_fetch_patch=r"""
 <script>
 window.cuLightningDensityForecasts=[];
 window.cuLightningRawSignals=[];
+window.cuLightningDensityUnverified=false;
 // Bind the asynchronous feed to the existing threat controller.  The controller
 // may be defined later than this script, so refresh again after page load.
 document.addEventListener('cu-lightning-data-ready',()=>{
@@ -523,6 +524,7 @@ window.addEventListener('load',()=>{
    if(!response.ok)continue;
    const data=await response.json();
    if(!Array.isArray(data.hours))continue;
+   if(model==='rrfs' && (data.diagnostic_errors||[]).some(e=>/implausible converted density/i.test(e)))window.cuLightningDensityUnverified=true;
    for(const h of data.hours){
     const t=Date.parse(h.time);if(!Number.isFinite(t))continue;
     const source_cycle=h.source_cycle||data.cycle;
@@ -605,21 +607,22 @@ lightning_ui_bridge=r"""
   if(!valid.length)return;
   const strongest=valid.reduce((a,b)=>a.value>=b.value?a:b);
   const classification=window.cuHRRRLightningLevel?.(strongest.value);
-  const label=labels[classification?.level];if(!label)return;
+  const uncertain=window.cuLightningDensityUnverified===true && classification?.level==='none';
+  const label=uncertain?'UNVERIFIED':labels[classification?.level];if(!label)return;
   const heading=document.querySelector('[data-threat-key="Lightning"]');
   const tile=heading?.closest('.threat-row');
   const status=tile?.querySelector('.threat-time');
   const dot=tile?.querySelector('.threat-dot');
   if(!status)return;
   status.textContent=label;
-  status.dataset.cuLightningLevel=classification.level;
-  status.dataset.status=classification.level;
+  status.dataset.cuLightningLevel=uncertain?'waiting':classification.level;
+  status.dataset.status=uncertain?'waiting':classification.level;
   status.dataset.phase='forecast';
   status.title=strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
-  if(dot)dot.dataset.status=classification.level;
+  if(dot)dot.dataset.status=uncertain?'waiting':classification.level;
   const colors={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'};
-  status.style.color=colors[classification.level];
-  if(dot)dot.style.backgroundColor=colors[classification.level];
+  status.style.color=uncertain?'#4db8ff':colors[classification.level];
+  if(dot)dot.style.backgroundColor=uncertain?'#4db8ff':colors[classification.level];
  }
  document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
  window.addEventListener('load',refresh);
