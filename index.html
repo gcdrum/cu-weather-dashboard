@@ -3251,6 +3251,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3661,6 +3662,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3690,6 +3692,8 @@ window.cuLightningDensityForecasts=[];
 </script>\n
 
 
+
+
 <script id="cu-lightning-visible-bridge">
 (()=>{
  const labels={none:'BELOW THRESHOLD',possible:'POSSIBLE',elevated:'ELEVATED',likely:'LIKELY',extreme:'EXTREME'};
@@ -3699,21 +3703,22 @@ window.cuLightningDensityForecasts=[];
   if(!valid.length)return;
   const strongest=valid.reduce((a,b)=>a.value>=b.value?a:b);
   const classification=window.cuHRRRLightningLevel?.(strongest.value);
-  const label=labels[classification?.level];if(!label)return;
+  const uncertain=window.cuLightningDensityUnverified===true && classification?.level==='none';
+  const label=uncertain?'UNVERIFIED':labels[classification?.level];if(!label)return;
   const heading=document.querySelector('[data-threat-key="Lightning"]');
   const tile=heading?.closest('.threat-row');
   const status=tile?.querySelector('.threat-time');
   const dot=tile?.querySelector('.threat-dot');
   if(!status)return;
   status.textContent=label;
-  status.dataset.cuLightningLevel=classification.level;
-  status.dataset.status=classification.level;
+  status.dataset.cuLightningLevel=uncertain?'waiting':classification.level;
+  status.dataset.status=uncertain?'waiting':classification.level;
   status.dataset.phase='forecast';
   status.title=strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
-  if(dot)dot.dataset.status=classification.level;
+  if(dot)dot.dataset.status=uncertain?'waiting':classification.level;
   const colors={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'};
-  status.style.color=colors[classification.level];
-  if(dot)dot.style.backgroundColor=colors[classification.level];
+  status.style.color=uncertain?'#4db8ff':colors[classification.level];
+  if(dot)dot.style.backgroundColor=uncertain?'#4db8ff':colors[classification.level];
  }
  document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
  window.addEventListener('load',refresh);
