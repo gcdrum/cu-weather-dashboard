@@ -3299,6 +3299,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3753,6 +3754,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3780,6 +3782,21 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4131,6 +4148,29 @@ window.cuLightningDensityForecasts=[];
  setInterval(check,1200);
  window.addEventListener('cu-rrfs-updated',check);
  window.addEventListener('cu-hrrr-updated',check);
+})();
+</script>
+
+<script id="cu-hrrr-wind-coverage-audit">
+(()=>{
+ async function check(){
+  try{
+   const res=await fetch('./hrrr_wind.json?t='+Date.now(),{cache:'no-store'});
+   if(!res.ok)return;
+   const data=await res.json();
+   const hours=(data.hours||[]).map(h=>Date.parse(String(h.time).match(/Z$|[+-]\d\d:\d\d$/i)?h.time:h.time+'Z')).filter(Number.isFinite).sort((a,b)=>a-b);
+   if(!hours.length)return;
+   window.cuHRRRWindValidHours=hours;
+   const last=hours[hours.length-1],first=hours[0];
+   let label=document.getElementById('cu-hrrr-wind-coverage-note');
+   const canvas=document.getElementById('live-forecast-chart');
+   if(!canvas)return;
+   if(!label){label=document.createElement('div');label.id='cu-hrrr-wind-coverage-note';label.style.cssText='padding:5px 10px;color:#9fe0ff;font:12px Segoe UI,Arial';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',label);}
+   const fmt=t=>new Date(t).toLocaleString('en-US',{timeZone:'America/Chicago',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+   label.textContent='NOAA HRRR wind forecast coverage: '+fmt(first)+' through '+fmt(last)+' ('+hours.length+' decoded hours). The plotted HRRR feeder curve may have shorter coverage; a shorter curve indicates a chart data-mapping issue, not an absent NOAA wind forecast.';
+  }catch(e){console.warn('HRRR wind coverage audit',e)}
+ }
+ check();setInterval(check,60000);
 })();
 </script>
 </body></html>
