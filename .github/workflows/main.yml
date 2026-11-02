@@ -166,9 +166,9 @@ jobs:
           html=Path('index.html').read_text(encoding='utf-8')
           start=html.find('window.cuHRRRLightningLevel=function(v)')
           if start<0:raise SystemExit('Lightning classification function missing from generated HTML')
-          end=html.find('};',start)
+          end=html.find('</script>',start)
           if end<0:raise SystemExit('Lightning classification function closing brace missing')
-          Path('/tmp/cu-lightning-classifier.js').write_text(html[start:end+2],encoding='utf-8')
+          Path('/tmp/cu-lightning-classifier.js').write_text(html[start:end],encoding='utf-8')
           print('Extracted actual published Lightning classifier')
           PYLIGHT
           node - <<'JSLIGHT'
