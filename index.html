@@ -1165,7 +1165,13 @@ const overlayInfo=document.getElementById('cu-overlay-info');
    segment.push(r);previous=i;
   }
   if(segment.length)segments.push(segment);
-  for(const segment of segments)plot(segment,'#ffdf70',[]);
+  for(const segment of segments){
+   plot(segment,'#ff35cb',[]);
+   // Reinforce the mean without obscuring the individual model curves.
+   ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4.5;ctx.setLineDash([]);
+   ctx.beginPath();segment.forEach((r,i)=>{const ix=times.indexOf(r.time);if(i===0)ctx.moveTo(x(ix),y(r.forecastFeeders));else ctx.lineTo(x(ix),y(r.forecastFeeders));});
+   ctx.stroke();ctx.restore();
+  }
  }
 
  // Experimental historical convective feeder-impact scenario.
@@ -1468,7 +1474,7 @@ const overlayInfo=document.getElementById('cu-overlay-info');
  ctx.fillStyle='#161b20';ctx.strokeStyle='#68747b';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(legendX-12,legendY-17,legendW+24,62,7);ctx.fill();ctx.stroke();
  const entries=[
   ['GFS feeders','#a6b3bc',true],['NAM feeders','#64a5ff',true],['HRRR feeders','#0dd3de',true],['RRFS compare','#d7a6ff',true],
-  ['Qualified convective','#73e6a0',true],['HRRR integrated','#ff9f43',true],['Model average','#ffdf70',false]
+  ['Qualified convective','#73e6a0',true],['HRRR integrated','#ff9f43',true],['Model average (2–4)','#ff35cb',false]
  ];
  entries.forEach(([label,color,dashed],i)=>{const xx=legendX+(i%4)*205,yy=legendY+Math.floor(i/4)*26;if(color!=='transparent')line(xx,yy,xx+23,yy,color,2.5,dashed?[6,4]:[]);ctx.fillStyle='#e8edf1';ctx.font='11px Segoe UI,Arial';ctx.textAlign='left';ctx.fillText(label,xx+28,yy+4)});
  if(window.cuChartMode==='live'){canvas.style.display='block';document.getElementById('reference-chart').style.display='none'}
@@ -3290,6 +3296,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3741,6 +3748,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3768,6 +3776,17 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
 
 
 
