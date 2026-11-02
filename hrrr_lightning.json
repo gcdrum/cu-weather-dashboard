@@ -132,17 +132,87 @@
     },
     {
       "time": "2026-11-02T23:00:00+00:00",
-      "peak_raw": 0.036,
+      "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
         "shortName": "ltng",
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "23"
+        "stepRange": "10"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-02T00:00:00+00:00"
+      "source_cycle": "2026-11-02T13:00:00+00:00"
+    },
+    {
+      "time": "2026-11-03T00:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "11"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-02T13:00:00+00:00"
+    },
+    {
+      "time": "2026-11-03T01:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "12"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-02T13:00:00+00:00"
+    },
+    {
+      "time": "2026-11-03T02:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "13"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-02T13:00:00+00:00"
+    },
+    {
+      "time": "2026-11-03T03:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "14"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-02T13:00:00+00:00"
+    },
+    {
+      "time": "2026-11-03T04:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "15"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-02T13:00:00+00:00"
     }
   ],
   "checked_leads": [
@@ -155,7 +225,13 @@
     6,
     7,
     8,
-    9
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }
