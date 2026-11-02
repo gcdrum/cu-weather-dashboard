@@ -257,11 +257,17 @@ def main():
     pending=json.loads(pending_path.read_text()) if pending_path.exists() else {}
     source=prior if prior.get('cycle')==chosen.isoformat() else pending if pending.get('cycle')==chosen.isoformat() else {}
     wind_hours={h['time']:h for h in source.get('hours',[]) if isinstance(h,dict) and 'time' in h}
-    wind_leads=[]
-    for lead in sorted(bylead):
+    # Wind is independent of REFC. Prioritize overnight coverage before
+    # filling early hours so a fresh cycle cannot leave the next storm window blank.
+    # Short cycles extend through f18; 00/06/12/18Z cycles extend through f48.
+    available_leads=range(0,maxlead+1)
+    missing_wind=[]
+    for lead in available_leads:
         stamp=(chosen+timedelta(hours=lead)).strftime('%Y-%m-%dT%H:%M')
-        if stamp not in wind_hours: wind_leads.append(lead)
-    for lead in wind_leads[:4]:
+        if stamp not in wind_hours: missing_wind.append(lead)
+    # f12-f18 first for the overnight window, then near-term, then extended.
+    wind_leads=sorted(missing_wind,key=lambda lead:(0 if 12<=lead<=18 else 1 if lead<12 else 2,lead))
+    for lead in wind_leads[:8]:
         try:
             _,wind=process(chosen,lead)
             wind_hours[wind['time']]=wind
