@@ -888,21 +888,24 @@ lightning_bridge=r"""
   const tile=document.querySelector('[data-threat-key="Lightning"]')?.closest('.threat-row');
   const status=tile?.querySelector('.threat-time'),dot=tile?.querySelector('.threat-dot');
   if(!status)return;
-  const future=forecast.filter(h=>h.time>=Date.now()-15*60000).sort((a,b)=>a.time-b.time);
-  const first=future.find(h=>h.value>0);
-  if(!first){
-   if(!loaded)return;
-   // A missing future horizon is UNKNOWN, not a verified no-lightning forecast.
-   // Leave verified lightning classification untouched when provisional data is absent.
-   return;
-  }
-  const clock=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:true}).format(new Date(first.time));
-  const upcoming=first.time>Date.now()+15*60000;
-  status.textContent='POSSIBLE'+(upcoming?' · '+clock:'');
-  status.dataset.status='possible';status.dataset.phase=upcoming?'upcoming':'forecast';
-  status.title='RRFS native lightning index is positive; units not calibrated. Possible lightning, not a confirmed observation or severity tier.';
-  if(dot)dot.dataset.status='possible';
+  const now=Date.now();
+  const verified=(window.cuLightningDensityForecasts||[]).filter(h=>Number.isFinite(utc(h.time))&&utc(h.time)>=now-15*60000&&Number.isFinite(Number(h.value)));
+  const provisional=forecast.filter(h=>h.time>=now-15*60000);
+  const positiveVerified=verified.filter(h=>Number(h.value)>0);
+  const positiveProvisional=provisional.filter(h=>h.value>0);
+  if(!positiveVerified.length&&!positiveProvisional.length)return;
+  const top=positiveVerified.reduce((m,h)=>Math.max(m,Number(h.value)),0);
+  const classification=top>=6?'EXTREME':top>=3?'LIKELY':top>=1?'ELEVATED':'POSSIBLE';
+  const onset=Math.min(...positiveVerified.map(h=>utc(h.time)),...positiveProvisional.map(h=>h.time));
+  const clock=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:true}).format(new Date(onset));
+  const upcoming=onset>now+15*60000;
+  status.textContent=(positiveVerified.length?classification:'POSSIBLE')+(upcoming?' · '+clock:'');
+  status.dataset.status=(positiveVerified.length?classification:'POSSIBLE').toLowerCase();
+  status.dataset.phase=upcoming?'upcoming':'forecast';
+  status.title=positiveVerified.length?'Verified-unit model lightning density forecast':'RRFS provisional lightning index; uncalibrated';
+  if(dot)dot.dataset.status=status.dataset.status;
  }
+
  load();setInterval(load,60000);setInterval(refresh,1500);
 })();
 </script>
