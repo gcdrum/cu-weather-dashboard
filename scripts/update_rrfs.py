@@ -128,6 +128,9 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
                 continue
             result.setdefault('sample_diagnostics',[]).append({'lead':lead,'level':meta.get('level'),'nonnegative_in_area':int(np.count_nonzero(mask)),'native_peak':float(np.max(values[mask]))})
             peak=float(np.max(values[mask]))*factor
+            if not (0 <= peak <= 15):
+                result.setdefault('diagnostic_errors',[]).append(f'LTNGSD lead {lead}: implausible converted density {peak:g}; rejecting, not treating as zero')
+                continue
             result.update(status='available',units_verified=True,
                 grib_metadata=meta,source='RRFS LTNGSD; native units '+meta.get('units',''),
                 hours=result['hours']+[{'time':(cycle+timedelta(hours=lead)).isoformat(),
@@ -140,7 +143,7 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
     prior=json.loads(dest.read_text()) if dest.exists() else {}
     merged={}
     for row in prior.get('hours',[]):
-        if isinstance(row,dict) and row.get('time'):
+        if isinstance(row,dict) and row.get('time') and row.get('units_verified') is True and isinstance(row.get('value'),(int,float)) and 0 <= row['value'] <= 15:
             merged[row['time']]=dict(row,source_cycle=row.get('source_cycle',prior.get('cycle','')))
     for row in result['hours']:
         merged[row['time']]=dict(row,source_cycle=cycle.isoformat())
