@@ -184,6 +184,11 @@ jobs:
           }
           console.log('PASS all Lightning threat classifications; synthetic data never written to forecast JSON');
           JSLIGHT
+      - name: Browser smoke test lightning feed and threat classification
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          node scripts/test_lightning_browser.cjs
       - name: Commit published model data
         run: |
           git config user.name 'github-actions[bot]'
