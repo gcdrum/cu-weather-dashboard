@@ -127,14 +127,20 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
                 result.setdefault('sample_diagnostics',[]).append({'lead':lead,'level':meta.get('level'),'grid_points':int(len(values)),'finite':int(np.count_nonzero(np.isfinite(values))),'latitude_range':[float(np.nanmin(lat)),float(np.nanmax(lat))],'longitude_range':[float(np.nanmin(lon)),float(np.nanmax(lon))],'nonnegative_in_area':0})
                 continue
             result.setdefault('sample_diagnostics',[]).append({'lead':lead,'level':meta.get('level'),'nonnegative_in_area':int(np.count_nonzero(mask)),'native_peak':float(np.max(values[mask]))})
-            peak=float(np.max(values[mask]))*factor
+            # RRFS currently decodes order-one LTNGSD values (e.g. 2.06),
+            # while ecCodes reports unknown units. Do NOT apply 3e8 to an
+            # uncalibrated grid or mislabel the raw index as verified density.
+            native_peak=float(np.max(values[mask]))
+            peak=native_peak if meta.get('units','').lower()=='unknown' else native_peak*factor
             if not (0 <= peak <= 15):
                 result.setdefault('diagnostic_errors',[]).append(f'LTNGSD lead {lead}: implausible converted density {peak:g}; rejecting, not treating as zero')
                 continue
-            result.update(status='available',units_verified=True,
+            calibrated=meta.get('units','').lower()!='unknown'
+            result.update(status='available' if calibrated else 'provisional_native_index',units_verified=calibrated,
                 grib_metadata=meta,source='RRFS LTNGSD; native units '+meta.get('units',''),
                 hours=result['hours']+[{'time':(cycle+timedelta(hours=lead)).isoformat(),
-                        'value':round(peak,5),'units_verified':True,
+                        'value':round(peak,5),'units_verified':calibrated,
+                        'native_index':not calibrated,
                         'metric':'five_minute_equivalent_of_one_hour_maximum_rate'}])
         except Exception as exc:
             result.setdefault('diagnostic_errors',[]).append(str(exc)[:250])
@@ -143,7 +149,7 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
     prior=json.loads(dest.read_text()) if dest.exists() else {}
     merged={}
     for row in prior.get('hours',[]):
-        if isinstance(row,dict) and row.get('time') and row.get('units_verified') is True and isinstance(row.get('value'),(int,float)) and 0 <= row['value'] <= 15:
+        if isinstance(row,dict) and row.get('time') and (row.get('units_verified') is True or row.get('native_index') is True) and isinstance(row.get('value'),(int,float)) and 0 <= row['value'] <= 15:
             merged[row['time']]=dict(row,source_cycle=row.get('source_cycle',prior.get('cycle','')))
     for row in result['hours']:
         merged[row['time']]=dict(row,source_cycle=cycle.isoformat())
@@ -163,6 +169,7 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
     result['time_statistic']='one-hour maximum rate expressed as five-minute equivalent; not accumulated flashes'
     result['coverage_policy']='per-valid-hour replacement; older cycle retained until replaced'
     result['units_verified']=bool(result['hours']) and all(r.get('units_verified') is True for r in result['hours'])
+    result['native_index_provisional']=any(r.get('native_index') is True for r in result['hours'])
     if result['hours'] and result['status']!='available':result['status']='retained_previous_cycle'
     if result['hours'] and result['units_verified'] and result['status']=='units_unverified':result['status']='available'
     if not result['hours'] and result['status']=='field_unavailable' and matches:
