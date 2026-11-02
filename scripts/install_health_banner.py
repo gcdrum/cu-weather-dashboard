@@ -1462,6 +1462,10 @@ for label,pattern in [
 ]:
  if re.search(pattern,html):raise SystemExit('ERROR: '+label+' remains in generated HTML')
 
+# Optional RRFS developer probe is not present in production layout.
+# Its links() initializer must not abort the dashboard when controls are absent.
+html=html.replace("if($('rrfs-cycle')&&$('rrfs-hour'))links();",
+                  "if($('rrfs-cycle')&&$('rrfs-hour')){try{links()}catch(e){console.warn('RRFS probe controls incomplete',e.message)}}")
 print('Patched three observed browser exception sites')
 
 path.write_text(html,encoding='utf-8')
