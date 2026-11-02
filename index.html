@@ -4449,4 +4449,39 @@ window.cuLightningDensityForecasts=[];
  setInterval(refresh,60000);
 })();
 </script>
+
+<script id="cu-lightning-source-integrity">
+(()=>{
+ const parse=t=>{const s=String(t||'');return Date.parse(/(?:Z|[+-]\d\d:\d\d)$/i.test(s)?s:s+'Z')};
+ const fmt=ms=>new Date(ms).toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'short',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+ function update(){
+  const tile=[...document.querySelectorAll('*')].find(e=>e.children.length===0&&e.textContent.trim()==='Lightning')?.closest('.threat-tile');
+  if(!tile)return;
+  const status=tile.querySelector('.threat-time,.threat-status');
+  if(!status)return;
+  const now=Date.now()-15*60000;
+  const verified=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&x.units==='flashes/km²/5 min'&&Number.isFinite(x.value)&&x.value>0&&Number.isFinite(parse(x.time))&&parse(x.time)>=now).sort((a,b)=>parse(a.time)-parse(b.time));
+  const raw=(window.cuLightningRawSignals||[]).filter(x=>Number.isFinite(x?.value)&&x.value>0&&Number.isFinite(parse(x.time))&&parse(x.time)>=now).sort((a,b)=>parse(a.time)-parse(b.time));
+  const v=verified[0],r=raw[0];
+  if(v){
+    const band=window.cuHRRRLightningLevel?.(v.value);
+    const level=band?.level||'possible';
+    status.textContent=level.toUpperCase()+' · '+fmt(parse(v.time));
+    status.title='Verified '+String(v.model||'model').toUpperCase()+' lightning flash density: '+v.value+' flashes/km²/5 min';
+    status.dataset.status=level;
+  }else if(r){
+    status.textContent='POSSIBLE · '+fmt(parse(r.time));
+    status.title='Uncalibrated model lightning signal; screening only, not verified flash density';
+    status.dataset.status='possible';
+  }else{
+    status.textContent='UNVERIFIED';
+    status.title='No valid positive native lightning forecast. Reflectivity-only storm potential is tracked separately; missing lightning is not zero.';
+    status.dataset.status='waiting';
+  }
+ }
+ document.addEventListener('cu-lightning-data-ready',update);
+ window.addEventListener('load',update);
+ setInterval(update,10000);
+})();
+</script>
 </body></html>
