@@ -527,7 +527,7 @@ window.cuLightningRawSignals=[];
  const dedup=(a)=>[...new Map(a.sort((x,y)=>Date.parse(x.source_cycle)-Date.parse(y.source_cycle)).map(x=>[x.model+'|'+x.time,x])).values()];
  window.cuLightningDensityForecasts=dedup(density);
  window.cuLightningRawSignals=dedup(raw);
- try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
+ try{window.cuUpdateThreats?.();document.dispatchEvent(new CustomEvent('cu-lightning-data-ready',{detail:{density:density.length,raw:raw.length}}));}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>
 """
