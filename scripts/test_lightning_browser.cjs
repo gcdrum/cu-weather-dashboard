@@ -20,7 +20,7 @@ const path=require('path');
  const url='http://127.0.0.1:'+server.address().port+'/';
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
-   for(const [value,expected] of [[0,'none'],[0.2,'possible'],[2,'elevated'],[4,'likely'],[8,'extreme']]){
+   for(const [value,expected,provisional] of [[0,'none',false],[0.2,'possible',false],[2,'elevated',false],[4,'likely',false],[8,'extreme',false],[2.06,'possible',true]]){
      const page=await browser.newPage();
      const errors=[];
      page.on('pageerror',e=>errors.push(e.message));
@@ -29,8 +29,8 @@ const path=require('path');
        hits++;
        const now=new Date(Date.now()+3600000).toISOString();
        await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
-         model:'rrfs',cycle:new Date().toISOString(),status:'available',units_verified:true,
-         hours:[{time:now,value,units_verified:true,source_cycle:new Date().toISOString()}]
+         model:'rrfs',cycle:new Date().toISOString(),status:'available',units_verified:!provisional,
+         hours:[{time:now,value,units_verified:!provisional,native_index:provisional,source_cycle:new Date().toISOString()}]
        })});
      });
      await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
@@ -38,12 +38,12 @@ const path=require('path');
      const report=await page.evaluate(()=>{
        const text=document.body.innerText||'';
        const i=text.toLowerCase().indexOf('lightning');
-       return {excerpt:i>=0?text.slice(Math.max(0,i-100),i+350):'',density:window.cuLightningDensityForecasts||[],level:typeof window.cuHRRRLightningLevel==='function'?window.cuHRRRLightningLevel(window.cuLightningDensityForecasts?.[0]?.value):null,bridgeType:typeof window.cuRefreshLightningTile,lightningNodes:[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()==='Lightning').slice(0,3).map(e=>e.parentElement?.outerHTML.slice(0,1100)),updateType:typeof window.cuUpdateThreats};
+       return {excerpt:i>=0?text.slice(Math.max(0,i-100),i+350):'',density:window.cuLightningDensityForecasts||[],provisional:window.cuLightningProvisionalForecasts||[],level:typeof window.cuHRRRLightningLevel==='function'?window.cuHRRRLightningLevel(window.cuLightningDensityForecasts?.[0]?.value):null,bridgeType:typeof window.cuRefreshLightningTile,lightningNodes:[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()==='Lightning').slice(0,3).map(e=>e.parentElement?.outerHTML.slice(0,1100)),updateType:typeof window.cuUpdateThreats};
      });
      console.log('LIGHTNING_BROWSER_CASE',JSON.stringify({value,expected,hits,errors:errors.slice(0,3),report}));
      if(hits===0)throw Error('Lightning JSON was never requested by dashboard');
-     if(!report.density.length)throw Error('Lightning data did not enter global forecast state');
-     if(report.level?.level!==expected)throw Error('Lightning classifier failed in browser: '+JSON.stringify(report.level));
+     if(!report.density.length&&!report.provisional.length)throw Error('Lightning data did not enter global forecast state');
+     if(!provisional&&report.level?.level!==expected)throw Error('Lightning classifier failed in browser: '+JSON.stringify(report.level));
      const visible=report.excerpt.match(/Lightning\s+([^\n]+)/i)?.[1]?.trim()||'';
      const expectedVisible={none:'BELOW THRESHOLD',possible:'POSSIBLE',elevated:'ELEVATED',likely:'LIKELY',extreme:'EXTREME'}[expected];
      if(!visible.toUpperCase().includes(expectedVisible))throw Error('Visible Lightning tile mismatch: expected '+expectedVisible+', got '+visible+'; browser errors: '+errors.join(' | '));
