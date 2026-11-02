@@ -1467,5 +1467,53 @@ html=html.replace("if($('rrfs-cycle')&&$('rrfs-hour'))links();",
                   "if($('rrfs-cycle')&&$('rrfs-hour')){try{links()}catch(e){console.warn('RRFS probe controls incomplete',e.message)}}")
 print('Patched three observed browser exception sites')
 
+
+# Feed direct NOAA HRRR hourly gust samples into the existing main chart,
+# rather than depending on the legacy API series.
+chart_start=html.find('function drawForecast(){')
+chart_end=html.find(' if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;',chart_start)
+if chart_start<0 or chart_end<chart_start:
+    raise RuntimeError('HRRR chart source boundary not found')
+chart_block=html[chart_start:chart_end]
+chart_block,count=re.subn(r'\\bconst\\s+h\\s*=', 'let h=',chart_block,count=1)
+if count!=1:
+    raise RuntimeError('HRRR main chart variable declaration not found')
+chart_block += """
+ if(window.cuHRRRHourlyFeeders?.length)h=window.cuHRRRHourlyFeeders;
+"""
+html=html[:chart_start]+chart_block+html[chart_end:]
+hrrr_script=r"""
+<script id="cu-direct-hrrr-hourly-chart">
+(()=>{
+ async function refresh(){
+  try{
+   const response=await fetch('./hrrr_wind.json?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return;
+   const data=await response.json();
+   const rows=(data.hours||[]).map(hour=>{
+    const samples=(hour.gust_ms||[]).map(Number).filter(Number.isFinite);
+    if(!samples.length)return null;
+    const feeders=samples.reduce((sum,ms)=>{
+      const x=Math.max(0,(ms*2.2369362921-15)/5);
+      return sum+Math.max(0,0.2431*(Math.exp(0.5216*x)-1));
+    },0)/samples.length;
+    const raw=String(hour.time||'');
+    const date=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');
+    return Number.isFinite(date)?{time:new Date(date).toISOString().slice(0,13)+':00',forecastFeeders:feeders}:null;
+   }).filter(Boolean);
+   if(rows.length){
+    window.cuHRRRHourlyFeeders=rows;
+    if(typeof window.drawForecast==='function')window.drawForecast();
+   }
+  }catch(error){console.warn('NOAA HRRR chart feed',error)}
+ }
+ window.addEventListener('load',refresh);
+ setInterval(refresh,60000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-direct-hrrr-hourly-chart">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',hrrr_script+'</body>',1)
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
