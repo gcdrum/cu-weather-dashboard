@@ -444,6 +444,22 @@
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
       "source_cycle": "2026-11-02T12:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T22:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T12:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T23:00:00+00:00",
+      "value": 0.0,
+      "units_verified": false,
+      "native_index": true,
+      "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
+      "source_cycle": "2026-11-02T12:00:00+00:00"
     }
   ],
   "note": "LTNG (dimensionless) is not flash density; only LTNGSD is eligible.",
@@ -1658,6 +1674,40 @@
         "tablesVersion": "2",
         "localTablesVersion": "1"
       }
+    },
+    {
+      "index": "28:22786663:d=2026110212:LTNGSD:1 m above ground:57-58 hour max fcst:",
+      "metadata": {
+        "shortName": "unknown",
+        "name": "unknown",
+        "units": "unknown",
+        "stepType": "max",
+        "stepRange": "57-58",
+        "typeOfLevel": "heightAboveGround",
+        "level": "1",
+        "discipline": "0",
+        "parameterCategory": "17",
+        "parameterNumber": "0",
+        "tablesVersion": "2",
+        "localTablesVersion": "1"
+      }
+    },
+    {
+      "index": "28:22854732:d=2026110212:LTNGSD:1 m above ground:58-59 hour max fcst:",
+      "metadata": {
+        "shortName": "unknown",
+        "name": "unknown",
+        "units": "unknown",
+        "stepType": "max",
+        "stepRange": "58-59",
+        "typeOfLevel": "heightAboveGround",
+        "level": "1",
+        "discipline": "0",
+        "parameterCategory": "17",
+        "parameterNumber": "0",
+        "tablesVersion": "2",
+        "localTablesVersion": "1"
+      }
     }
   ],
   "units_basis": "GRIB2 0-17-0: m^-2 s^-1 (1-hour maximum); 5-min equivalent rate",
@@ -2003,6 +2053,18 @@
       "level": "1",
       "nonnegative_in_area": 1225,
       "native_peak": 0.0
+    },
+    {
+      "lead": 58,
+      "level": "1",
+      "nonnegative_in_area": 1225,
+      "native_peak": 0.0
+    },
+    {
+      "lead": 59,
+      "level": "1",
+      "nonnegative_in_area": 1225,
+      "native_peak": 0.0
     }
   ],
   "grib_metadata": {
@@ -2010,7 +2072,7 @@
     "name": "unknown",
     "units": "unknown",
     "stepType": "max",
-    "stepRange": "56-57",
+    "stepRange": "58-59",
     "typeOfLevel": "heightAboveGround",
     "level": "1",
     "discipline": "0",
@@ -2034,6 +2096,6 @@
   "time_statistic": "one-hour maximum rate expressed as five-minute equivalent; not accumulated flashes",
   "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced",
   "native_index_provisional": true,
-  "matched_fields": 114,
-  "valid_hours": 55
+  "matched_fields": 118,
+  "valid_hours": 57
 }
