@@ -1154,5 +1154,44 @@ html=html.replace('</body>',hourly_rrfs+'</body>',1) if '</body>' in html else h
 html=html.replace("const rrfs=(window.cuRRFS95?.series||[]).map(r=>{const samples=", "const rrfsLegacy=(window.cuRRFS95?.series||[]).map(r=>{const samples=")
 html=html.replace("  window.cuAverageAuditRRFS=rrfs;","  const rrfs=window.cuRRFSHourlyFeeders?.length?window.cuRRFSHourlyFeeders:rrfsLegacy;\n  window.cuAverageAuditRRFS=rrfs;")
 
+
+# Final canonical pass: all chart timestamps are UTC hourly keys. Apply to
+# the actual arrays that the model-average plot reads, not a separate cache.
+canonical=r"""
+ const hourKey=v=>{
+  const raw=String(v||'');
+  const ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');
+  return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13)+':00':null;
+ };
+ for(const rows of [g,n,h,rrfs])for(const row of rows){
+  const key=hourKey(row.time);if(key)row.time=key;
+ }
+ window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs};
+"""
+target=" if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;"
+if target not in html:
+    raise RuntimeError('Cannot find main chart model data boundary')
+if "window.cuAverageSourceRows={gfs:g" not in html:
+    html=html.replace(target,canonical+target,1)
+# Use exact chart arrays for audit, not independently reconstructed data.
+audit_old="  const datasets=[['GFS',cache.gfs?.rows||[]],['NAM',cache.nam?.rows||[]],['HRRR',cache.hrrr?.rows||[]],['RRFS',rrfs]];"
+audit_new="  const source=window.cuAverageSourceRows||{};\n  const datasets=[['GFS',source.gfs||[]],['NAM',source.nam||[]],['HRRR',source.hrrr||[]],['RRFS',source.rrfs||[]]];"
+if audit_old in html:
+    html=html.replace(audit_old,audit_new,1)
+else:
+    raise RuntimeError('Cannot find average audit model source boundary')
+# Reflectivity coverage must compare the UTC forecast hour with the UTC
+# reflectivity valid timestamp, not browser-local interpretation of UTC.
+old="const endIdx=times.findIndex(t=>Date.parse(t)>last);"
+new="const endIdx=times.findIndex(t=>Date.parse(t+'Z')>last);"
+if old in html:
+    html=html.replace(old,new,1)
+elif new not in html:
+    raise RuntimeError('Cannot find HRRR reflectivity end index')
+# Audit panel: preserve a recognizable title even before any rows load.
+html=html.replace("host.innerHTML='<summary style=\"cursor:pointer;font-weight:700\">Model average audit", "host.innerHTML='<summary style=\"cursor:pointer;font-weight:700\">Model average audit")
+# The source arrays and average are now generated from the same valid hours.
+# Never treat missing source rows as zero or average derived convective curves.
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
