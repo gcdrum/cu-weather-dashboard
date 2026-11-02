@@ -606,8 +606,9 @@ lightning_ui_bridge=r"""
   const strongest=valid.reduce((a,b)=>a.value>=b.value?a:b);
   const classification=window.cuHRRRLightningLevel?.(strongest.value);
   const label=labels[classification?.level];if(!label)return;
+  const exact=[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()==='Lightning');
   const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
-  const candidates=[];let node;while((node=walker.nextNode())){if(node.textContent.trim()==='Lightning'&&node.parentElement)candidates.push(node.parentElement);}
+  const candidates=[...exact];let node;while((node=walker.nextNode())){if(node.textContent.trim()==='Lightning'&&node.parentElement&&!candidates.includes(node.parentElement))candidates.push(node.parentElement);}
   for(const heading of candidates){
    let tile=heading.parentElement;
    for(let depth=0;depth<8&&tile;depth++,tile=tile.parentElement){
