@@ -146,6 +146,18 @@ def rrfs_lightning_diagnostic(cycle, indexed_urls):
         merged[row['time']]=dict(row,source_cycle=cycle.isoformat())
     cutoff=(datetime.now(timezone.utc)-timedelta(hours=1)).isoformat()
     result['hours']=[merged[k] for k in sorted(merged) if k>=cutoff]
+    # Lightning density bands, derived only from decoded, verified LTNGSD.
+    # A zero is valid only for a decoded hour; absent hours stay absent.
+    edges=(0.1,0.3,1.0,3.0,6.0)
+    for row in result['hours']:
+        if row.get('units_verified') is True and isinstance(row.get('value'),(int,float)):
+            v=row['value']
+            row['lightning_band']=sum(v>=edge for edge in edges) if v>=0 else None
+            row['lightning_detected']=v>0 if v>=0 else None
+    result['bands_flashes_per_km2_per_5min']=[0,0.1,0.3,1,3,6,15]
+    result['band_policy']='band 0: 0 to <0.1; 1: 0.1 to <0.3; 2: 0.3 to <1; 3: 1 to <3; 4: 3 to <6; 5: >=6'
+    result['conversion_source']='NCEP GRIB2 table 4.2-0-17, parameter 0: m^-2 s^-1'
+    result['time_statistic']='one-hour maximum rate expressed as five-minute equivalent; not accumulated flashes'
     result['coverage_policy']='per-valid-hour replacement; older cycle retained until replaced'
     result['units_verified']=bool(result['hours']) and all(r.get('units_verified') is True for r in result['hours'])
     if result['hours'] and result['status']!='available':result['status']='retained_previous_cycle'
