@@ -906,7 +906,14 @@ lightning_bridge=r"""
   if(dot)dot.dataset.status=status.dataset.status;
  }
 
- load();setInterval(load,60000);setInterval(refresh,1500);
+ // Legacy threat rendering runs after the density feed; reapply after each render.
+ const originalUpdate=window.cuUpdateThreats;
+ if(typeof originalUpdate==='function'&&!originalUpdate.__lightningWrapped){
+   const wrapped=function(...args){const result=originalUpdate.apply(this,args);queueMicrotask(refresh);return result;};
+   wrapped.__lightningWrapped=true;
+   window.cuUpdateThreats=wrapped;
+ }
+ load();setInterval(load,60000);setInterval(refresh,200);
 })();
 </script>
 """
