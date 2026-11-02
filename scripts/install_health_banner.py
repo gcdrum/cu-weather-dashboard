@@ -166,14 +166,14 @@ snippet = r"""
      }
    } catch(e){console.warn('RRFS reflectivity unavailable',e)}
    const convective=reflectivity.filter(r=>['gfs','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
-     const time=Date.parse(r.time);
+     const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
      const local=Number(r.zones?.springfield_area);
      const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
      const dbz=Math.max(Number.isFinite(local)?local:-10,site);
      return {time,model:String(r.model).toLowerCase(),dbz};
    }).filter(r=>Number.isFinite(r.time)&&r.time>=Date.now()-3600000&&r.dbz>=35);
    const convectiveWindows=consensus.map(row=>{
-     const t=Date.parse(row.time);
+     const t=Date.parse(String(row.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?row.time:String(row.time)+'Z');
      const matches=convective.filter(r=>Math.abs(r.time-t)<=90*60000);
      const models=[...new Set(matches.map(r=>r.model))];
      const maxDbz=matches.length?Math.max(...matches.map(r=>r.dbz)):null;
@@ -184,7 +184,7 @@ snippet = r"""
    window.cuConvectiveScreen=convectiveWindows;
    const activeWindows=convectiveWindows.filter(x=>x.convective_models.length);
    const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ within ±90 minutes of a forecast hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
-   const convectivePoints=activeWindows.map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ff9a36'}));
+   const convectivePoints=activeWindows.map(x=>({time:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'),value:x.estimated_feeders,color:'#ff9a36'}));
    const convectiveMarkers=activeWindows.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+activeWindows.map(x=>'<span style="border:1px solid #a8753c;border-radius:5px;padding:4px 6px;color:#ffd096;font-size:11px">'+esc(x.time.slice(5,16).replace('T',' ')+'Z')+' · '+esc(x.convective_models.join('+').toUpperCase())+' · '+Number(x.local_reflectivity_dbz).toFixed(0)+' dBZ</span>').join('')+'</div>':'';
    // Four-model calculation output for downstream integration and verification.
    // Require >=2 independent sources to avoid a single model masquerading as consensus.
@@ -197,7 +197,7 @@ snippet = r"""
    // Do not silently replace the existing engine when only one model is available.
    const ensembleRows=window.cuModelEnsembleOutageForecast;
    const nowHour=Date.now();
-   const nearTerm=ensembleRows.filter(r=>{const t=Date.parse(r.time);return t>=nowHour-3600000&&t<=nowHour+6*3600000;});
+   const nearTerm=ensembleRows.filter(r=>{const t=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');return t>=nowHour-3600000&&t<=nowHour+6*3600000;});
    const allFour=nearTerm.filter(r=>r.model_count===4);
    window.cuEnsembleOperationalReadiness={
      ready:nearTerm.length>=4&&allFour.length>=4,
@@ -222,8 +222,8 @@ snippet = r"""
      const conv=convectiveWindows.filter(x=>x.convective_models.length);
      const agreement=peak?peak.model_count:0;
      const confidence=agreement>=4?'4 models':agreement===3?'3 models':agreement===2?'2 models':'Insufficient';
-     const preview=valid.map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
-     const bands=conv.map(x=>({start:Date.parse(x.time)-30*60000,end:Date.parse(x.time)+30*60000}));
+     const preview=valid.map(x=>({time:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'),value:x.estimated_feeders,color:'#ffb86b'}));
+     const bands=conv.map(x=>({start:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')-30*60000,end:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')+30*60000}));
      const stageName=n=>'Stage '+n;
      const ensemblePeak=window.cuModelEnsembleOutageForecast?.reduce((a,b)=>!a||b.feeders>a.feeders?b:a,null);
      const stageSummary=ensemblePeak?'<div role="status" style="padding:9px 0;font-weight:700">Four-model wind outlook: '+stageName(ensemblePeak.stage)+' · '+ensemblePeak.feeders.toFixed(1)+' feeders · '+ensemblePeak.model_count+'/4 models · '+esc(ensemblePeak.time.slice(5,16).replace('T',' ')+'Z')+'</div>':'';
@@ -238,8 +238,8 @@ snippet = r"""
      return {time:new Date(p.time).toISOString(),feeders:Math.max(0,feeders),model:'rrfs'};
    }).filter(p=>Number.isFinite(p.feeders));
    window.cuRRFSFeederCurve=rrfsFeederCurve;
-   const consensusSeries=consensus.filter(x=>x.model_count>=2).map(x=>({time:Date.parse(x.time),value:x.estimated_feeders,color:'#ffb86b'}));
-   const convectiveBands=activeWindows.map(x=>({start:Date.parse(x.time)-30*60000,end:Date.parse(x.time)+30*60000}));
+   const consensusSeries=consensus.filter(x=>x.model_count>=2).map(x=>({time:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'),value:x.estimated_feeders,color:'#ffb86b'}));
+   const convectiveBands=activeWindows.map(x=>({start:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')-30*60000,end:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')+30*60000}));
    const consensusPanel='<div style="margin-top:14px"><strong>Experimental feeder-outage timeline</strong><div style="font-size:12px;color:#c0d0d9">Selected NOAA/Open-Meteo gust sources; median of available models at each UTC hour. Feeder estimate uses preliminary user-calibrated nonconvective wind points (40 mph ≈ 5, 55 mph ≈ 15, 60 mph ≈ 20). No convective adjustment or operational alerting. Not connected to production predictions.</div>'+chart([consensusSeries],10,convectiveBands)+'<div style="color:#ffbd74;font-size:12px">■ Shaded orange: local ≥35 dBZ convective screening (not additional feeder outages)</div>'+convectivePanel+convectiveMarkers+'<div style="font-size:12px;color:#c0d0d9">Hours with fewer than 2 models are omitted. Forecast horizons differ; confidence decreases as model count falls.</div></div>';
    const feederSignal=mph=>{const x=Math.max(0,(mph-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1));};
    const near=Date.now()-3600000;
@@ -294,7 +294,7 @@ snippet = r"""
   const y=v=>{v=Math.max(0,Math.min(80,v));return T+PH-((v<=10?2*v:20+(v-10))/90)*PH};
   const first=Date.parse(c.times[0]+'Z'),last=Date.parse(c.times[c.times.length-1]+'Z');
   const x=t=>L+(t-first)/Math.max(1,last-first)*(W-L-R);
-  const points=rows.map(r=>({t:Date.parse(r.time),v:Number(r.feeders)})).filter(r=>Number.isFinite(r.t)&&Number.isFinite(r.v)&&r.t>=first&&r.t<=last).sort((a,b)=>a.t-b.t);
+  const points=rows.map(r=>({t:Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z'),v:Number(r.feeders)})).filter(r=>Number.isFinite(r.t)&&Number.isFinite(r.v)&&r.t>=first&&r.t<=last).sort((a,b)=>a.t-b.t);
   if(points.length>=2){
   ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
   ctx.strokeStyle='#ffb86b';ctx.lineWidth=3;ctx.setLineDash([9,5]);ctx.beginPath();
@@ -436,12 +436,12 @@ if light_anchor not in html:
 if 'cuMultiModelStormCorroborationV1' not in html:
     js=r""" const cuMultiModelStormCorroborationV1=(()=>{
    const now=Date.now()-15*60000;
-   const records=(window.cuNumericalReflectivityV102||[]).filter(r=>['rrfs','gfs','hrrr','nam'].includes(r.model)&&Number.isFinite(Date.parse(r.time))&&Date.parse(r.time)>=now);
+   const records=(window.cuNumericalReflectivityV102||[]).filter(r=>['rrfs','gfs','hrrr','nam'].includes(r.model)&&Number.isFinite(Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z'))&&Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z')>=now);
    const groups=new Map();
    for(const r of records){
      const local=Number(r.zones?.springfield_area),west=Number(r.zones?.approach_west),upstream=Number(r.zones?.upstream_west);
      if(![local,west,upstream].some(Number.isFinite))continue;
-     const t=Math.floor(Date.parse(r.time)/3600000)*3600000;
+     const t=Math.floor(Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z')/3600000)*3600000;
      const key=r.model+':'+t;
      groups.set(key,{model:r.model,ms:t,local,west,upstream});
    }
@@ -484,7 +484,7 @@ if light_update_anchor in html and 'cuLightningOperationalV2' not in html:
     inject=r""" const cuLightningOperationalV2=(()=>{
    const now=Date.now()-15*60000;
    const sources=[['hrrr','hrrr_lightning.json'],['rrfs','rrfs_lightning.json']];
-   const candidates=(window.cuLightningDensityForecasts||[]).filter(x=>x&&x.units_verified===true&&x.units==='flashes/km²/5 min'&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
+   const candidates=(window.cuLightningDensityForecasts||[]).filter(x=>x&&x.units_verified===true&&x.units==='flashes/km²/5 min'&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'))&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=now);
    const best=candidates.sort((a,b)=>b.value-a.value)[0];
    const level=best?window.cuHRRRLightningLevel?.(best.value):null;
    return {best,level};
@@ -493,9 +493,9 @@ if light_update_anchor in html and 'cuLightningOperationalV2' not in html:
    const x=cuLightningOperationalV2.best;
    threat('Lightning',cuLightningOperationalV2.level.level,
      x.model.toUpperCase()+' verified native lightning flash density '+x.value+' flashes/km²/5 min, band '+cuLightningOperationalV2.level.band+'.',
-     cuPhaseForTime(Date.parse(x.time)));
+     cuPhaseForTime(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')));
  }else{
-   const raw=(window.cuLightningRawSignals||[]).filter(x=>x&&Number.isFinite(x.value)&&Date.parse(x.time)>=Date.now()-15*60000);
+   const raw=(window.cuLightningRawSignals||[]).filter(x=>x&&Number.isFinite(x.value)&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=Date.now()-15*60000);
    const signal=raw.sort((a,b)=>b.value-a.value)[0];
    // HRRR dimensionless LTNG is a qualitative signal, NOT a flash count.
    // A positive raw signal only supports Possible pending calibration.
@@ -633,8 +633,8 @@ lightning_ui_bridge=r"""
  }
  function refresh(){
   const now=Date.now()-15*60000;
-  const valid=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
-  const provisional=[...(window.cuLightningProvisionalForecasts||[]),...directRRFS].filter(x=>Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
+  const valid=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'))&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=now);
+  const provisional=[...(window.cuLightningProvisionalForecasts||[]),...directRRFS].filter(x=>Number.isFinite(x.value)&&Number.isFinite(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'))&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=now);
   if(!valid.length&&!provisional.length)return;
   const positive=[...valid,...provisional].filter(x=>x.value>0).sort((a,b)=>Date.parse(a.time)-Date.parse(b.time));
   const onset=positive.length?Date.parse(positive[0].time):null;
