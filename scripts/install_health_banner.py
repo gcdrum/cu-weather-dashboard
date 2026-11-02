@@ -1429,6 +1429,40 @@ html=html.replace("  $('rrfs-test').addEventListener('click',test);links();",
 # Do not dereference an absent canvas.
 html=html.replace("const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d');",
                   "const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas.getContext('2d');if(!ctx)return;")
+
+# Enforce repairs against generated HTML, including legacy whitespace variants.
+# Fail generation if any known broken expression survives.
+for label,pattern,replacement in [
+ ('inventory updateGlobal',r'(?<![\w.])updateGlobal\s*\(\s*\)\s*;\s*return\s*;',
+  "if(typeof updateGlobal==='function')updateGlobal();return;"),
+ ('RRFS cycle handler',r"\$\(\s*['\"]rrfs-cycle['\"]\s*\)\.addEventListener\s*\(\s*['\"]change['\"]\s*,\s*links\s*\)",
+  "document.getElementById('rrfs-cycle')?.addEventListener('change',links)"),
+ ('RRFS hour handler',r"\$\(\s*['\"]rrfs-hour['\"]\s*\)\.addEventListener\s*\(\s*['\"]change['\"]\s*,\s*links\s*\)",
+  "document.getElementById('rrfs-hour')?.addEventListener('change',links)"),
+ ('RRFS test handler',r"\$\(\s*['\"]rrfs-test['\"]\s*\)\.addEventListener\s*\(\s*['\"]click['\"]\s*,\s*test\s*\)",
+  "document.getElementById('rrfs-test')?.addEventListener('click',test)"),
+ ('RRFS missing canvas',r"ctx\s*=\s*canvas\.getContext\('2d'\)",
+  "ctx=canvas?.getContext('2d')"),
+]:
+ if label=='inventory updateGlobal':
+  # Only patch bare calls, never an already guarded branch.
+  html,n=re.subn(r'(?<![\w.])(?<!\))updateGlobal\s*\(\s*\)\s*;\s*return\s*;',replacement,html)
+ elif label=='RRFS missing canvas':
+  # The optional chain protects lookup but the renderer must return if absent.
+  html,n=re.subn(pattern,replacement,html)
+ else:
+  html,n=re.subn(pattern,replacement,html)
+ print('Runtime repair',label,'replacements',n)
+# Ensure legacy RRFS panel rendering does not continue after a missing canvas.
+html=html.replace("const valid=rows.filter(r=>Number.isFinite(r.gust));",
+                  "if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));")
+# Assert no direct RRFS handler dereferences or unguarded canvas access remain.
+for label,pattern in [
+ ('unguarded RRFS control',r"\$\(\s*['\"]rrfs-(?:cycle|hour|test)['\"]\s*\)\.addEventListener"),
+ ('unguarded RRFS canvas',r"canvas\.getContext\('2d'\)")
+]:
+ if re.search(pattern,html):raise SystemExit('ERROR: '+label+' remains in generated HTML')
+
 print('Patched three observed browser exception sites')
 
 path.write_text(html,encoding='utf-8')
