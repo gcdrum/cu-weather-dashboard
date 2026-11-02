@@ -607,21 +607,20 @@ lightning_ui_bridge=r"""
   const classification=window.cuHRRRLightningLevel?.(strongest.value);
   const label=labels[classification?.level];if(!label)return;
   const exact=[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()==='Lightning');
-  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
-  const candidates=[...exact];let node;while((node=walker.nextNode())){if(node.textContent.trim()==='Lightning'&&node.parentElement&&!candidates.includes(node.parentElement))candidates.push(node.parentElement);}
-  for(const heading of candidates){
-   let tile=heading.parentElement;
-   for(let depth=0;depth<8&&tile;depth++,tile=tile.parentElement){
-    if(tile.textContent.length>1200)break;
-    const statuses=[...tile.querySelectorAll('*')].filter(el=>el.children.length===0&&/^(BELOW THRESHOLD|POSSIBLE|ELEVATED|LIKELY|EXTREME|WAITING FOR DATA|AWAITING VERIFIED LIGHTNING DATA)$/i.test(el.textContent.trim()));
-    if(!statuses.length)continue;
-    const status=statuses[0];status.textContent=label;
-    status.dataset.cuLightningLevel=classification.level;
-    status.title=strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
-    status.style.color={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'}[classification.level];
-    return;
-   }
-  }
+  const heading=document.querySelector('[data-threat-key="Lightning"]');
+  const tile=heading?.closest('.threat-row');
+  const status=tile?.querySelector('.threat-time');
+  const dot=tile?.querySelector('.threat-dot');
+  if(!status)return;
+  status.textContent=label;
+  status.dataset.cuLightningLevel=classification.level;
+  status.dataset.status=classification.level;
+  status.dataset.phase='forecast';
+  status.title=strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
+  if(dot)dot.dataset.status=classification.level;
+  const colors={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'};
+  status.style.color=colors[classification.level];
+  if(dot)dot.style.backgroundColor=colors[classification.level];
  }
  document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
  window.addEventListener('load',refresh);
