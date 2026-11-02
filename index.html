@@ -1112,33 +1112,20 @@ function drawForecast(){
   dcPotentialHours++;
  });
  window.cuDcapePlotHours=dcPotentialHours;
- // Hourly model-derived environmental ingredient shading, not a feeder-outage prediction.
- // Independent GFS/HRRR and hybrid NAM* are deliberately distinguished.
- const shadeProfiles=window.cuSoundingHours||{};
- const shadeMaps={};['gfs','nam','hrrr'].forEach(id=>shadeMaps[id]=new Map((shadeProfiles[id]||[]).map(r=>[r.time.slice(0,13),r])));
- const shadeCounts={independent:0,hybridOnly:0,unavailable:0};
- if(window.cuShowIngredientOverlay!==false){
+ // Shared local ≥35 dBZ reflectivity shading; no feeder multiplier.
+ const localHours=window.cuLocalConvectiveShadeHours;
+ const shadeCounts={local:0,unavailable:0};
+ if(window.cuShowIngredientOverlay!==false && Array.isArray(localHours)){
+  const active=new Set(localHours);
   times.forEach((t,i)=>{
-   const hour=t.slice(0,13),gr=cuIngredientRating(shadeMaps.gfs.get(hour),'gfs'),hr=cuIngredientRating(shadeMaps.hrrr.get(hour),'hrrr'),nr=cuIngredientRating(shadeMaps.nam.get(hour),'nam');
-   const native=[gr,hr].filter(v=>v>=0),nativeMax=native.length?Math.max(...native):-1;
-   const anyMax=Math.max(nativeMax,nr);
-   if(anyMax<0){shadeCounts.unavailable++;return}
-   if(anyMax===0)return;
+   if(!active.has(t.slice(0,13)))return;
    const dx=PW/(times.length-1),left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
-   // NAM*-only hours have visibly distinct yellow crosshatching, not the same color as independent model agreement.
-   if(nativeMax===0&&nr>0 || nativeMax<0&&nr>0){
-    shadeCounts.hybridOnly++;
-    ctx.fillStyle=nr>=3?'#e7a62c1e':'#e7a62c12';ctx.fillRect(left,T,right-left,PH);
-    ctx.strokeStyle='#e7a62c45';ctx.lineWidth=1;
-    for(let yy=T+8;yy<T+PH;yy+=18){ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(right,yy+5);ctx.stroke()}
-   }else if(nativeMax>0){
-    shadeCounts.independent++;
-    ctx.fillStyle=nativeMax===3?'#d14b4730':nativeMax===2?'#d38b2826':'#c9a5431a';ctx.fillRect(left,T,right-left,PH);
-   }
+   ctx.fillStyle='#ff9a3638';ctx.fillRect(left,T,right-left,PH);
+   shadeCounts.local++;
   });
  }
- const overlayInfo=document.getElementById('cu-overlay-info');
- if(overlayInfo)overlayInfo.textContent=window.cuShowIngredientOverlay===false?'Environmental shading is hidden.':'Environmental shading active: '+shadeCounts.independent+' hours supported by GFS/HRRR, '+shadeCounts.hybridOnly+' additional NAM*-only hours (hatched), '+shadeCounts.unavailable+' hours without usable screening. Shading is not a storm probability or feeder-outage prediction.';
+const overlayInfo=document.getElementById('cu-overlay-info');
+ if(overlayInfo)overlayInfo.textContent=window.cuShowIngredientOverlay===false?'Local convective shading hidden.':Array.isArray(window.cuLocalConvectiveShadeHours)?'Local ≥35 dBZ reflectivity: '+shadeCounts.local+' forecast hours shaded (shared with experimental chart). No feeder increment.':'Waiting for local reflectivity screening data.';
  // Approved five-band stage strip, scaled to the feeder-outage axis.
  const bands=[{low:0,high:10,color:'#07803b',label:'Stage 1'},{low:10,high:30,color:'#8d8e00',label:'Stage 2'},{low:30,high:50,color:'#c17b00',label:'Stage 3'},{low:50,high:80,color:'#a51e29',label:'Stage 4'}];
  bands.forEach(b=>{const top=y(b.high),bottom=y(b.low);ctx.fillStyle=b.color;ctx.fillRect(31,top,58,bottom-top);ctx.fillStyle='#fff';ctx.font='bold 10px Segoe UI,Arial';ctx.textAlign='center';ctx.fillText(b.label,60,(top+bottom)/2-2);ctx.font='9px Segoe UI,Arial';ctx.fillText(b.high===80?'50–80':b.low===0?'≤10':b.low+'–'+b.high,60,(top+bottom)/2+10)});
@@ -3283,6 +3270,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3464,6 +3452,8 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
    const shadeHours=[...new Set(convective.map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
+   window.cuLocalConvectiveShadeHours=shadeHours.map(t=>new Date(t).toISOString().slice(0,13));
+   if(typeof window.drawForecast==='function')window.drawForecast();
    const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ at the forecast valid hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
    const convectivePoints=activeWindows.map(x=>({time:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'),value:x.estimated_feeders,color:'#ff9a36'}));
    const convectiveMarkers=activeWindows.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+activeWindows.map(x=>'<span style="border:1px solid #a8753c;border-radius:5px;padding:4px 6px;color:#ffd096;font-size:11px">'+esc(x.time.slice(5,16).replace('T',' ')+'Z')+' · '+esc(x.convective_models.join('+').toUpperCase())+' · '+Number(x.local_reflectivity_dbz).toFixed(0)+' dBZ</span>').join('')+'</div>':'';
@@ -3730,6 +3720,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3757,6 +3748,17 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
 
 
 
