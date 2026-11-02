@@ -1003,6 +1003,39 @@
     "source_cycle": "2026-11-02T00:00:00+00:00"
   },
   {
+    "model": "hrrr",
+    "time": "2026-11-03T15:00:00+00:00",
+    "dbz": 61.2,
+    "zone": "regional",
+    "zones": {
+      "upstream_west": 47.6,
+      "approach_west": 19.0,
+      "springfield_area": 50.2,
+      "downstream_east": 58.1
+    },
+    "peak": {
+      "lat": 35.688,
+      "lon": -93.092
+    },
+    "site_dbz": [
+      -10.0,
+      -4.06,
+      4.25,
+      -10.0,
+      -4.38,
+      7.88,
+      -10.0,
+      -7.0,
+      -1.19,
+      -10.0,
+      -10.0,
+      -2.38
+    ],
+    "cycle": "2026-11-02T22:00:00+00:00",
+    "lead": 17,
+    "source_cycle": "2026-11-02T22:00:00+00:00"
+  },
+  {
     "model": "nam",
     "time": "2026-11-03T15:00:00+00:00",
     "dbz": 55.7,
@@ -1019,6 +1052,39 @@
     },
     "source_cycle": "2026-11-02T18:00:00+00:00",
     "source": "NOAA NAM CONUS nest REFC"
+  },
+  {
+    "model": "hrrr",
+    "time": "2026-11-03T16:00:00+00:00",
+    "dbz": 58.9,
+    "zone": "regional",
+    "zones": {
+      "upstream_west": 48.8,
+      "approach_west": 7.9,
+      "springfield_area": 15.2,
+      "downstream_east": 58.9
+    },
+    "peak": {
+      "lat": 35.681,
+      "lon": -92.295
+    },
+    "site_dbz": [
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0
+    ],
+    "cycle": "2026-11-02T22:00:00+00:00",
+    "lead": 18,
+    "source_cycle": "2026-11-02T22:00:00+00:00"
   },
   {
     "model": "nam",
