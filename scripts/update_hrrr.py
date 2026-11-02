@@ -219,7 +219,12 @@ def main():
     maxlead=48 if chosen.hour%6==0 else 18
     # Bound per-run work: publish the first new hours quickly, fill remaining hours next run.
     missing=[lead for lead in range(1,maxlead+1) if lead not in bylead]
-    for lead in missing[:10]:
+    # Prioritize the actual overnight Springfield storm window instead of
+    # spending the entire incremental budget on early forecast hours.
+    target_start=(hour+timedelta(days=1)).replace(hour=7)
+    target_end=(hour+timedelta(days=1)).replace(hour=14)
+    missing.sort(key=lambda lead:(0 if target_start<=chosen+timedelta(hours=lead)<=target_end else 1,lead))
+    for lead in missing[:18]:
         try:
             bylead[lead]=process_reflectivity(chosen,lead)
             print(f'HRRR {chosen:%HZ} f{lead:02d}: REFC decoded',flush=True)
