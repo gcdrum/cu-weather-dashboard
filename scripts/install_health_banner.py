@@ -548,5 +548,14 @@ if 'window.cuLightningDensityForecasts=[]' not in html:
 # Match a literal backslash followed by n, not a real line break.
 html=html.replace("+" + chr(92) + "n     (rawHit?", "+" + chr(10) + "     (rawHit?")
 
+# Remove stale injected V85 override and install one syntactically checked,
+# self-contained override that can refresh after asynchronous data arrival.
+start=html.find(' const cuLightningOperationalV2=(()=>{')
+end=html.find(" set('Extreme heat',first(rows",start) if start>=0 else -1
+if start>=0 and end>start:
+    html=html[:start]+html[end:]
+# Make the existing V85 render function available to the async lightning feed.
+# The enclosing controller is executed again on each data-ready notification.
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
