@@ -1035,7 +1035,7 @@ function drawForecast(){
  // V99: RRFS comparison-only curve. Convert each decoded 12-point gust field through
  // the same existing non-convective baseline used by GFS/NAM/HRRR, but do NOT add RRFS
  // to forecast consensus, threat severity, or operational outage calculations.
- const rrfs=(window.cuRRFS95?.series||[]).map(r=>{
+ const rrfsLegacy=(window.cuRRFS95?.series||[]).map(r=>{
    const samples=Array.isArray(r.samples)?r.samples.filter(s=>Number.isFinite(Number(s.gust))):[];
    if(!samples.length)return null;
    const forecastFeeders=samples.reduce((sum,s)=>{
@@ -1051,6 +1051,7 @@ function drawForecast(){
      comparisonOnly:true
    };
  }).filter(Boolean);
+ const rrfs=(window.cuRRFSHourlyFeeders?.length?window.cuRRFSHourlyFeeders:rrfsLegacy);
  if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;
  const hourUTC=v=>{
   const raw=String(v??'').trim();
@@ -1425,7 +1426,7 @@ const overlayInfo=document.getElementById('cu-overlay-info');
     ctx.beginPath();ctx.moveTo(edge,top-2);ctx.lineTo(edge,top+laneHeight+2);ctx.stroke();ctx.setLineDash([]);
     if(edge<L+PW-80){
      ctx.fillStyle='#8b9ba5';ctx.font='9px Segoe UI,Arial';ctx.textAlign='left';
-     ctx.fillText('NO HRRR FORECAST AVAILABLE',Math.min(edge+7,L+PW-150),top+laneHeight-3);
+     ctx.fillText('NO HRRR REFLECTIVITY AVAILABLE',Math.min(edge+7,L+PW-150),top+laneHeight-3);
     }
     ctx.restore();
    }else{
@@ -3300,6 +3301,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3755,6 +3757,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3782,6 +3785,23 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4097,7 +4117,7 @@ window.cuLightningDensityForecasts=[];
  function render(){
   const rows=window.cuMainModelAverage||[];
   const cache=window.cuSurfaceWindCache||{};
-  const rrfs=(window.cuRRFS95?.series||[]).map(r=>{const samples=(r.samples||[]).filter(q=>Number.isFinite(Number(q.gust)));if(!samples.length)return null;return {time:new Date(Number(r.validMs)).toISOString().slice(0,16),forecastFeeders:samples.reduce((a,q)=>{const x=Math.max(0,(Number(q.gust)-15)/5);return a+Math.max(0,0.2431*(Math.exp(0.5216*x)-1))},0)/samples.length}}).filter(Boolean);
+  const rrfsLegacy=(window.cuRRFS95?.series||[]).map(r=>{const samples=(r.samples||[]).filter(q=>Number.isFinite(Number(q.gust)));if(!samples.length)return null;return {time:new Date(Number(r.validMs)).toISOString().slice(0,16),forecastFeeders:samples.reduce((a,q)=>{const x=Math.max(0,(Number(q.gust)-15)/5);return a+Math.max(0,0.2431*(Math.exp(0.5216*x)-1))},0)/samples.length}}).filter(Boolean);
   let host=document.getElementById('cu-model-average-audit-panel');
   const canvas=document.getElementById('live-forecast-chart');
   if(!canvas||!rows.length)return;
@@ -4171,6 +4191,31 @@ window.cuLightningDensityForecasts=[];
   }catch(e){console.warn('HRRR wind coverage audit',e)}
  }
  check();setInterval(check,60000);
+})();
+</script>
+
+<script id="cu-rrfs-hourly-main">
+(()=>{
+ async function load(){
+  try{
+   const r=await fetch('./rrfs_wind.json?t='+Date.now(),{cache:'no-store'});
+   if(!r.ok)return;
+   const data=await r.json();if(!Array.isArray(data.hours))return;
+   const rows=data.hours.map(h=>{
+    const samples=(h.gust_ms||[]).map(Number).filter(Number.isFinite);
+    if(!samples.length)return null;
+    const feeders=samples.reduce((sum,v)=>{
+      const x=Math.max(0,(v*2.2369362921-15)/5);
+      return sum+Math.max(0,0.2431*(Math.exp(0.5216*x)-1));
+    },0)/samples.length;
+    const raw=String(h.time),ms=Date.parse(/[zZ]$|[+-]\d\d:\d\d$/.test(raw)?raw:raw+'Z');
+    if(!Number.isFinite(ms))return null;
+    return {time:new Date(ms).toISOString().slice(0,13)+':00',forecastFeeders:feeders,comparisonOnly:true};
+   }).filter(Boolean);
+   if(rows.length){window.cuRRFSHourlyFeeders=rows;window.drawForecast?.();}
+  }catch(e){console.warn('RRFS hourly main chart',e)}
+ }
+ window.addEventListener('load',load);setInterval(load,60000);
 })();
 </script>
 </body></html>
