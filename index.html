@@ -981,27 +981,7 @@ function cuScreenHazards(){
  })();
   if(!lightningHit&&cuMultiModelStormCorroborationV1.lightning){const x=cuMultiModelStormCorroborationV1.lightning;lightningHit={ms:x.ms};lightningWhy=x.model.toUpperCase()+' numerical local and upstream reflectivity ≥35 dBZ with CAPE ≥500 J/kg (storm potential; not observed lightning)';}
  set('Lightning',lightningHit,'V85 corroborated operational lightning screen. The tile requires a derived thunderstorm weather code with simultaneous modeled precipitation, CAPE ≥500 J/kg within ±90 minutes, and either ≥2 CU sample points indicating thunderstorm in the same interval or persistence into an adjacent interval. Precipitation+CAPE alone and a single isolated thunderstorm-code hit remain BELOW THRESHOLD. '+(lightningHit?'Qualified because '+lightningWhy+'.':'No forecast interval currently meets the corroborated threshold.')+' This remains thunderstorm/lightning potential, not native HRRR lightning probability or flash-density guidance.');
- const cuLightningOperationalV2=(()=>{
-   const now=Date.now()-15*60000;
-   const sources=[['hrrr','hrrr_lightning.json'],['rrfs','rrfs_lightning.json']];
-   const candidates=(window.cuLightningDensityForecasts||[]).filter(x=>x&&x.units_verified===true&&x.units==='flashes/km²/5 min'&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
-   const best=candidates.sort((a,b)=>b.value-a.value)[0];
-   const level=best?window.cuHRRRLightningLevel?.(best.value):null;
-   return {best,level};
- })();
- if(cuLightningOperationalV2.best&&cuLightningOperationalV2.level){
-   const x=cuLightningOperationalV2.best;
-   threat('Lightning',cuLightningOperationalV2.level.level,
-     x.model.toUpperCase()+' verified native lightning flash density '+x.value+' flashes/km²/5 min, band '+cuLightningOperationalV2.level.band+'.',
-     cuPhaseForTime(Date.parse(x.time)));
- }else{
-   threat('Lightning',lightningHit?'possible':'waiting',
-     (lightningHit?'Corroborated thunderstorm potential: '+lightningWhy+'. ':'')+
-     'Native HRRR/RRFS lightning flash density is not yet verified. '+
-     'No verified native lightning signal; do not interpret missing density as zero.',
-     lightningHit?cuPhaseForTime(lightningHit.ms):{phase:'unknown',label:'AWAITING VERIFIED LIGHTNING DATA'});
- }
-  set('Extreme heat',first(rows,r=>r.tempMax>=100),'Automated temperature screen. Possible at modeled 2 m temperature ≥100°F.');
+ set('Extreme heat',first(rows,r=>r.tempMax>=100),'Automated temperature screen. Possible at modeled 2 m temperature ≥100°F.');
  set('Extreme cold',first(rows,r=>r.tempMin<=10),'Automated temperature screen. Possible at modeled 2 m temperature ≤10°F.');
  // V46: Flooding is owned exclusively by cuV46UpdateFlooding(). Do not render it from this legacy screen.
  set('Heavy snow',first(rows,r=>r.snowMax>=1.0),'Automated snowfall screen. Possible at modeled hourly snowfall ≥1.0 in at any sampled point.');
@@ -3266,6 +3246,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3671,4 +3652,31 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
-\n<script>\nwindow.cuHRRRLightningLevel=function(v){\n if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};\n const band=v<=0.1?0:v<=0.3?1:v<=1?2:v<=3?3:v<=6?4:5;\n return {level:['none','possible','possible','elevated','likely','extreme'][band],band:band+1,units:'flashes/km²/5 min'};\n};\n</script>\n\n<script>\nwindow.cuLightningDensityForecasts=[];\n(async()=>{\n const all=[];\n for(const [model,file] of [['hrrr','hrrr_lightning.json'],['rrfs','rrfs_lightning.json']]){\n  try{\n   const response=await fetch(file+'?t='+Date.now(),{cache:'no-store'});\n   if(!response.ok)continue;\n   const data=await response.json();\n   if(!Array.isArray(data.hours))continue;\n   for(const h of data.hours){\n    if(h.units_verified!==true||!Number.isFinite(h.value))continue;\n    all.push({model,time:h.time,value:h.value,units:'flashes/km²/5 min',\n      units_verified:true,source_cycle:h.source_cycle||data.cycle});\n   }\n  }catch(e){console.warn('Lightning data load',model,e)}\n }\n window.cuLightningDensityForecasts=all;\n try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}\n})();\n</script>\n</body></html>
+
+\n<script>
+window.cuHRRRLightningLevel=function(v){
+ if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
+ const band=v<=0.1?0:v<=0.3?1:v<=1?2:v<=3?3:v<=6?4:5;
+ return {level:['none','possible','possible','elevated','likely','extreme'][band],band:band+1,units:'flashes/km²/5 min'};
+};
+</script>\n\n<script>
+window.cuLightningDensityForecasts=[];
+(async()=>{
+ const all=[];
+ for(const [model,file] of [['hrrr','hrrr_lightning.json'],['rrfs','rrfs_lightning.json']]){
+  try{
+   const response=await fetch(file+'?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)continue;
+   const data=await response.json();
+   if(!Array.isArray(data.hours))continue;
+   for(const h of data.hours){
+    if(h.units_verified!==true||!Number.isFinite(h.value))continue;
+    all.push({model,time:h.time,value:h.value,units:'flashes/km²/5 min',
+      units_verified:true,source_cycle:h.source_cycle||data.cycle});
+   }
+  }catch(e){console.warn('Lightning data load',model,e)}
+ }
+ window.cuLightningDensityForecasts=all;
+ try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
+})();
+</script>\n</body></html>
