@@ -3260,6 +3260,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3691,6 +3692,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3718,6 +3720,8 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
 
 
 
@@ -3794,6 +3798,43 @@ window.cuLightningDensityForecasts=[];
  // Keep the verified lightning density status synchronized without changing other threats.
  setInterval(refresh,500);
  window.cuRefreshLightningTile=refresh;
+})();
+</script>
+
+<script id="cu-convective-onset-bridge">
+(()=>{
+ let hours=[];
+ async function load(){
+  try{
+   const r=await fetch('./rrfs_reflectivity.json?t='+Date.now(),{cache:'no-store'});
+   if(!r.ok)return;
+   const d=await r.json();
+   hours=(d.hours||[]).filter(x=>Number.isFinite(Number(x.dbz))&&Number(x.dbz)>=30&&Number.isFinite(Date.parse(x.time+'Z')))
+      .map(x=>({t:Date.parse(x.time+'Z'),dbz:Number(x.dbz)})).sort((a,b)=>a.t-b.t);
+   update();
+  }catch(e){console.warn('Convective timing feed unavailable',e)}
+ }
+ function update(){
+  const now=Date.now();
+  const next=hours.find(x=>x.t>=now-30*60000);
+  if(!next)return;
+  const future=next.t>now+30*60000;
+  if(!future)return; // Do not suppress a genuinely ongoing event.
+  const clock=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(next.t)).replace(':00','');
+  const heading=document.querySelector('[data-threat-key="Downburst"]');
+  const tile=heading?.closest('.threat-row');
+  const status=tile?.querySelector('.threat-time');
+  const dot=tile?.querySelector('.threat-dot');
+  if(!status)return;
+  // Reflectivity supports a possible future convective window, not a confirmed downburst.
+  status.textContent='POSSIBLE · '+clock;
+  status.dataset.phase='upcoming';
+  status.dataset.status='possible';
+  status.title='Future RRFS convective reflectivity signal; downburst potential is not a confirmed event';
+  status.style.color='#e8c35b';
+  if(dot){dot.dataset.status='possible';dot.style.backgroundColor='#e8c35b'}
+ }
+ load();setInterval(load,60000);setInterval(update,1500);
 })();
 </script>
 </body></html>
