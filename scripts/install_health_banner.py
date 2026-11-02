@@ -724,5 +724,42 @@ timing_bridge=r"""
 html=re.sub(r'<script id="cu-convective-onset-bridge">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',timing_bridge+'</body>',1) if '</body>' in html else html+timing_bridge
 
+# Keep the main forecast chart's local timeline readable without changing its
+# outage calculations. Add a synchronized RRFS storm window strip.
+main_timeline=r"""
+<style id="cu-main-timeline-style">
+#cu-rrfs-storm-window{margin:8px 0 12px;padding:9px 12px;border:1px solid #4e6675;border-radius:7px;background:#142430;color:#e5edf2;font:12px system-ui,sans-serif}
+#cu-rrfs-storm-window .cu-hours{display:flex;gap:2px;min-height:17px;margin-top:6px}
+#cu-rrfs-storm-window .cu-hour{flex:1;min-width:0;border-radius:2px;background:#233643}
+#cu-rrfs-storm-window .cu-hour.storm{background:#f0a13e}
+#cu-rrfs-storm-window .cu-hour.strong{background:#d95b43}
+</style>
+<script id="cu-main-timeline-bridge">
+(()=>{
+ const parseUTC=s=>Date.parse(/[zZ]|[+-]\\d\\d:\\d\\d$/.test(s)?s:s+'Z');
+ const local=t=>new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',weekday:'short',hour:'numeric',hour12:true}).format(new Date(t));
+ async function render(){
+  try{
+   const r=await fetch('./rrfs_reflectivity.json?t='+Date.now(),{cache:'no-store'});
+   if(!r.ok)return;
+   const d=await r.json();
+   const rows=(d.hours||[]).map(h=>({t:parseUTC(h.time),dbz:Number(h.dbz)})).filter(h=>Number.isFinite(h.t)&&Number.isFinite(h.dbz)&&h.t>=Date.now()-3600000).sort((a,b)=>a.t-b.t).slice(0,48);
+   if(!rows.length)return;
+   let el=document.getElementById('cu-rrfs-storm-window');
+   if(!el){el=document.createElement('section');el.id='cu-rrfs-storm-window';const chart=document.querySelector('canvas');(chart?.parentElement||document.body).insertAdjacentElement('afterend',el)}
+   const active=rows.filter(h=>h.dbz>=30);
+   const first=active[0],last=active[active.length-1];
+   el.innerHTML='<strong>RRFS local convective window (Central time)</strong> — '+(first?local(first.t)+' to '+local(last.t):'below 30 dBZ')+'<div class="cu-hours">'+rows.map(h=>'<span class="cu-hour '+(h.dbz>=50?'strong':h.dbz>=30?'storm':'')+'" title="'+local(h.t)+' · '+h.dbz.toFixed(1)+' dBZ"></span>').join('')+'</div><div style="display:flex;justify-content:space-between;margin-top:4px"><span>'+local(rows[0].t)+'</span><span>'+local(rows[rows.length-1].t)+'</span></div>';
+  }catch(e){console.warn('RRFS chart strip unavailable',e)}
+ }
+ window.addEventListener('load',render);setInterval(render,60000);
+})();
+</script>
+"""
+html=re.sub(r'<style id="cu-main-timeline-style">.*?</style>','',html,flags=re.S)
+html=re.sub(r'<script id="cu-main-timeline-bridge">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',main_timeline+'</body>',1) if '</body>' in html else html+main_timeline
+
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
