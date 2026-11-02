@@ -3297,6 +3297,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3749,6 +3750,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3776,6 +3778,17 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4044,6 +4057,34 @@ window.cuLightningDensityForecasts=[];
    window.cuUpdateThreats=wrapped;
  }
  load();setInterval(load,60000);setInterval(refresh,200);
+})();
+</script>
+
+<script id="cu-model-average-audit">
+(()=>{
+ function render(){
+  const rows=window.cuMainModelAverage||[];
+  const cache=window.cuSurfaceWindCache||{};
+  const rrfs=window.cuRRFS95?.rows||[];
+  let host=document.getElementById('cu-model-average-audit-panel');
+  const canvas=document.getElementById('live-forecast-chart');
+  if(!canvas||!rows.length)return;
+  if(!host){host=document.createElement('details');host.id='cu-model-average-audit-panel';host.style.cssText='margin:10px 8px;padding:10px;border:1px solid #516675;border-radius:6px;color:#d9e5ee;background:#132632;font:12px Segoe UI,Arial';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',host);}
+  const first=rows[0],peak=rows.reduce((a,b)=>b.forecastFeeders>a.forecastFeeders?b:a,first);
+  const selected=[first,peak,rows[Math.floor(rows.length/2)],rows[rows.length-1]].filter((r,i,a)=>a.findIndex(q=>q.time===r.time)===i).sort((a,b)=>a.time.localeCompare(b.time));
+  const datasets=[['GFS',cache.gfs?.rows||[]],['NAM',cache.nam?.rows||[]],['HRRR',cache.hrrr?.rows||[]],['RRFS',window.cuRRFSComparisonRows||rrfs]];
+  const value=(set,t)=>{const x=set.find(r=>r.time===t);return Number.isFinite(x?.forecastFeeders)?x.forecastFeeders:null};
+  const fmt=v=>Number.isFinite(v)?v.toFixed(2):'—';
+  const trs=selected.map(row=>{
+   const vals=datasets.map(([,set])=>value(set,row.time));
+   const found=vals.filter(Number.isFinite);
+   const computed=found.length?found.reduce((a,b)=>a+b,0)/found.length:null;
+   const matches=found.length===row.modelCount&&Number.isFinite(computed)&&Math.abs(computed-row.forecastFeeders)<0.001;
+   return '<tr><td>'+row.time.replace('T',' ')+'Z</td>'+vals.map(v=>'<td>'+fmt(v)+'</td>').join('')+'<td>'+row.modelCount+'</td><td>'+fmt(row.forecastFeeders)+'</td><td>'+(found.length===0?'INPUTS UNAVAILABLE':matches?'MATCH':'CHECK INPUTS')+'</td></tr>';
+  }).join('');
+  host.innerHTML='<summary style="cursor:pointer;font-weight:700">Model average audit · '+rows.length+' hourly points · peak '+fmt(peak.forecastFeeders)+' feeders · '+peak.modelCount+' models</summary><div style="overflow-x:auto;margin-top:8px"><table style="border-collapse:collapse;white-space:nowrap;width:100%;text-align:right"><thead><tr>'+['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean','Check'].map(h=>'<th style="padding:5px;border-bottom:1px solid #526a7a">'+h+'</th>').join('')+'</tr></thead><tbody>'+trs+'</tbody></table></div><p>Missing model hours are excluded, not zero. A CHECK INPUTS result means the diagnostic could not recover exactly the same source rows as the chart; it does not imply the mean is wrong.</p>';
+ }
+ setInterval(render,2500);window.addEventListener('load',render);
 })();
 </script>
 </body></html>
