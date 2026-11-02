@@ -23,7 +23,7 @@
       "age_minutes": 0.9,
       "hours": 54,
       "expected_hours": 60,
-      "percent_complete": 90.0,
+      "percent_complete": 93.3,
       "state": "partial",
       "complete": false,
       "errors": []
