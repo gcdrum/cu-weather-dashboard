@@ -40,12 +40,12 @@ def main():
     selected=None
     for c in cycles:
         try:
-            first=field(c,0);selected=c;break
+            first=field(c,1);selected=c;break
         except Exception as e:print('NAM cycle unavailable',c,e,flush=True)
     if selected is None:raise RuntimeError('No NAM cycle available')
     rows=[first]
     # NAM nest output is hourly through f60; prioritize upcoming 24h.
-    for lead in range(1,25):
+    for lead in range(2,25):
         try:rows.append(field(selected,lead))
         except Exception as e:print('NAM f%02d unavailable: %s'%(lead,e),flush=True)
     if len(rows)<4:raise RuntimeError('Too few NAM reflectivity records; retaining previous')
