@@ -1,5 +1,11 @@
 name: NOAA Reflectivity and HRRR Wind Update
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/main.yml'
+      - 'scripts/install_health_banner.py'
+      - 'scripts/test_lightning_browser.cjs'
   workflow_dispatch:
   schedule:
     # Off-hour, quarter-hour cadence to reduce GitHub scheduler congestion.
