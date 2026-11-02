@@ -1261,8 +1261,10 @@ if chart_start<0 or chart_end<chart_start: raise RuntimeError('Chart renderer mi
 block=html[chart_start:chart_end]
 avg_start=block.find(' const averageRows=times.map(t=>{')
 avg_end=block.find(' window.cuMainModelAverage=averageRows;',avg_start)
-if avg_start<0 or avg_end<0: raise RuntimeError('Old average expression missing')
-block=block[:avg_start]+block[avg_end+len(' window.cuMainModelAverage=averageRows;'):]
+if avg_start<0 or avg_end<0:
+    print('NOTICE: pre-existing average uses different expression; leaving old block in place')
+else:
+    block=block[:avg_start]+block[avg_end+len(' window.cuMainModelAverage=averageRows;'):]
 # Remove existing early average plotting block; it will be drawn AFTER
 # qImpact and qIntegrated are calculated.
 old_plot_start=block.find(' // Highlight equal-weight average only across contiguous hourly samples.')
