@@ -505,6 +505,15 @@ light_fetch_patch=r"""
 <script>
 window.cuLightningDensityForecasts=[];
 window.cuLightningRawSignals=[];
+// Bind the asynchronous feed to the existing threat controller.  The controller
+// may be defined later than this script, so refresh again after page load.
+document.addEventListener('cu-lightning-data-ready',()=>{
+  const run=window.cuUpdateThreats;
+  if(typeof run==='function')run();
+});
+window.addEventListener('load',()=>{
+  if(window.cuLightningDensityForecasts?.length && typeof window.cuUpdateThreats==='function')window.cuUpdateThreats();
+});
 (async()=>{
  const density=[],raw=[];
  for(const [model,file] of [['hrrr','hrrr_lightning.json'],['hrrr','hrrr_lightning_extended.json'],['rrfs','rrfs_lightning.json']]){
