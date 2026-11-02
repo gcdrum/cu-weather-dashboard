@@ -1075,5 +1075,35 @@ reactive=r"""
 html=re.sub(r'<script id="cu-average-reactive-redraw">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',reactive+'</body>',1) if '</body>' in html else html+reactive
 
+
+# HRRR availability on the main wind chart must be based on the NOAA wind
+# forecast's valid hours, not the shorter reflectivity or legacy API window.
+coverage=r"""
+<script id="cu-hrrr-wind-coverage-audit">
+(()=>{
+ async function check(){
+  try{
+   const res=await fetch('./hrrr_wind.json?t='+Date.now(),{cache:'no-store'});
+   if(!res.ok)return;
+   const data=await res.json();
+   const hours=(data.hours||[]).map(h=>Date.parse(String(h.time).match(/Z$|[+-]\d\d:\d\d$/i)?h.time:h.time+'Z')).filter(Number.isFinite).sort((a,b)=>a-b);
+   if(!hours.length)return;
+   window.cuHRRRWindValidHours=hours;
+   const last=hours[hours.length-1],first=hours[0];
+   let label=document.getElementById('cu-hrrr-wind-coverage-note');
+   const canvas=document.getElementById('live-forecast-chart');
+   if(!canvas)return;
+   if(!label){label=document.createElement('div');label.id='cu-hrrr-wind-coverage-note';label.style.cssText='padding:5px 10px;color:#9fe0ff;font:12px Segoe UI,Arial';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',label);}
+   const fmt=t=>new Date(t).toLocaleString('en-US',{timeZone:'America/Chicago',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+   label.textContent='NOAA HRRR wind forecast coverage: '+fmt(first)+' through '+fmt(last)+' ('+hours.length+' decoded hours). The plotted HRRR feeder curve may have shorter coverage; a shorter curve indicates a chart data-mapping issue, not an absent NOAA wind forecast.';
+  }catch(e){console.warn('HRRR wind coverage audit',e)}
+ }
+ check();setInterval(check,60000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-hrrr-wind-coverage-audit">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',coverage+'</body>',1) if '</body>' in html else html+coverage
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
