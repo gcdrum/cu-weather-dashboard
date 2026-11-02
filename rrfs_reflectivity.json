@@ -1,7 +1,7 @@
 {
   "model": "rrfs",
   "cycle": "2026-11-02T18:00:00+00:00",
-  "updated": "2026-11-02T20:30:38.082309+00:00",
+  "updated": "2026-11-02T20:46:42.326452+00:00",
   "coverage_policy": "per-valid-hour replacement; no synthetic zero",
   "points": [
     {

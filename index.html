@@ -1321,6 +1321,29 @@ const overlayInfo=document.getElementById('cu-overlay-info');
  }
  plotQualifiedArray(qImpact,'#73e6a0',[2,3],3);
  plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);
+ // Display mean of four model curves and two derived convective curves.
+ // Derived curves are correlated; this is not independent-model consensus.
+ const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[String(r.time).slice(0,16),r.forecastFeeders])));
+ const sixRows=times.map((t,i)=>{
+   const vals=sixSources.map(m=>m.get(String(t).slice(0,16))).concat([qImpact[i],qIntegrated[i]]);
+   const valid=vals.filter(Number.isFinite);
+   return valid.length>=2?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
+ }).filter(Boolean);
+ window.cuMainModelAverage=sixRows;
+ window.cuSixCurveCoverage={hours:sixRows.length,qualified:qImpact.filter(Number.isFinite).length,integrated:qIntegrated.filter(Number.isFinite).length};
+ // Paint after all six ingredients have been evaluated.
+ if(sixRows.length){
+  ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4.5;ctx.setLineDash([]);ctx.beginPath();
+  let previous=-2;
+  for(const r of sixRows){
+   const i=times.indexOf(r.time);
+   if(i!==previous+1)ctx.moveTo(x(i),y(r.forecastFeeders));
+   else ctx.lineTo(x(i),y(r.forecastFeeders));
+   previous=i;
+  }
+  ctx.stroke();ctx.restore();
+ }
+
 
  // Composite of ALL visible feeder curves (4 model + 2 derived).
  // Not an independent multi-model consensus; derived curves share HRRR inputs.
@@ -1513,7 +1536,7 @@ const overlayInfo=document.getElementById('cu-overlay-info');
  ctx.fillStyle='#161b20';ctx.strokeStyle='#68747b';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(legendX-12,legendY-17,legendW+24,62,7);ctx.fill();ctx.stroke();
  const entries=[
   ['GFS feeders','#a6b3bc',true],['NAM feeders','#64a5ff',true],['HRRR feeders','#0dd3de',true],['RRFS compare','#d7a6ff',true],
-  ['Qualified convective','#73e6a0',true],['HRRR integrated','#ff9f43',true],['All curves (2–6)','#ff35cb',false]
+  ['Qualified convective','#73e6a0',true],['HRRR integrated','#ff9f43',true],['All available curves (2–6)','#ff35cb',false]
  ];
  entries.forEach(([label,color,dashed],i)=>{const xx=legendX+(i%4)*205,yy=legendY+Math.floor(i/4)*26;if(color!=='transparent')line(xx,yy,xx+23,yy,color,2.5,dashed?[6,4]:[]);ctx.fillStyle='#e8edf1';ctx.font='11px Segoe UI,Arial';ctx.textAlign='left';ctx.fillText(label,xx+28,yy+4)});
  if(window.cuChartMode==='live'){canvas.style.display='block';document.getElementById('reference-chart').style.display='none'}
@@ -3347,6 +3370,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3810,6 +3834,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3837,6 +3862,29 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
