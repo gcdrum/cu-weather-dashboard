@@ -1374,5 +1374,47 @@ lightning_guard=r"""
 html=re.sub(r'<script id="cu-lightning-source-integrity">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',lightning_guard+'</body>',1)
 
+
+# Verified chart-source patch: qImpact and qIntegrated are numeric arrays
+# created immediately before plotQualifiedArray. Recompute the display mean
+# at that exact point, using the same time indices and excluding missing data.
+six_anchor=" plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);"
+six_js=r"""
+ // Display mean of four model curves and two derived convective curves.
+ // Derived curves are correlated; this is not independent-model consensus.
+ const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[String(r.time).slice(0,16),r.forecastFeeders])));
+ const sixRows=times.map((t,i)=>{
+   const vals=sixSources.map(m=>m.get(String(t).slice(0,16))).concat([qImpact[i],qIntegrated[i]]);
+   const valid=vals.filter(Number.isFinite);
+   return valid.length>=2?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
+ }).filter(Boolean);
+ window.cuMainModelAverage=sixRows;
+ window.cuSixCurveCoverage={hours:sixRows.length,qualified:qImpact.filter(Number.isFinite).length,integrated:qIntegrated.filter(Number.isFinite).length};
+ // Paint after all six ingredients have been evaluated.
+ if(sixRows.length){
+  ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4.5;ctx.setLineDash([]);ctx.beginPath();
+  let previous=-2;
+  for(const r of sixRows){
+   const i=times.indexOf(r.time);
+   if(i!==previous+1)ctx.moveTo(x(i),y(r.forecastFeeders));
+   else ctx.lineTo(x(i),y(r.forecastFeeders));
+   previous=i;
+  }
+  ctx.stroke();ctx.restore();
+ }
+"""
+if six_anchor not in html:
+    raise SystemExit('ERROR: actual six-curve renderer anchor missing')
+if 'window.cuSixCurveCoverage=' not in html:
+    html=html.replace(six_anchor,six_anchor+six_js,1)
+    print('Installed actual six-curve calculation')
+# Correct audit member names, counts, and display from the actual rows.
+html=html.replace("const vals=datasets.map(([,set])=>value(set,row.time));",
+                  "const vals=Array.isArray(row.values)?row.values:datasets.map(([,set])=>value(set,row.time));")
+html=html.replace("['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean','Check']",
+                  "['UTC hour','GFS','NAM','HRRR','RRFS','Qualified','Integrated','Count','Plotted mean','Check']")
+# Remove a misleading fallback label when derived curves have no valid values.
+html=html.replace("All curves (2–6)","All available curves (2–6)")
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
