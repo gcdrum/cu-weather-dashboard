@@ -804,5 +804,29 @@ html=html.replace("times.findIndex(t=>Date.parse(t)>last)", "times.findIndex(t=>
 # Preserve the original display's operational forecast window; do not
 # interpret a missing HRRR reflectivity hour as a zero forecast.
 
+
+# Normalize source timestamps at the original main chart boundary, rather than
+# assuming every API delivers an identical minute/UTC suffix. This keeps
+# valid hourly model values from disappearing due to exact-string mismatch.
+start=html.find('function drawForecast(){')
+end=html.find('const viewportWidth=',start)
+if start>=0 and end>start:
+    chunk=html[start:end]
+    needle=" const now=Date.now()-3600000;"
+    normalizer=""" const hourUTC=v=>{
+  const raw=String(v??'').trim();
+  if(!raw)return '';
+  const iso=/[zZ]$|[+-]\\d\\d:?\\d\\d$/.test(raw)?raw:raw+'Z';
+  const ms=Date.parse(iso);
+  return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13)+':00':'';
+ };
+ for(const rows of [g,n,h,rrfs]){
+  for(const r of rows){const t=hourUTC(r.time);if(t)r.time=t;}
+ }
+"""
+    if needle in chunk and 'const hourUTC=v=>' not in chunk:
+        chunk=chunk.replace(needle,normalizer+needle,1)
+    html=html[:start]+chunk+html[end:]
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
