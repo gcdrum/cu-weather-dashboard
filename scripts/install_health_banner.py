@@ -797,5 +797,12 @@ html=html.replace('Array.from({length:169},(_,i)=>new Date(startUTC+i*3600000)',
 # horizon; preserve the same time coordinates and missing-data gaps.
 
 
+
+# The original chart's HRRR coverage marker used Date.parse() on naive UTC
+# labels, causing a local-time shift and false "NO HRRR" regions.
+html=html.replace("times.findIndex(t=>Date.parse(t)>last)", "times.findIndex(t=>Date.parse(t.endsWith('Z')?t:t+'Z')>last)")
+# Preserve the original display's operational forecast window; do not
+# interpret a missing HRRR reflectivity hour as a zero forecast.
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
