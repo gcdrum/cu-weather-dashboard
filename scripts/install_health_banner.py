@@ -606,10 +606,11 @@ lightning_ui_bridge=r"""
   const strongest=valid.reduce((a,b)=>a.value>=b.value?a:b);
   const classification=window.cuHRRRLightningLevel?.(strongest.value);
   const label=labels[classification?.level];if(!label)return;
-  const candidates=[...document.querySelectorAll('body *')].filter(el=>el.children.length===0&&el.textContent.trim()==='Lightning');
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  const candidates=[];let node;while((node=walker.nextNode())){if(node.textContent.trim()==='Lightning'&&node.parentElement)candidates.push(node.parentElement);}
   for(const heading of candidates){
    let tile=heading.parentElement;
-   for(let depth=0;depth<5&&tile;depth++,tile=tile.parentElement){
+   for(let depth=0;depth<8&&tile;depth++,tile=tile.parentElement){
     if(tile.textContent.length>1200)break;
     const statuses=[...tile.querySelectorAll('*')].filter(el=>el.children.length===0&&/^(BELOW THRESHOLD|POSSIBLE|ELEVATED|LIKELY|EXTREME|WAITING FOR DATA|AWAITING VERIFIED LIGHTNING DATA)$/i.test(el.textContent.trim()));
     if(!statuses.length)continue;
