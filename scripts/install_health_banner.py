@@ -616,7 +616,7 @@ lightning_ui_bridge=r"""
   const classification=strongest?window.cuHRRRLightningLevel?.(strongest.value):null;
   const uncertain=(!classification||classification.level==='none') && (window.cuLightningDensityUnverified===true||provisionalPositive);
   const provisionalAlert=uncertain&&provisionalPositive;
-  const label=provisionalAlert?'POSSIBLE · PROVISIONAL':uncertain?'UNVERIFIED':labels[classification?.level];if(!label)return;
+  const label=provisionalAlert?'POSSIBLE':uncertain?'WAITING':labels[classification?.level];if(!label)return;
   const level=provisionalAlert?'possible':uncertain?'waiting':classification.level;
   const heading=document.querySelector('[data-threat-key="Lightning"]');
   const tile=heading?.closest('.threat-row');
