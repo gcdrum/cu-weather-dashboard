@@ -163,11 +163,12 @@ jobs:
         run: |
           python - <<'PYLIGHT'
           from pathlib import Path
-          import re
           html=Path('index.html').read_text(encoding='utf-8')
-          match=re.search(r'window\\.cuHRRRLightningLevel=function\\(v\\)\\{.*?\\n\\};',html,re.S)
-          if not match:raise SystemExit('Lightning classification function missing from generated HTML')
-          Path('/tmp/cu-lightning-classifier.js').write_text(match.group(0),encoding='utf-8')
+          start=html.find('window.cuHRRRLightningLevel=function(v)')
+          if start<0:raise SystemExit('Lightning classification function missing from generated HTML')
+          end=html.find('};',start)
+          if end<0:raise SystemExit('Lightning classification function closing brace missing')
+          Path('/tmp/cu-lightning-classifier.js').write_text(html[start:end+2],encoding='utf-8')
           print('Extracted actual published Lightning classifier')
           PYLIGHT
           node - <<'JSLIGHT'
