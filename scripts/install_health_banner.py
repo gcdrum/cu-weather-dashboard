@@ -568,6 +568,18 @@ if loader_function>=0:
     if chr(92)+'n' in legacy:
         html=html[:loader_start]+legacy.replace(chr(92)+'n',chr(10))+html[loader_end+len('</script>'):]
 
+# Older generated dashboards may contain more than one legacy escaped script.
+# Normalize only the two known Lightning script bodies, not unrelated JS strings.
+for signature in ('window.cuHRRRLightningLevel=function(v)', 'window.cuLightningDensityForecasts=[]'):
+    position=html.find(signature)
+    if position<0:continue
+    begin=html.rfind('<script',0,position)
+    finish=html.find('</script>',position)
+    if begin<0 or finish<0:raise SystemExit('Lightning script missing boundaries: '+signature)
+    body=html[begin:finish+9]
+    if body.lstrip().startswith('<script>') and body.count(chr(92)+'n')>=2:
+        html=html[:begin]+body.replace(chr(92)+'n',chr(10))+html[finish+9:]
+
 # Fix invalid backslash-n sequences already embedded in older generated HTML.
 # Match a literal backslash followed by n, not a real line break.
 html=html.replace("+" + chr(92) + "n     (rawHit?", "+" + chr(10) + "     (rawHit?")
