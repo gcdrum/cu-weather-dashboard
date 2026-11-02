@@ -38,7 +38,7 @@ const path=require('path');
      const report=await page.evaluate(()=>{
        const text=document.body.innerText||'';
        const i=text.toLowerCase().indexOf('lightning');
-       return {excerpt:i>=0?text.slice(Math.max(0,i-100),i+350):'',density:window.cuLightningDensityForecasts||[],level:typeof window.cuHRRRLightningLevel==='function'?window.cuHRRRLightningLevel(window.cuLightningDensityForecasts?.[0]?.value):null,updateType:typeof window.cuUpdateThreats};
+       return {excerpt:i>=0?text.slice(Math.max(0,i-100),i+350):'',density:window.cuLightningDensityForecasts||[],level:typeof window.cuHRRRLightningLevel==='function'?window.cuHRRRLightningLevel(window.cuLightningDensityForecasts?.[0]?.value):null,bridgeType:typeof window.cuRefreshLightningTile,lightningNodes:[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()==='Lightning').slice(0,3).map(e=>e.parentElement?.outerHTML.slice(0,1100)),updateType:typeof window.cuUpdateThreats};
      });
      console.log('LIGHTNING_BROWSER_CASE',JSON.stringify({value,expected,hits,errors:errors.slice(0,3),report}));
      if(hits===0)throw Error('Lightning JSON was never requested by dashboard');
