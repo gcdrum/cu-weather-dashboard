@@ -593,5 +593,42 @@ if start>=0 and end>start:
 # Make the existing V85 render function available to the async lightning feed.
 # The enclosing controller is executed again on each data-ready notification.
 
+# Dedicated UI bridge for the existing V85 Lightning tile. The older V85
+# updateGlobal function can throw, so do not rely on it for asynchronous updates.
+lightning_ui_bridge=r"""
+<script id="cu-lightning-visible-bridge">
+(()=>{
+ const labels={none:'BELOW THRESHOLD',possible:'POSSIBLE',elevated:'ELEVATED',likely:'LIKELY',extreme:'EXTREME'};
+ function refresh(){
+  const now=Date.now()-15*60000;
+  const valid=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
+  if(!valid.length)return;
+  const strongest=valid.reduce((a,b)=>a.value>=b.value?a:b);
+  const classification=window.cuHRRRLightningLevel?.(strongest.value);
+  const label=labels[classification?.level];if(!label)return;
+  const candidates=[...document.querySelectorAll('body *')].filter(el=>el.children.length===0&&el.textContent.trim()==='Lightning');
+  for(const heading of candidates){
+   let tile=heading.parentElement;
+   for(let depth=0;depth<5&&tile;depth++,tile=tile.parentElement){
+    if(tile.textContent.length>1200)break;
+    const statuses=[...tile.querySelectorAll('*')].filter(el=>el.children.length===0&&/^(BELOW THRESHOLD|POSSIBLE|ELEVATED|LIKELY|EXTREME|WAITING FOR DATA|AWAITING VERIFIED LIGHTNING DATA)$/i.test(el.textContent.trim()));
+    if(!statuses.length)continue;
+    const status=statuses[0];status.textContent=label;
+    status.dataset.cuLightningLevel=classification.level;
+    status.title=strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
+    status.style.color={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'}[classification.level];
+    return;
+   }
+  }
+ }
+ document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
+ window.addEventListener('load',refresh);
+ window.cuRefreshLightningTile=refresh;
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-lightning-visible-bridge">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',lightning_ui_bridge+'</body>',1)
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
