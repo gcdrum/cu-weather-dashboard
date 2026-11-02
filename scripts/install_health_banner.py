@@ -989,5 +989,18 @@ if mean_anchor in html and "window.cuMainModelAverage=averageRows" not in html:
 else:
     print('NOTICE: model-average chart already present or original plot anchor absent')
 
+
+# High-contrast average styling; the per-hour values and member counts are
+# published separately so a browser test can inspect the arithmetic.
+html=html.replace("for(const segment of segments)plot(segment,'#ffdf70',[]);",
+"""for(const segment of segments){
+   plot(segment,'#ff35cb',[]);
+   // Reinforce the mean without obscuring the individual model curves.
+   ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4.5;ctx.setLineDash([]);
+   ctx.beginPath();segment.forEach((r,i)=>{const ix=times.indexOf(r.time);if(i===0)ctx.moveTo(x(ix),y(r.forecastFeeders));else ctx.lineTo(x(ix),y(r.forecastFeeders));});
+   ctx.stroke();ctx.restore();
+  }""")
+html=html.replace("['Model average','#ffdf70',false]","['Model average (2–4)','#ff35cb',false]")
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
