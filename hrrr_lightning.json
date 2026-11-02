@@ -153,10 +153,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "12"
+        "stepRange": "11"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-02T15:00:00+00:00"
+      "source_cycle": "2026-11-02T16:00:00+00:00"
     },
     {
       "time": "2026-11-03T04:00:00+00:00",
@@ -167,10 +167,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "13"
+        "stepRange": "12"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-02T15:00:00+00:00"
+      "source_cycle": "2026-11-02T16:00:00+00:00"
     },
     {
       "time": "2026-11-03T05:00:00+00:00",
@@ -181,10 +181,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "14"
+        "stepRange": "13"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-02T15:00:00+00:00"
+      "source_cycle": "2026-11-02T16:00:00+00:00"
     },
     {
       "time": "2026-11-03T06:00:00+00:00",
@@ -254,7 +254,10 @@
     7,
     8,
     9,
-    10
+    10,
+    11,
+    12,
+    13
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }
