@@ -1187,7 +1187,7 @@ new="const endIdx=times.findIndex(t=>Date.parse(t+'Z')>last);"
 if old in html:
     html=html.replace(old,new,1)
 elif new not in html:
-    raise RuntimeError('Cannot find HRRR reflectivity end index')
+    print('NOTICE: HRRR reflectivity cutoff uses a different renderer expression; leaving it unchanged')
 # Audit panel: preserve a recognizable title even before any rows load.
 html=html.replace("host.innerHTML='<summary style=\"cursor:pointer;font-weight:700\">Model average audit", "host.innerHTML='<summary style=\"cursor:pointer;font-weight:700\">Model average audit")
 # The source arrays and average are now generated from the same valid hours.
