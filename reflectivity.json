@@ -302,35 +302,35 @@
   {
     "model": "hrrr",
     "time": "2026-11-03T02:00:00+00:00",
-    "dbz": 56.7,
+    "dbz": 63.1,
     "zone": "regional",
     "zones": {
-      "upstream_west": 56.7,
-      "approach_west": 24.2,
-      "springfield_area": 28.6,
-      "downstream_east": 27.5
+      "upstream_west": 63.1,
+      "approach_west": 21.0,
+      "springfield_area": 26.7,
+      "downstream_east": 24.6
     },
     "peak": {
-      "lat": 38.156,
-      "lon": -95.447
+      "lat": 38.236,
+      "lon": -95.445
     },
     "site_dbz": [
       -10.0,
+      13.0,
+      -0.44,
       -10.0,
-      -9.06,
-      21.44,
-      12.69,
-      9.31,
-      17.69,
-      13.69,
-      16.94,
-      7.75,
-      0.25,
-      15.75
+      -0.25,
+      6.56,
+      -7.44,
+      18.0,
+      14.81,
+      -10.0,
+      18.06,
+      2.44
     ],
-    "cycle": "2026-11-02T18:00:00+00:00",
-    "lead": 8,
-    "source_cycle": "2026-11-02T18:00:00+00:00"
+    "cycle": "2026-11-02T19:00:00+00:00",
+    "lead": 7,
+    "source_cycle": "2026-11-02T19:00:00+00:00"
   },
   {
     "model": "gfs",
@@ -352,35 +352,35 @@
   {
     "model": "hrrr",
     "time": "2026-11-03T03:00:00+00:00",
-    "dbz": 62.8,
+    "dbz": 61.6,
     "zone": "regional",
     "zones": {
-      "upstream_west": 62.8,
-      "approach_west": 21.2,
-      "springfield_area": 21.2,
-      "downstream_east": 17.2
+      "upstream_west": 61.6,
+      "approach_west": 35.6,
+      "springfield_area": 32.1,
+      "downstream_east": 19.5
     },
     "peak": {
-      "lat": 37.827,
-      "lon": -95.217
+      "lat": 38.237,
+      "lon": -95.479
     },
     "site_dbz": [
-      16.0,
-      -3.44,
-      7.88,
-      10.38,
-      -1.0,
-      4.88,
       -10.0,
-      -1.62,
-      -1.5,
+      -2.12,
+      -2.25,
       -10.0,
-      3.56,
-      -4.56
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -7.19,
+      -10.0,
+      -8.25,
+      -10.0
     ],
-    "cycle": "2026-11-02T18:00:00+00:00",
-    "lead": 9,
-    "source_cycle": "2026-11-02T18:00:00+00:00"
+    "cycle": "2026-11-02T19:00:00+00:00",
+    "lead": 8,
+    "source_cycle": "2026-11-02T19:00:00+00:00"
   },
   {
     "model": "hrrr",
