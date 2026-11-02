@@ -629,7 +629,10 @@ lightning_ui_bridge=r"""
 </script>
 """
 html=re.sub(r'<script id="cu-lightning-visible-bridge">.*?</script>','',html,flags=re.S)
-if '</body>' in html:\n    html=html.replace('</body>',lightning_ui_bridge+'</body>',1)\nelse:\n    html+=lightning_ui_bridge
+if '</body>' in html:
+    html=html.replace('</body>',lightning_ui_bridge+'</body>',1)
+else:
+    html+=lightning_ui_bridge
 
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
