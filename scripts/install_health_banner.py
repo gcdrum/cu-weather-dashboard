@@ -956,5 +956,38 @@ if main_start>=0 and main_end>main_start:
 else:
     print('WARNING: original chart renderer not found')
 
+
+# Main chart: equal-weight mean of available GFS/NAM/HRRR/RRFS feeder
+# estimates at the SAME UTC hour. Never substitute zero for missing models.
+# Keep model curves for comparison, but make the mean the visual focus.
+mean_anchor=" if(g.length)plot(g,'#f7f9fa',[]);"
+mean_replacement=r""" const averageRows=times.map(t=>{
+  const values=[g,n,h,rrfs].map(rows=>rows.find(r=>r.time===t)?.forecastFeeders)
+    .filter(Number.isFinite);
+  return values.length>=2?{time:t,forecastFeeders:values.reduce((a,b)=>a+b,0)/values.length,modelCount:values.length}:null;
+ }).filter(Boolean);
+ window.cuMainModelAverage=averageRows;
+ if(g.length)plot(g,'#a6b3bc',[3,5]);"""
+if mean_anchor in html and "window.cuMainModelAverage=averageRows" not in html:
+    html=html.replace(mean_anchor,mean_replacement,1)
+    marker=" if(rrfs.length)plot(rrfs,'#d7a6ff',[3,4]);"
+    html=html.replace(marker,marker+r"""
+ // Highlight equal-weight average only across contiguous hourly samples.
+ if(averageRows.length){
+  const segments=[];let segment=[],previous=-2;
+  for(const r of averageRows){
+   const i=times.indexOf(r.time);
+   if(i!==previous+1&&segment.length){segments.push(segment);segment=[];}
+   segment.push(r);previous=i;
+  }
+  if(segment.length)segments.push(segment);
+  for(const segment of segments)plot(segment,'#ffdf70',[]);
+ }
+""",1)
+    html=html.replace("['GFS feeders','#f7f9fa',false]","['GFS feeders','#a6b3bc',true]",1)
+    html=html.replace("['Ingredient lanes','transparent',false]","['Model average','#ffdf70',false]",1)
+else:
+    print('NOTICE: model-average chart already present or original plot anchor absent')
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
