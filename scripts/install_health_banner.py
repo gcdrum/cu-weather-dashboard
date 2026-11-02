@@ -1264,7 +1264,7 @@ start=html.find('function drawForecast(){')
 end=html.find('const viewportWidth=',start)
 if start>=0 and end>start:
     block=html[start:end]
-    if 'const qIntegrated=times.map(' in block and 'window.cuMainModelAverage=averageRows' in block:
+    if 'const qIntegrated=times.map(' in block and 'const qImpact=times.map(' in block:
         # Rename the earlier four-model average so existing plot code still
         # renders, then overlay the correctly computed six-curve display mean.
         block=block.replace('window.cuMainModelAverage=averageRows;', 'window.cuWindOnlyAverage=averageRows;',1)
