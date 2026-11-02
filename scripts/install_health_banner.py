@@ -1193,5 +1193,64 @@ html=html.replace("host.innerHTML='<summary style=\"cursor:pointer;font-weight:7
 # The source arrays and average are now generated from the same valid hours.
 # Never treat missing source rows as zero or average derived convective curves.
 
+
+# Use decoded NOAA HRRR wind directly for the chart (not the shorter
+# Open-Meteo HRRR forecast). Retain its original 12-site feeder formula.
+chart_start=html.find('function drawForecast(){')
+chart_end=html.find('const viewportWidth=',chart_start)
+if chart_start<0 or chart_end<chart_start:
+    raise RuntimeError('Main chart renderer missing')
+block=html[chart_start:chart_end]
+old_h="const g=cache.gfs?.rows||[],h=cache.hrrr?.rows||[],n=cache.nam?.rows||[];"
+new_h="const g=cache.gfs?.rows||[],h=(window.cuNOAAHRRRFeeders?.length?window.cuNOAAHRRRFeeders:cache.hrrr?.rows||[]),n=cache.nam?.rows||[];"
+if old_h in block:
+    block=block.replace(old_h,new_h,1)
+elif new_h not in block:
+    raise RuntimeError('HRRR chart source anchor missing')
+html=html[:chart_start]+block+html[chart_end:]
+# The browser source rows are exact same arrays used for the plotted average.
+hrrr_script=r"""
+<script id="cu-noaa-hrrr-main-feed">
+(()=>{
+ const convert=gust=>{const x=Math.max(0,(gust-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1));};
+ async function refresh(){
+  try{
+   const res=await fetch('./hrrr_wind.json?ts='+Date.now(),{cache:'no-store'});
+   if(!res.ok)throw Error('HTTP '+res.status);
+   const data=await res.json();
+   if(!Array.isArray(data.hours)||!data.hours.length)throw Error('No NOAA HRRR wind hours');
+   const rows=data.hours.map(h=>{
+    const values=Array.isArray(h.gust_ms)?h.gust_ms.map(Number).filter(Number.isFinite):[];
+    if(values.length<10)return null;
+    const raw=String(h.time),ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');
+    if(!Number.isFinite(ms))return null;
+    const mph=values.map(v=>v*2.2369362921);
+    return {time:new Date(ms).toISOString().slice(0,13)+':00',
+     forecastFeeders:mph.reduce((sum,v)=>sum+convert(v),0)/mph.length,
+     max:Math.max(...mph),mean:mph.reduce((a,b)=>a+b,0)/mph.length,
+     count:mph.length,source:'NOAA HRRR',cycle:data.cycle};
+   }).filter(Boolean).sort((a,b)=>a.time.localeCompare(b.time));
+   if(!rows.length)throw Error('No valid NOAA HRRR site records');
+   const previous=window.cuNOAAHRRRFeeders||[];
+   const signature=a=>a.map(x=>x.time+':'+x.forecastFeeders.toFixed(5)).join('|');
+   if(signature(rows)!==signature(previous)){
+    window.cuNOAAHRRRFeeders=rows;
+    if(typeof window.drawForecast==='function')window.drawForecast();
+   }
+   window.cuNOAAHRRRCoverage={cycle:data.cycle,first:rows[0].time,last:rows[rows.length-1].time,count:rows.length};
+  }catch(e){console.warn('NOAA HRRR main chart feed',e)}
+ }
+ window.addEventListener('load',refresh);
+ setInterval(refresh,60000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-noaa-hrrr-main-feed">.*?</script>','',html,flags=re.S)
+if '</body>' not in html: raise RuntimeError('HTML body closing tag missing')
+html=html.replace('</body>',hrrr_script+'</body>',1)
+# Reflectivity is separate; its marker must not be interpreted as wind coverage.
+html=html.replace("NO HRRR FORECAST AVAILABLE","NO HRRR REFLECTIVITY AVAILABLE")
+# Explicit audit source count from NOAA HRRR; no averaging of convective curves.
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
