@@ -1105,5 +1105,54 @@ coverage=r"""
 html=re.sub(r'<script id="cu-hrrr-wind-coverage-audit">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',coverage+'</body>',1) if '</body>' in html else html+coverage
 
+
+# Fix misleading HRRR lane cutoff: that lane is reflectivity coverage, not
+# the NOAA wind/feeder curve. Do not claim wind is unavailable when REFC ends.
+html=html.replace("ctx.fillText('NO HRRR FORECAST AVAILABLE',","ctx.fillText('NO HRRR REFLECTIVITY AVAILABLE',")
+# Hourly RRFS wind is published independently of the older 6-hour direct
+# GRIB comparison. Prefer its 12-site hourly values for the chart and mean.
+rrfs_start=html.find(' const rrfs=(window.cuRRFS95?.series||[]).map(r=>{',html.find('function drawForecast(){'))
+rrfs_end=html.find(' if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;',rrfs_start)
+if rrfs_start>=0 and rrfs_end>rrfs_start:
+    existing=html[rrfs_start:rrfs_end]
+    if 'window.cuRRFSHourlyFeeders' not in existing:
+        existing=existing.replace(' const rrfs=', ' const rrfsLegacy=',1)
+        existing += r""" const rrfs=(window.cuRRFSHourlyFeeders?.length?window.cuRRFSHourlyFeeders:rrfsLegacy);
+"""
+        html=html[:rrfs_start]+existing+html[rrfs_end:]
+# Published hourly RRFS gusts use the same 12-site feeder conversion as
+# the existing comparison curve. Do not interpolate missing hours.
+hourly_rrfs=r"""
+<script id="cu-rrfs-hourly-main">
+(()=>{
+ async function load(){
+  try{
+   const r=await fetch('./rrfs_wind.json?t='+Date.now(),{cache:'no-store'});
+   if(!r.ok)return;
+   const data=await r.json();if(!Array.isArray(data.hours))return;
+   const rows=data.hours.map(h=>{
+    const samples=(h.gust_ms||[]).map(Number).filter(Number.isFinite);
+    if(!samples.length)return null;
+    const feeders=samples.reduce((sum,v)=>{
+      const x=Math.max(0,(v*2.2369362921-15)/5);
+      return sum+Math.max(0,0.2431*(Math.exp(0.5216*x)-1));
+    },0)/samples.length;
+    const raw=String(h.time),ms=Date.parse(/[zZ]$|[+-]\d\d:\d\d$/.test(raw)?raw:raw+'Z');
+    if(!Number.isFinite(ms))return null;
+    return {time:new Date(ms).toISOString().slice(0,13)+':00',forecastFeeders:feeders,comparisonOnly:true};
+   }).filter(Boolean);
+   if(rows.length){window.cuRRFSHourlyFeeders=rows;window.drawForecast?.();}
+  }catch(e){console.warn('RRFS hourly main chart',e)}
+ }
+ window.addEventListener('load',load);setInterval(load,60000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-rrfs-hourly-main">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',hourly_rrfs+'</body>',1) if '</body>' in html else html+hourly_rrfs
+# Audit the identical hourly RRFS input used by the chart.
+html=html.replace("const rrfs=(window.cuRRFS95?.series||[]).map(r=>{const samples=", "const rrfsLegacy=(window.cuRRFS95?.series||[]).map(r=>{const samples=")
+html=html.replace("  window.cuAverageAuditRRFS=rrfs;","  const rrfs=window.cuRRFSHourlyFeeders?.length?window.cuRRFSHourlyFeeders:rrfsLegacy;\n  window.cuAverageAuditRRFS=rrfs;")
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
