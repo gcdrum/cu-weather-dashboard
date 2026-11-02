@@ -1,14 +1,14 @@
 {
-  "checked_at": "2026-11-02T19:22:19.571599+00:00",
+  "checked_at": "2026-11-02T19:45:24.076754+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
       "cycle": "2026-11-02T18:00:00+00:00",
-      "updated": "2026-11-02T19:21:26.078709+00:00",
-      "age_minutes": 0.9,
-      "hours": 11,
+      "updated": "2026-11-02T19:43:56.607730+00:00",
+      "age_minutes": 1.5,
+      "hours": 21,
       "expected_hours": 49,
-      "percent_complete": 22.4,
+      "percent_complete": 42.9,
       "state": "partial",
       "complete": false,
       "errors": [
@@ -17,14 +17,16 @@
     },
     "rrfs": {
       "cycle": "2026-11-02T18:00:00+00:00",
-      "updated": "2026-11-02T19:22:01.375276+00:00",
-      "age_minutes": 0.3,
-      "hours": 1,
+      "updated": "2026-11-02T19:44:54.145637+00:00",
+      "age_minutes": 0.5,
+      "hours": 54,
       "expected_hours": 60,
-      "percent_complete": 1.7,
+      "percent_complete": 90.0,
       "state": "partial",
       "complete": false,
-      "errors": []
+      "errors": [
+        "No newly published RRFS hours in current probe window"
+      ]
     }
   }
 }
