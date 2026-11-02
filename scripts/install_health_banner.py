@@ -1380,10 +1380,10 @@ html=html.replace('</body>',lightning_guard+'</body>',1)
 # at that exact point, using the same time indices and excluding missing data.
 six_anchor=" plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);"
 six_js=r"""
- // Equal-weight arithmetic mean of the four independent model curves only.
+ // Average all available feeder-impact curves, including the two derived convective curves.
  const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[String(r.time).slice(0,16),r.forecastFeeders])));
  const sixRows=times.map((t,i)=>{
-   const vals=sixSources.map(m=>m.get(String(t).slice(0,16)));
+   const vals=sixSources.map(m=>m.get(String(t).slice(0,16))).concat([qImpact[i],qIntegrated[i]]);
    const valid=vals.filter(Number.isFinite);
    return valid.length>=2?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
  }).filter(Boolean);
