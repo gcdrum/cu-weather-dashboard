@@ -265,9 +265,11 @@ def main():
     for lead in available_leads:
         stamp=(chosen+timedelta(hours=lead)).strftime('%Y-%m-%dT%H:%M')
         if stamp not in wind_hours: missing_wind.append(lead)
-    # f12-f18 first for the overnight window, then near-term, then extended.
-    wind_leads=sorted(missing_wind,key=lambda lead:(0 if 12<=lead<=18 else 1 if lead<12 else 2,lead))
-    for lead in wind_leads[:8]:
+    # Prioritize storm-window valid times through 13Z tomorrow, then near-term.
+    storm_start=(hour+timedelta(days=1)).replace(hour=7)
+    storm_end=(hour+timedelta(days=1)).replace(hour=13)
+    wind_leads=sorted(missing_wind,key=lambda lead:(0 if storm_start<=chosen+timedelta(hours=lead)<=storm_end else 1,lead))
+    for lead in wind_leads[:12]:
         try:
             _,wind=process(chosen,lead)
             wind_hours[wind['time']]=wind
@@ -292,6 +294,27 @@ def main():
         for row in payload['hours']:
             if isinstance(row,dict) and row.get('time'):
                 merged[row['time']]=dict(row,source_cycle=chosen.isoformat())
+        # Short HRRR cycles stop at f18. Fill the overnight window from the
+        # latest available 00/06/12/18Z extended cycle, without overwriting
+        # newer-cycle values already decoded for the same valid hour.
+        long_cycle=chosen.replace(hour=(chosen.hour//6)*6)
+        if long_cycle==chosen:
+            long_cycle-=timedelta(hours=6)
+        target_start=(now+timedelta(days=1)).replace(hour=7,minute=0,second=0,microsecond=0)
+        target_end=target_start+timedelta(hours=6)
+        for offset in range(7):
+            valid=target_start+timedelta(hours=offset)
+            stamp=valid.strftime('%Y-%m-%dT%H:%M')
+            lead=int((valid-long_cycle).total_seconds()//3600)
+            if stamp in merged or not 0<=lead<=48: continue
+            try:
+                _,wind=process(long_cycle,lead)
+                merged[stamp]=dict(wind,source_cycle=long_cycle.isoformat())
+                print(f'HRRR extended {long_cycle:%HZ} f{lead:02d}: overnight wind decoded',flush=True)
+            except Exception as exc:
+                errors.append(f'extended f{lead:02d} wind: {exc}')
+                print('WARNING',errors[-1],flush=True)
+                break
         cutoff=(now-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
         payload['hours']=[merged[k] for k in sorted(merged) if k>=cutoff]
         payload['coverage_policy']='latest available value for each valid hour; source_cycle per hour'
