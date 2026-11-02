@@ -1011,14 +1011,14 @@ diagnostic=r"""
  function render(){
   const rows=window.cuMainModelAverage||[];
   const cache=window.cuSurfaceWindCache||{};
-  const rrfs=window.cuRRFS95?.rows||[];
+  const rrfs=(window.cuRRFS95?.series||[]).map(r=>{const samples=(r.samples||[]).filter(q=>Number.isFinite(Number(q.gust)));if(!samples.length)return null;return {time:new Date(Number(r.validMs)).toISOString().slice(0,16),forecastFeeders:samples.reduce((a,q)=>{const x=Math.max(0,(Number(q.gust)-15)/5);return a+Math.max(0,0.2431*(Math.exp(0.5216*x)-1))},0)/samples.length}}).filter(Boolean);
   let host=document.getElementById('cu-model-average-audit-panel');
   const canvas=document.getElementById('live-forecast-chart');
   if(!canvas||!rows.length)return;
   if(!host){host=document.createElement('details');host.id='cu-model-average-audit-panel';host.style.cssText='margin:10px 8px;padding:10px;border:1px solid #516675;border-radius:6px;color:#d9e5ee;background:#132632;font:12px Segoe UI,Arial';canvas.closest('.cu-chart-scroll')?.insertAdjacentElement('afterend',host);}
   const first=rows[0],peak=rows.reduce((a,b)=>b.forecastFeeders>a.forecastFeeders?b:a,first);
   const selected=[first,peak,rows[Math.floor(rows.length/2)],rows[rows.length-1]].filter((r,i,a)=>a.findIndex(q=>q.time===r.time)===i).sort((a,b)=>a.time.localeCompare(b.time));
-  const datasets=[['GFS',cache.gfs?.rows||[]],['NAM',cache.nam?.rows||[]],['HRRR',cache.hrrr?.rows||[]],['RRFS',window.cuRRFSComparisonRows||rrfs]];
+  const datasets=[['GFS',cache.gfs?.rows||[]],['NAM',cache.nam?.rows||[]],['HRRR',cache.hrrr?.rows||[]],['RRFS',rrfs]];
   const value=(set,t)=>{const x=set.find(r=>r.time===t);return Number.isFinite(x?.forecastFeeders)?x.forecastFeeders:null};
   const fmt=v=>Number.isFinite(v)?v.toFixed(2):'—';
   const trs=selected.map(row=>{
@@ -1050,11 +1050,11 @@ reactive=r"""
   const inputs=['gfs','nam','hrrr'].map(id=>{
    const rows=cache[id]?.rows||[];
    let hash=0;
-   for(const r of rows){hash=(hash*33+Math.round((Number(r.forecastFeeders)||0)*100)+utc(r.time)/3600000)>>>0;}
+   for(const r of rows){const samples=Array.isArray(r.samples)?r.samples:[];hash=(hash*33+Number(r.validMs)/3600000+samples.length)>>>0;for(const q of samples)hash=(hash*33+Math.round(Number(q.gust||0)*100))>>>0;}
    return id+':'+rows.length+':'+hash;
   });
   const rr=window.cuRRFS95||{};
-  const rows=rr.rows||window.cuRRFSComparisonRows||[];
+  const rows=rr.series||[];
   let hash=0;
   for(const r of rows){hash=(hash*33+Math.round((Number(r.forecastFeeders)||0)*100)+utc(r.time)/3600000)>>>0;}
   inputs.push('rrfs:'+rows.length+':'+hash);
