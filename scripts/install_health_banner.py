@@ -1252,5 +1252,71 @@ html=html.replace('</body>',hrrr_script+'</body>',1)
 html=html.replace("NO HRRR FORECAST AVAILABLE","NO HRRR REFLECTIVITY AVAILABLE")
 # Explicit audit source count from NOAA HRRR; no averaging of convective curves.
 
+
+# Average all SIX displayed feeder curves, using the exact arrays plotted.
+# This is a visual composite, not an independent multi-model prediction.
+chart_start=html.find('function drawForecast(){')
+chart_end=html.find('const viewportWidth=',chart_start)
+if chart_start<0 or chart_end<chart_start: raise RuntimeError('Chart renderer missing')
+block=html[chart_start:chart_end]
+avg_start=block.find(' const averageRows=times.map(t=>{')
+avg_end=block.find(' window.cuMainModelAverage=averageRows;',avg_start)
+if avg_start<0 or avg_end<0: raise RuntimeError('Old average expression missing')
+block=block[:avg_start]+block[avg_end+len(' window.cuMainModelAverage=averageRows;'):]
+# Remove existing early average plotting block; it will be drawn AFTER
+# qImpact and qIntegrated are calculated.
+old_plot_start=block.find(' // Highlight equal-weight average only across contiguous hourly samples.')
+if old_plot_start>=0:
+    old_plot_end=block.find(' if(averageRows.length)',old_plot_start)
+    if old_plot_end<0: raise RuntimeError('Old average plot not found')
+    # Brace-match the JS if block rather than guessing line counts.
+    brace=block.find('{',old_plot_end);depth=0;end=None
+    for i in range(brace,len(block)):
+        if block[i]=='{': depth+=1
+        elif block[i]=='}':
+            depth-=1
+            if depth==0: end=i+1;break
+    if end is None: raise RuntimeError('Average plot brace mismatch')
+    block=block[:old_plot_start]+block[end:]
+q_anchor=" plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);"
+if q_anchor not in block: raise RuntimeError('Convective plot anchor missing')
+new_average=r"""
+ // Display average: four independent wind models plus the TWO displayed
+ // derived convective curves. These six are correlated, not six models.
+ window.cuAverageDerivedRows={
+  qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})).filter(r=>Number.isFinite(r.forecastFeeders)),
+  integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]})).filter(r=>Number.isFinite(r.forecastFeeders))
+ };
+ const allCurves=[g,n,h,rrfs,window.cuAverageDerivedRows.qualified,window.cuAverageDerivedRows.integrated];
+ const averageRows=times.map(t=>{
+  const vals=allCurves.map(rows=>rows.find(r=>r.time===t)?.forecastFeeders).filter(Number.isFinite);
+  return vals.length>=2?{time:t,forecastFeeders:vals.reduce((a,b)=>a+b,0)/vals.length,modelCount:vals.length}:null;
+ }).filter(Boolean);
+ window.cuMainModelAverage=averageRows;
+ if(averageRows.length){
+  let segment=[],prev=-2;
+  const drawSegment=()=>{
+   if(segment.length<2)return;
+   ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4.5;ctx.setLineDash([]);
+   ctx.beginPath();segment.forEach((r,i)=>{const ix=times.indexOf(r.time);if(i===0)ctx.moveTo(x(ix),y(r.forecastFeeders));else ctx.lineTo(x(ix),y(r.forecastFeeders));});
+   ctx.stroke();ctx.restore();
+  };
+  for(const r of averageRows){
+   const i=times.indexOf(r.time);
+   if(i!==prev+1){drawSegment();segment=[];}
+   segment.push(r);prev=i;
+  }
+  drawSegment();
+ }
+"""
+block=block.replace(q_anchor,q_anchor+new_average,1)
+html=html[:chart_start]+block+html[chart_end:]
+html=html.replace('Model average (2–4)','All-curve average (2–6)')
+html=html.replace("['Model average','#ff35cb',false]","['All-curve average','#ff35cb',false]")
+# Audit must expose all six values and match the displayed line.
+html=html.replace("['RRFS',source.rrfs||[]]];","['RRFS',source.rrfs||[]],['Qualified',window.cuAverageDerivedRows?.qualified||[]],['Integrated',window.cuAverageDerivedRows?.integrated||[]]];")
+html=html.replace("['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean','Check']","['UTC hour','GFS','NAM','HRRR','RRFS','Qualified','Integrated','Count','Plotted mean','Check']")
+html=html.replace("Model average audit · ","All-curve average audit · ")
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
