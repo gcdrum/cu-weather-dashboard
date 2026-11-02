@@ -1031,7 +1031,7 @@ function drawForecast(){
   sel.addEventListener('change',()=>{window.cuAssumedStormGust=Number(sel.value);drawForecast()});
  }
 
- const g=cache.gfs?.rows||[],h=cache.hrrr?.rows||[],n=cache.nam?.rows||[];
+ const g=cache.gfs?.rows||[],h=(window.cuNOAAHRRRFeeders?.length?window.cuNOAAHRRRFeeders:cache.hrrr?.rows||[]),n=cache.nam?.rows||[];
  // V99: RRFS comparison-only curve. Convert each decoded 12-point gust field through
  // the same existing non-convective baseline used by GFS/NAM/HRRR, but do NOT add RRFS
  // to forecast consensus, threat severity, or operational outage calculations.
@@ -3313,6 +3313,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3770,6 +3771,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3797,6 +3799,25 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4248,6 +4269,41 @@ window.cuLightningDensityForecasts=[];
   }catch(e){console.warn('RRFS hourly main chart',e)}
  }
  window.addEventListener('load',load);setInterval(load,60000);
+})();
+</script>
+
+<script id="cu-noaa-hrrr-main-feed">
+(()=>{
+ const convert=gust=>{const x=Math.max(0,(gust-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1));};
+ async function refresh(){
+  try{
+   const res=await fetch('./hrrr_wind.json?ts='+Date.now(),{cache:'no-store'});
+   if(!res.ok)throw Error('HTTP '+res.status);
+   const data=await res.json();
+   if(!Array.isArray(data.hours)||!data.hours.length)throw Error('No NOAA HRRR wind hours');
+   const rows=data.hours.map(h=>{
+    const values=Array.isArray(h.gust_ms)?h.gust_ms.map(Number).filter(Number.isFinite):[];
+    if(values.length<10)return null;
+    const raw=String(h.time),ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');
+    if(!Number.isFinite(ms))return null;
+    const mph=values.map(v=>v*2.2369362921);
+    return {time:new Date(ms).toISOString().slice(0,13)+':00',
+     forecastFeeders:mph.reduce((sum,v)=>sum+convert(v),0)/mph.length,
+     max:Math.max(...mph),mean:mph.reduce((a,b)=>a+b,0)/mph.length,
+     count:mph.length,source:'NOAA HRRR',cycle:data.cycle};
+   }).filter(Boolean).sort((a,b)=>a.time.localeCompare(b.time));
+   if(!rows.length)throw Error('No valid NOAA HRRR site records');
+   const previous=window.cuNOAAHRRRFeeders||[];
+   const signature=a=>a.map(x=>x.time+':'+x.forecastFeeders.toFixed(5)).join('|');
+   if(signature(rows)!==signature(previous)){
+    window.cuNOAAHRRRFeeders=rows;
+    if(typeof window.drawForecast==='function')window.drawForecast();
+   }
+   window.cuNOAAHRRRCoverage={cycle:data.cycle,first:rows[0].time,last:rows[rows.length-1].time,count:rows.length};
+  }catch(e){console.warn('NOAA HRRR main chart feed',e)}
+ }
+ window.addEventListener('load',refresh);
+ setInterval(refresh,60000);
 })();
 </script>
 </body></html>
