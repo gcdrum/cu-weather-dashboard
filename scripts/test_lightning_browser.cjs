@@ -23,7 +23,7 @@ const path=require('path');
    for(const [value,expected,provisional] of [[0,'none',false],[0.2,'possible',false],[2,'elevated',false],[4,'likely',false],[8,'extreme',false],[2.06,'possible',true]]){
      const page=await browser.newPage();
      const errors=[];
-     page.on('pageerror',e=>errors.push(e.message));
+     page.on('pageerror',e=>errors.push(e.stack||e.message));
      let hits=0;
      await page.route('**/*lightning*.json*',async route=>{
        hits++;
@@ -41,6 +41,7 @@ const path=require('path');
        return {excerpt:i>=0?text.slice(Math.max(0,i-100),i+350):'',density:window.cuLightningDensityForecasts||[],provisional:window.cuLightningProvisionalForecasts||[],level:typeof window.cuHRRRLightningLevel==='function'?window.cuHRRRLightningLevel(window.cuLightningDensityForecasts?.[0]?.value):null,bridgeType:typeof window.cuRefreshLightningTile,lightningNodes:[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()==='Lightning').slice(0,3).map(e=>e.parentElement?.outerHTML.slice(0,1100)),updateType:typeof window.cuUpdateThreats};
      });
      console.log('LIGHTNING_BROWSER_CASE',JSON.stringify({value,expected,hits,errors:errors.slice(0,3),report}));
+     if(errors.length)throw Error('Dashboard JavaScript runtime errors (first 3): '+errors.slice(0,3).join(' | '));
      if(hits===0)throw Error('Lightning JSON was never requested by dashboard');
      if(!report.density.length&&!report.provisional.length)throw Error('Lightning data did not enter global forecast state');
      if(!provisional&&report.level?.level!==expected)throw Error('Lightning classifier failed in browser: '+JSON.stringify(report.level));
