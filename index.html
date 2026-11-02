@@ -704,7 +704,7 @@ function cuSpatialStormAssessment(id,t){
  const localRating=id==='hrrr'?(intense>=2?2:intense===1?1:rainy>0?1:sites.length?0:valid(local)&&local>=40?1:valid(local)&&local>=10?1:0):(valid(local)?cuReflectivityRating(local):-1);
  const westValues=[approach,upstream].filter(valid);
  const westRating=westValues.length?cuReflectivityRating(Math.max(...westValues)):-1;
- const prior=rows.filter(r=>Date.parse(r.time)<Date.parse(nearest.time)).sort((a,b)=>Date.parse(b.time)-Date.parse(a.time))[0];
+ const prior=rows.filter(r=>Date.parse(r.time)<Date.parse(nearest.time)).sort((a,b)=>Date.parse(String(b.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?b.time:String(b.time)+'Z')-Date.parse(String(a.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?a.time:String(a.time)+'Z'))[0];
  const westPrev=prior?.zones?.approach_west;
  const trend=valid(approach)&&valid(westPrev)&&Date.parse(nearest.time)-Date.parse(prior.time)<=4*3600000?approach-westPrev:null;
  const phase=localRating>=2?'SPRINGFIELD-AREA SIGNAL':westRating>=2?(trend!==null&&trend>=5?'WESTERN APPROACH · INTENSIFYING':'WESTERN STORM SIGNAL'):localRating>=1?'LOCAL LIGHT/MODERATE ECHO':westRating>=1?'WESTERN ECHO':'BELOW SCREENING THRESHOLD';
@@ -3268,6 +3268,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 <script id="cu-forecast-health-monitor">
 (() => {
  const id='cu-forecast-health-banner';
@@ -3707,6 +3708,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3785,6 +3787,13 @@ window.cuLightningDensityForecasts=[];
 
 
 
+
+
+
+
+
+
+
 <script id="cu-lightning-visible-bridge">
 (()=>{
  const labels={none:'BELOW THRESHOLD',possible:'POSSIBLE',elevated:'ELEVATED',likely:'LIKELY',extreme:'EXTREME'};
@@ -3805,7 +3814,7 @@ window.cuLightningDensityForecasts=[];
   const valid=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'))&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=now);
   const provisional=[...(window.cuLightningProvisionalForecasts||[]),...directRRFS].filter(x=>Number.isFinite(x.value)&&Number.isFinite(Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'))&&Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z')>=now);
   if(!valid.length&&!provisional.length)return;
-  const positive=[...valid,...provisional].filter(x=>x.value>0).sort((a,b)=>Date.parse(a.time)-Date.parse(b.time));
+  const positive=[...valid,...provisional].filter(x=>x.value>0).sort((a,b)=>Date.parse(String(a.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?a.time:String(a.time)+'Z')-Date.parse(String(b.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?b.time:String(b.time)+'Z'));
   const onset=positive.length?Date.parse(positive[0].time):null;
   const strongest=valid.length?valid.reduce((a,b)=>a.value>=b.value?a:b):null;
   const classification=strongest?window.cuHRRRLightningLevel?.(strongest.value):null;
@@ -3828,7 +3837,7 @@ window.cuLightningDensityForecasts=[];
   status.dataset.cuLightningLevel=level;
   status.dataset.status=level;
   status.dataset.phase=future?'upcoming':'forecast';
-  status.title=provisionalAlert?'RRFS provisional lightning signal '+provisionalPeak.value+' (scale not calibrated; intensity tier withheld)':uncertain?'RRFS lightning units unverified':strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
+  status.title=provisionalAlert?'RRFS provisional lightning signal '+(provisional.find(x=>x.value>0)?.value??'unknown')+' (scale not calibrated; intensity tier withheld)':uncertain?'RRFS lightning units unverified':strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
   if(dot)dot.dataset.status=level;
   const colors={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'};
   status.style.color=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
