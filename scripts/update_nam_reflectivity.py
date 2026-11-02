@@ -11,7 +11,7 @@ BASE="https://nomads.ncep.noaa.gov/cgi-bin/filter_nam_conusnest.pl"
 S=requests.Session();S.headers.update({'User-Agent':'CU-Weather-Dashboard/1.0'})
 def field(cycle,lead):
     filename=f"nam.t{cycle:%H}z.conusnest.hiresf{lead:02d}.tm00.grib2"
-    params={'file':filename,'var_REFC':'on','lev_entire_atmosphere':'on','subregion':'','leftlon':'264.5','rightlon':'268.5','toplat':'39','bottomlat':'35.5','dir':f"/nam.{cycle:%Y%m%d}"}
+    params={'file':filename,'var_REFC':'on','lev_entire_atmosphere':'on','subregion':'','leftlon':'264.5','rightlon':'268.5','toplat':'39','bottomlat':'35.5','dir':f"/nam.{cycle:%Y%m%d}/{cycle:%H}/atmos"}
     response=S.get(BASE,params=params,timeout=45);response.raise_for_status()
     if not response.content.startswith(b'GRIB'):raise ValueError('NAM response is not GRIB')
     with tempfile.NamedTemporaryFile(suffix='.grib2') as f:
@@ -42,7 +42,7 @@ def main():
         try:
             first=field(c,1);selected=c;break
         except Exception as e:print('NAM cycle unavailable',c,e,flush=True)
-    if selected is None:raise RuntimeError('No NAM cycle available')
+    if selected is None:raise RuntimeError('No NAM cycle available from NOAA NOMADS')
     rows=[first]
     # NAM nest output is hourly through f60; prioritize upcoming 24h.
     for lead in range(2,25):
