@@ -507,6 +507,7 @@ light_fetch_patch=r"""
 window.cuLightningDensityForecasts=[];
 window.cuLightningRawSignals=[];
 window.cuLightningDensityUnverified=false;
+window.cuLightningProvisionalForecasts=[];
 // Bind the asynchronous feed to the existing threat controller.  The controller
 // may be defined later than this script, so refresh again after page load.
 document.addEventListener('cu-lightning-data-ready',()=>{
@@ -528,6 +529,9 @@ window.addEventListener('load',()=>{
    for(const h of data.hours){
     const t=Date.parse(h.time);if(!Number.isFinite(t))continue;
     const source_cycle=h.source_cycle||data.cycle;
+    if(model==='rrfs'&&h.native_index===true&&Number.isFinite(h.value)&&h.value>=0&&h.value<=15){
+      window.cuLightningProvisionalForecasts.push({model,time:h.time,value:h.value,source_cycle});
+    }
     if(model==='rrfs'&&h.units_verified===true&&Number.isFinite(h.value)){
       density.push({model,time:h.time,value:h.value,units:'flashes/km²/5 min',units_verified:true,source_cycle,metric:h.metric||'density_rate'});
     }else if(model==='hrrr'&&Number.isFinite(h.peak_raw)){
@@ -604,25 +608,30 @@ lightning_ui_bridge=r"""
  function refresh(){
   const now=Date.now()-15*60000;
   const valid=(window.cuLightningDensityForecasts||[]).filter(x=>x?.units_verified===true&&Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
-  if(!valid.length)return;
-  const strongest=valid.reduce((a,b)=>a.value>=b.value?a:b);
-  const classification=window.cuHRRRLightningLevel?.(strongest.value);
-  const uncertain=window.cuLightningDensityUnverified===true && classification?.level==='none';
-  const label=uncertain?'UNVERIFIED':labels[classification?.level];if(!label)return;
+  const provisional=(window.cuLightningProvisionalForecasts||[]).filter(x=>Number.isFinite(x.value)&&Number.isFinite(Date.parse(x.time))&&Date.parse(x.time)>=now);
+  if(!valid.length&&!provisional.length)return;
+  const provisionalPeak=provisional.length?provisional.reduce((a,b)=>a.value>=b.value?a:b):null;
+  const provisionalPositive=provisionalPeak?.value>0;
+  const strongest=valid.length?valid.reduce((a,b)=>a.value>=b.value?a:b):null;
+  const classification=strongest?window.cuHRRRLightningLevel?.(strongest.value):null;
+  const uncertain=(!classification||classification.level==='none') && (window.cuLightningDensityUnverified===true||provisionalPositive);
+  const provisionalAlert=uncertain&&provisionalPositive;
+  const label=provisionalAlert?'POSSIBLE · PROVISIONAL':uncertain?'UNVERIFIED':labels[classification?.level];if(!label)return;
+  const level=provisionalAlert?'possible':uncertain?'waiting':classification.level;
   const heading=document.querySelector('[data-threat-key="Lightning"]');
   const tile=heading?.closest('.threat-row');
   const status=tile?.querySelector('.threat-time');
   const dot=tile?.querySelector('.threat-dot');
   if(!status)return;
   status.textContent=label;
-  status.dataset.cuLightningLevel=uncertain?'waiting':classification.level;
-  status.dataset.status=uncertain?'waiting':classification.level;
+  status.dataset.cuLightningLevel=level;
+  status.dataset.status=level;
   status.dataset.phase='forecast';
-  status.title=strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
-  if(dot)dot.dataset.status=uncertain?'waiting':classification.level;
+  status.title=provisionalAlert?'RRFS provisional lightning signal '+provisionalPeak.value+' (scale not calibrated; intensity tier withheld)':uncertain?'RRFS lightning units unverified':strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
+  if(dot)dot.dataset.status=level;
   const colors={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'};
-  status.style.color=uncertain?'#4db8ff':colors[classification.level];
-  if(dot)dot.style.backgroundColor=uncertain?'#4db8ff':colors[classification.level];
+  status.style.color=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
+  if(dot)dot.style.backgroundColor=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
  }
  document.addEventListener('cu-lightning-data-ready',()=>{refresh();setTimeout(refresh,400)});
  window.addEventListener('load',refresh);
