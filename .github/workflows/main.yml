@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/main.yml'
       - 'scripts/install_health_banner.py'
+      - 'scripts/update_rrfs.py'
       - 'scripts/test_lightning_browser.cjs'
   workflow_dispatch:
   schedule:
