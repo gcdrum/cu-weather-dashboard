@@ -1,24 +1,25 @@
 {
-  "checked_at": "2026-11-01T23:56:02.370401+00:00",
+  "checked_at": "2026-11-02T00:08:40.036431+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
       "cycle": "2026-11-01T23:00:00+00:00",
-      "updated": "2026-11-01T23:55:29.716559+00:00",
-      "age_minutes": 0.5,
-      "hours": 2,
+      "updated": "2026-11-02T00:07:16.079593+00:00",
+      "age_minutes": 1.4,
+      "hours": 5,
       "expected_hours": 19,
-      "percent_complete": 10.5,
+      "percent_complete": 26.3,
       "state": "partial",
       "complete": false,
       "errors": [
-        "f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t23z.wrfsfcf02.grib2.idx"
+        "00Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261102/conus/hrrr.t00z.wrfsfcf00.grib2.idx",
+        "f05 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261101/conus/hrrr.t23z.wrfsfcf05.grib2.idx"
       ]
     },
     "rrfs": {
       "cycle": "2026-11-01T21:00:00+00:00",
-      "updated": "2026-11-01T23:55:55.943828+00:00",
-      "age_minutes": 0.1,
+      "updated": "2026-11-02T00:07:44.975759+00:00",
+      "age_minutes": 0.9,
       "hours": 18,
       "expected_hours": 18,
       "percent_complete": 100.0,
