@@ -1315,5 +1315,20 @@ html=html.replace("['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean',
  "['UTC hour','GFS','NAM','HRRR','RRFS','Qualified','Integrated','Count','Plotted mean','Check']")
 html=html.replace("Model average audit · ","All-curve average audit · ")
 
+
+# Lightning operational timing: earliest future positive signal, not the
+# largest value later in the forecast. Keep maximum intensity for severity.
+html=html.replace("const signal=raw.sort((a,b)=>b.value-a.value)[0];",
+"""const signal=raw.filter(x=>x.value>0).sort((a,b)=>Date.parse(a.time)-Date.parse(b.time))[0];""")
+# A thunderstorm forecast is not a lightning observation. Avoid a later
+# provisional model peak overriding an earlier positive valid forecast hour.
+html=html.replace("const best=candidates.sort((a,b)=>b.value-a.value)[0];",
+"""const best=candidates.filter(x=>x.value>0).sort((a,b)=>Date.parse(a.time)-Date.parse(b.time))[0];""")
+# Show whether the six-curve patch really matched the generated HTML.
+if 'const compositeSources=' not in html:
+    print('::warning::Six-curve composite was NOT installed in generated HTML')
+else:
+    print('Six-curve composite source present in generated HTML')
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
