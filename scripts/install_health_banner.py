@@ -1240,7 +1240,7 @@ old_h="const g=cache.gfs?.rows||[],h=cache.hrrr?.rows||[],n=cache.nam?.rows||[];
 new_h="const g=cache.gfs?.rows||[],h=(window.cuNOAAHRRRFeeders?.length?window.cuNOAAHRRRFeeders:cache.hrrr?.rows||[]),n=cache.nam?.rows||[];"
 if old_h in block:
     block=block.replace(old_h,new_h,1)
-elif new_h not in block:
+elif new_h not in block and not ("window.cuNOAAGFSFeeders?.length" in block and "window.cuNOAANAMFeeders?.length" in block and "window.cuNOAAHRRRFeeders?.length" in block):
     raise RuntimeError('HRRR chart source anchor missing')
 html=html[:chart_start]+block+html[chart_end:]
 # The browser source rows are exact same arrays used for the plotted average.
