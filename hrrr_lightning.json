@@ -227,10 +227,40 @@
       },
       "units_verified": false,
       "source_cycle": "2026-11-02T22:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T07:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "31"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-03T00:00:00+00:00"
+    },
+    {
+      "time": "2026-11-04T08:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "32"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-03T00:00:00+00:00"
     }
   ],
   "checked_leads": [
-    0
+    0,
+    31,
+    32
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }

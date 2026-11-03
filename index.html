@@ -1176,7 +1176,7 @@ const overlayInfo=document.getElementById('cu-overlay-info');
    segment.push(r);previous=i;
   }
   if(segment.length)segments.push(segment);
-  for(const segment of segments){
+  for(const segment of [] /* legacy four-model magenta overlay retired */){
    plot(segment,'#ff35cb',[]);
    // Reinforce the mean without obscuring the individual model curves.
    ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4.5;ctx.setLineDash([]);
@@ -1344,6 +1344,7 @@ const overlayInfo=document.getElementById('cu-overlay-info');
   }
   ctx.stroke();ctx.restore();
  }
+
 
 
 
@@ -3242,7 +3243,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3277,6 +3278,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3862,6 +3864,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3889,6 +3892,31 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4647,7 +4675,7 @@ window.cuLightningDensityForecasts=[];
    const matches=found.length===row.modelCount&&Number.isFinite(computed)&&Math.abs(computed-row.forecastFeeders)<0.001;
    return '<tr><td>'+row.time.replace('T',' ')+'Z</td>'+vals.map(v=>'<td>'+fmt(v)+'</td>').join('')+'<td>'+row.modelCount+'</td><td>'+fmt(row.forecastFeeders)+'</td><td>'+(found.length===0?'INPUTS UNAVAILABLE':matches?'MATCH':'CHECK INPUTS')+'</td></tr>';
   }).join('');
-  host.innerHTML='<summary style="cursor:pointer;font-weight:700">All-curve average audit · '+rows.length+' hourly points · peak '+fmt(peak.forecastFeeders)+' feeders · '+peak.modelCount+' models</summary><div style="overflow-x:auto;margin-top:8px"><table style="border-collapse:collapse;white-space:nowrap;width:100%;text-align:right"><thead><tr>'+['UTC hour','GFS','NAM','HRRR','RRFS','Qualified','Integrated','Count','Plotted mean','Check'].map(h=>'<th style="padding:5px;border-bottom:1px solid #526a7a">'+h+'</th>').join('')+'</tr></thead><tbody>'+trs+'</tbody></table></div><p>Missing model hours are excluded, not zero. A CHECK INPUTS result means the diagnostic could not recover exactly the same source rows as the chart; it does not imply the mean is wrong.</p>';
+  host.innerHTML='<summary style="cursor:pointer;font-weight:700">All-curve average audit · '+rows.length+' hourly points · peak '+fmt(peak.forecastFeeders)+' feeders · '+peak.modelCount+' models</summary><div style="overflow-x:auto;margin-top:8px"><table style="border-collapse:collapse;white-space:nowrap;width:100%;text-align:right"><thead><tr>'+['UTC hour','GFS','NAM','HRRR','RRFS','Qualified','Integrated','Count','Plotted mean','Check'].map(h=>'<th style="padding:5px;border-bottom:1px solid #526a7a">'+h+'</th>').join('')+'</tr></thead><tbody>'+trs+'</tbody></table></div><p>Average = sum of available GFS, NAM, HRRR, RRFS, qualified and integrated feeder-curve values ÷ available input count. A genuine modeled zero counts, while unavailable values are excluded. Qualified and integrated curves share HRRR information, so this is a display average, not an independent-model ensemble.</p>';
  }
  setInterval(render,2500);window.addEventListener('load',render);
 })();
