@@ -35,6 +35,25 @@ const path=require('path');
      });
      await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
      await page.waitForTimeout(5000);
+     if(value===0){
+       const chartReport=await page.evaluate(()=>{
+         const avg=window.cuMainModelAverage||[],src=window.cuAverageSourceRows||{};
+         const names=['gfs','nam','hrrr','rrfs','qualified','integrated'];
+         const results=avg.slice(0,60).map(row=>{
+           const values=names.map((name,i)=>{
+             const r=(src[name]||[]).find(x=>String(x.time).slice(0,16)===String(row.time).slice(0,16));
+             const v=Array.isArray(row.values)?row.values[i]:r?.forecastFeeders;
+             return Number.isFinite(v)?v:null;
+           });
+           const present=values.filter(Number.isFinite);
+           const calculated=present.length?present.reduce((a,b)=>a+b,0)/present.length:null;
+           return {t:row.time,v:values,mean:row.forecastFeeders,n:row.modelCount,calculated,delta:calculated===null?null:row.forecastFeeders-calculated};
+         });
+         const evidence=window.cuLocalConvectiveShadeEvidence||{};
+         return {canvas:document.getElementById('live-forecast-chart')?.width,averageCount:avg.length,sourceLengths:Object.fromEntries(names.map(n=>[n,(src[n]||[]).length])),coverage:window.cuSixCurveCoverage||null,shadeHours:Object.entries(evidence).map(([t,v])=>({t,dbz:v.maxDbz,models:v.models})).slice(0,36),sample:results.slice(0,18),mismatches:results.filter(x=>x.delta!==null&&Math.abs(x.delta)>0.001).slice(0,8),counts:results.reduce((o,x)=>(o[x.n]=(o[x.n]||0)+1,o),{})};
+       });
+       console.log('CU_CHART_AUDIT',JSON.stringify(chartReport));
+     }
      const report=await page.evaluate(()=>{
        const text=document.body.innerText||'';
        const i=text.toLowerCase().indexOf('lightning');
