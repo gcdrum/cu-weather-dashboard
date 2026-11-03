@@ -1421,7 +1421,7 @@ chart_at=html.find('function drawForecast(){')
 late_at=html.find(late_anchor,chart_at)
 if late_at<0:
     raise SystemExit('ERROR: chart final paint anchor missing')
-html=html[:late_at]+six_js+'\n '+html[late_at:]
+html=html[:late_at]+'{\n'+six_js+'\n}\n '+html[late_at:]
 print('Installed six-curve final paint after all other chart drawing')
 # Correct audit member names, counts, and display from the actual rows.
 html=html.replace("const vals=datasets.map(([,set])=>value(set,row.time));",
