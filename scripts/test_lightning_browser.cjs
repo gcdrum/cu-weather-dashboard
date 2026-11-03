@@ -53,6 +53,8 @@ const path=require('path');
          return {canvas:document.getElementById('live-forecast-chart')?.width,averageCount:avg.length,sourceLengths:Object.fromEntries(names.map(n=>[n,(src[n]||[]).length])),coverage:window.cuSixCurveCoverage||null,shadeHours:Object.entries(evidence).map(([t,v])=>({t,dbz:v.maxDbz,models:v.models})).slice(0,36),sample:results.slice(0,18),mismatches:results.filter(x=>x.delta!==null&&Math.abs(x.delta)>0.001).slice(0,8),counts:results.reduce((o,x)=>(o[x.n]=(o[x.n]||0)+1,o),{})};
        });
        console.log('CU_CHART_AUDIT',JSON.stringify(chartReport));
+       if(chartReport.sourceLengths.gfs===0||chartReport.sourceLengths.nam===0)throw Error('NOAA GFS/NAM chart sources are empty after load');
+       if(chartReport.mismatches.length)throw Error('Six-source magenta arithmetic mismatch: '+JSON.stringify(chartReport.mismatches));
      }
      const report=await page.evaluate(()=>{
        const text=document.body.innerText||'';
