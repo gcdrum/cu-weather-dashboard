@@ -1262,6 +1262,9 @@ if '</body>' not in html: raise RuntimeError('HTML body closing tag missing')
 html=html.replace('</body>',hrrr_script+'</body>',1)
 # Reflectivity is separate; its marker must not be interpreted as wind coverage.
 html=html.replace("NO HRRR FORECAST AVAILABLE","NO HRRR REFLECTIVITY AVAILABLE")
+# Correct the bar annotation: reflectivity ending does not terminate HRRR wind threat.
+html=html.replace("ctx.fillText('NO HRRR REFLECTIVITY AVAILABLE',","ctx.fillText('REFC ENDS · WIND SCREEN CONTINUES',")
+html=html.replace("ctx.fillText('HRRR REFLECTIVITY UNAVAILABLE / STALE',","ctx.fillText('REFC UNKNOWN · WIND SCREEN CONTINUES',")
 # Explicit audit source count from NOAA HRRR; no averaging of convective curves.
 
 
@@ -1389,7 +1392,32 @@ html=html.replace('</body>',lightning_guard+'</body>',1)
 
 # HRRR lane: show decoded NOAA wind coverage independently of reflectivity.
 hrrr_lane_anchor="  // A single number per contiguous colored segment keeps hourly data legible."
-hrrr_wind_stripe=r"""  // Independent decoded NOAA wind coverage. The HRRR reflectivity forecast can
+hrrr_composite_lane=r"""  // HRRR operational bar combines decoded wind with the existing REFC screen.
+  // Missing reflectivity is not missing wind. Retain strongest REFC storm signals.
+  if(id==='hrrr'){
+   const windByHour=new Map(h.filter(r=>Number.isFinite(r.forecastFeeders)).map(r=>[String(r.time).slice(0,13),r]));
+   let gustThreatHours=0;
+   times.forEach((t,i)=>{
+    const row=windByHour.get(t.slice(0,13));if(!row)return;
+    const mph=Number(row.max);
+    const xx=Math.max(L,x(i)-step/2),right=Math.min(L+PW,x(i)+step/2);
+    const item=v112?.[i],existing=item?.kind;
+    if(Number.isFinite(mph)&&mph>=30){
+     // Wind grades: 30-39 possible, 40-49 elevated, 50-59 likely, 60+ extreme.
+     // Do not overwrite local-convection or west-watch reflectivity evidence.
+     if(existing!=='local-convection'&&existing!=='west-watch'){
+      ctx.fillStyle=mph>=60?'#d54a40':mph>=50?'#e78528':mph>=40?'#e0a53b':'#397c9b';
+      ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
+     }
+     gustThreatHours++;
+    }
+    ctx.fillStyle='#62d8f0';ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),3);
+   });
+   window.cuHRRRBarCoverage={windHours:windByHour.size,reflectivityHours:(hrrrAudit?.unique||[]).length,gustThreatHours};
+  }
+"""
+# Upgrade existing lane without placing a duplicate block during scheduled runs.
+legacy_hrrr_lane=r"""  // Independent decoded NOAA wind coverage. The HRRR reflectivity forecast can
   // end earlier; cyan top edge marks WIND hours without inventing REFC values.
   if(id==='hrrr'){
    const windHours=new Set(h.filter(r=>Number.isFinite(r.forecastFeeders)).map(r=>String(r.time).slice(0,13)));
@@ -1401,10 +1429,14 @@ hrrr_wind_stripe=r"""  // Independent decoded NOAA wind coverage. The HRRR refle
    window.cuHRRRBarCoverage={windHours:windHours.size,reflectivityHours:(hrrrAudit?.unique||[]).length};
   }
 """
+if legacy_hrrr_lane in html:
+    html=html.replace(legacy_hrrr_lane,hrrr_composite_lane,1)
+if 'window.cuHRRRBarCoverage=' in html and 'gustThreatHours' not in html:
+    raise SystemExit('ERROR: existing HRRR lane not upgraded')
 if hrrr_lane_anchor not in html:
     raise SystemExit('ERROR: HRRR lane draw anchor missing')
 if 'window.cuHRRRBarCoverage=' not in html:
-    html=html.replace(hrrr_lane_anchor,hrrr_wind_stripe+hrrr_lane_anchor,1)
+    html=html.replace(hrrr_lane_anchor,hrrr_composite_lane+hrrr_lane_anchor,1)
 
 # Remove the obsolete second magenta overlay; the unified six-source
 # calculation below is the only authoritative magenta line.
