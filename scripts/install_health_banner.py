@@ -185,7 +185,7 @@ snippet = r"""
    } catch(e){console.warn('RRFS reflectivity unavailable',e)}
    const convective=reflectivity.filter(r=>['gfs','nam','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
-     const local=Number(r.zones?.springfield_area);
+     const local=r.zones?.springfield_area==null?NaN:Number(r.zones.springfield_area);
      const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
      const dbz=Number.isFinite(local)?local:site;
      return {time,model:String(r.model).toLowerCase(),dbz};
@@ -204,7 +204,16 @@ snippet = r"""
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
    const shadeHours=[...new Set(convective.filter(x=>Number.isFinite(x.dbz)&&x.dbz>=35).map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
-   window.cuLocalConvectiveShadeHours=shadeHours.map(t=>new Date(t).toISOString().slice(0,13));
+   const shadeEvidence={};
+   for(const item of convective){
+    const key=new Date(item.time).toISOString().slice(0,13);
+    const row=shadeEvidence[key]||{maxDbz:-10,models:[]};
+    row.maxDbz=Math.max(row.maxDbz,item.dbz);
+    if(!row.models.includes(item.model))row.models.push(item.model);
+    shadeEvidence[key]=row;
+   }
+   window.cuLocalConvectiveShadeEvidence=shadeEvidence;
+   window.cuLocalConvectiveShadeHours=Object.keys(shadeEvidence).sort();
    if(typeof window.drawForecast==='function')window.drawForecast();
    const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ at the forecast valid hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
    const convectivePoints=activeWindows.map(x=>({time:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'),value:x.estimated_feeders,color:'#ff9a36'}));
@@ -943,7 +952,10 @@ if main_start>=0 and main_end>main_start:
   times.forEach((t,i)=>{
    if(!active.has(t.slice(0,13)))return;
    const dx=PW/(times.length-1),left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
-   ctx.fillStyle='#ff9a3638';ctx.fillRect(left,T,right-left,PH);
+   const evidence=window.cuLocalConvectiveShadeEvidence?.[t.slice(0,13)];
+   if(!evidence||!(evidence.maxDbz>=35))return;
+   const alpha=Math.min(0.22,0.07+Math.max(0,evidence.maxDbz-35)*0.003+(evidence.models.length>1?0.04:0));
+   ctx.fillStyle='rgba(255,154,54,'+alpha.toFixed(3)+')';ctx.fillRect(left,T,right-left,PH);
    shadeCounts.local++;
   });
  }
@@ -1375,6 +1387,33 @@ html=re.sub(r'<script id="cu-lightning-source-integrity">.*?</script>','',html,f
 html=html.replace('</body>',lightning_guard+'</body>',1)
 
 
+# HRRR lane: show decoded NOAA wind coverage independently of reflectivity.
+hrrr_lane_anchor="  // A single number per contiguous colored segment keeps hourly data legible."
+hrrr_wind_stripe=r"""  // Independent decoded NOAA wind coverage. The HRRR reflectivity forecast can
+  // end earlier; cyan top edge marks WIND hours without inventing REFC values.
+  if(id==='hrrr'){
+   const windHours=new Set(h.filter(r=>Number.isFinite(r.forecastFeeders)).map(r=>String(r.time).slice(0,13)));
+   times.forEach((t,i)=>{
+    if(!windHours.has(t.slice(0,13)))return;
+    const xx=Math.max(L,x(i)-step/2),right=Math.min(L+PW,x(i)+step/2);
+    ctx.fillStyle='#62d8f0';ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),3);
+   });
+   window.cuHRRRBarCoverage={windHours:windHours.size,reflectivityHours:(hrrrAudit?.unique||[]).length};
+  }
+"""
+if hrrr_lane_anchor not in html:
+    raise SystemExit('ERROR: HRRR lane draw anchor missing')
+if 'window.cuHRRRBarCoverage=' not in html:
+    html=html.replace(hrrr_lane_anchor,hrrr_wind_stripe+hrrr_lane_anchor,1)
+
+# Remove the obsolete second magenta overlay; the unified six-source
+# calculation below is the only authoritative magenta line.
+duplicate_start=html.find(' // Composite of ALL visible feeder curves')
+duplicate_end=html.find(' const qCount=qImpact.filter(Number.isFinite).length;',duplicate_start)
+if duplicate_start>=0 and duplicate_end>duplicate_start:
+    html=html[:duplicate_start]+html[duplicate_end:]
+    print('Removed duplicate composite mean overlay')
+
 # Verified chart-source patch: qImpact and qIntegrated are numeric arrays
 # created immediately before plotQualifiedArray. Recompute the display mean
 # at that exact point, using the same time indices and excluding missing data.
@@ -1388,6 +1427,7 @@ six_js=r"""
    return valid.length?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
  }).filter(Boolean);
  window.cuMainModelAverage=sixRows;
+ window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))};
  window.cuSixCurveCoverage={hours:sixRows.length,qualified:qImpact.filter(Number.isFinite).length,integrated:qIntegrated.filter(Number.isFinite).length};
  // Restore all individual curves on EVERY redraw after late data loads.
  // Do not let the ensemble overlay obscure or replace the model traces.
@@ -1514,11 +1554,5 @@ hrrr_script=r"""
 html=re.sub(r'<script id="cu-direct-hrrr-hourly-chart">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',hrrr_script+'</body>',1)
 
-# Output exact main-chart source context for repairing live canvas render paths.
-for needle,pre,post in [('function drawForecast(){',0,9500),('NO HRRR REFLECTIVITY AVAILABLE',4500,1100),('const overlayInfo=document.getElementById',3200,1000),('const qImpact=times.map(',1600,1400),('const qIntegrated=times.map(',1600,1400)]:
- ix=html.find(needle,html.find('function drawForecast(){') if needle!='function drawForecast(){' else 0)
- print('CU_CHART_SOURCE_START',needle,'offset',ix)
- if ix>=0:print(html[max(0,ix-pre):ix+post])
- print('CU_CHART_SOURCE_END')
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
