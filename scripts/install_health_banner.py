@@ -1751,5 +1751,37 @@ noaa_bridge=r"""
 html=re.sub(r'<script id="cu-noaa-wind-and-local-refc-bridge">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',noaa_bridge+'</body>',1)
 print('Installed direct NOAA GFS/NAM and local-REFC feeder chart bridge')
+# Idempotently replace the actual shaded-hour canvas block, regardless of
+# which of the earlier installer versions wrote it. This runs on EVERY update.
+main_begin=html.find('function drawForecast(){')
+shade_candidates=[html.find(tag,main_begin) for tag in (
+ ' // Shared local ≥35 dBZ reflectivity shading;',
+ ' // Local convective shading:',
+ ' // Local reflectivity shading,',
+ ' // Hourly model-derived environmental ingredient shading')]
+shade_candidates=[i for i in shade_candidates if i>=0]
+shade_end=html.find("const overlayInfo=document.getElementById('cu-overlay-info')",main_begin)
+if not shade_candidates or shade_end<0 or min(shade_candidates)>=shade_end:
+    raise SystemExit('ERROR: main canvas shade block missing; refuse stale shading')
+shade_begin=min(shade_candidates)
+new_shading=r""" // Verified local reflectivity shading, exactly one cell per forecast hour.
+ const localShade=window.cuLocalConvectiveShadeEvidence||{};
+ const shadeCounts={local:0,unavailable:0};
+ if(window.cuShowIngredientOverlay!==false){
+  times.forEach((t,i)=>{
+   const e=localShade[t.slice(0,13)];
+   if(!e||!Number.isFinite(e.maxDbz)||e.maxDbz<35)return;
+   const dx=PW/(times.length-1);
+   const left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
+   const alpha=0.09+Math.min(0.13,Math.max(0,e.maxDbz-35)*0.004);
+   ctx.fillStyle='rgba(255,154,54,'+alpha.toFixed(3)+')';
+   ctx.fillRect(left,T,right-left,PH);
+   shadeCounts.local++;
+  });
+ }
+ """
+html=html[:shade_begin]+new_shading+html[shade_end:]
+print('Main chart shading installed with', 'local valid-hour reflectivity evidence')
+
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
