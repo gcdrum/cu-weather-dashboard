@@ -1514,5 +1514,11 @@ hrrr_script=r"""
 html=re.sub(r'<script id="cu-direct-hrrr-hourly-chart">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',hrrr_script+'</body>',1)
 
+# Output exact main-chart source context for repairing live canvas render paths.
+for needle,pre,post in [('function drawForecast(){',0,9500),('NO HRRR REFLECTIVITY AVAILABLE',4500,1100),('const overlayInfo=document.getElementById',3200,1000),('const qImpact=times.map(',1600,1400),('const qIntegrated=times.map(',1600,1400)]:
+ ix=html.find(needle,html.find('function drawForecast(){') if needle!='function drawForecast(){' else 0)
+ print('CU_CHART_SOURCE_START',needle,'offset',ix)
+ if ix>=0:print(html[max(0,ix-pre):ix+post])
+ print('CU_CHART_SOURCE_END')
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
