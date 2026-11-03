@@ -1457,6 +1457,21 @@ if six_anchor not in html:
 if 'window.cuSixCurveCoverage=' not in html:
     html=html.replace(six_anchor,six_anchor+six_js,1)
     print('Installed six-curve calculation after qualified curves')
+# Upgrade an already-installed six-curve block in the published HTML.
+# Replacing the Python template alone does not update HTML on later runs,
+# because its installation guard detects the prior block.
+six_begin=html.find(' // Average all available feeder-impact curves, including the two derived convective curves.')
+six_end=html.find(' window.cuSixCurveCoverage=',six_begin)
+if six_begin<0 or six_end<six_begin:
+    raise SystemExit('ERROR: installed six-curve mean missing')
+six_existing=html[six_begin:six_end]
+six_existing=six_existing.replace('return valid.length>=2?', 'return valid.length?')
+if 'window.cuAverageSourceRows=' not in six_existing:
+    six_existing=six_existing.replace(' window.cuMainModelAverage=sixRows;',
+      " window.cuMainModelAverage=sixRows;\\n window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))};")
+html=html[:six_begin]+six_existing+html[six_end:]
+print('Verified one available source is sufficient for six-curve mean')
+
 # Correct audit member names, counts, and display from the actual rows.
 html=html.replace("const vals=datasets.map(([,set])=>value(set,row.time));",
                   "const vals=Array.isArray(row.values)?row.values:datasets.map(([,set])=>value(set,row.time));")
