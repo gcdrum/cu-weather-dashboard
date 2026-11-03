@@ -3244,7 +3244,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3279,6 +3279,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3538,7 +3539,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
      const local=Number(r.zones?.springfield_area);
      const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
-     const dbz=Math.max(Number.isFinite(local)?local:-10,site);
+     const dbz=Number.isFinite(local)?local:site;
      return {time,model:String(r.model).toLowerCase(),dbz};
    }).filter(r=>Number.isFinite(r.time)&&r.time>=Date.now()-3600000&&r.dbz>=35);
    const convectiveWindows=consensus.map(row=>{
@@ -3553,7 +3554,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    window.cuConvectiveScreen=convectiveWindows;
    const activeWindows=convectiveWindows.filter(x=>x.convective_models.length);
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
-   const shadeHours=[...new Set(convective.map(x=>x.time))].sort((a,b)=>a-b);
+   const shadeHours=[...new Set(convective.filter(x=>Number.isFinite(x.dbz)&&x.dbz>=35).map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
    window.cuLocalConvectiveShadeHours=shadeHours.map(t=>new Date(t).toISOString().slice(0,13));
    if(typeof window.drawForecast==='function')window.drawForecast();
@@ -3841,6 +3842,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3868,6 +3870,29 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4605,6 +4630,35 @@ window.cuLightningDensityForecasts=[];
  document.addEventListener('cu-lightning-data-ready',update);
  window.addEventListener('load',update);
  setInterval(update,10000);
+})();
+</script>
+
+<script id="cu-direct-hrrr-hourly-chart">
+(()=>{
+ async function refresh(){
+  try{
+   const response=await fetch('./hrrr_wind.json?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return;
+   const data=await response.json();
+   const rows=(data.hours||[]).map(hour=>{
+    const samples=(hour.gust_ms||[]).map(Number).filter(Number.isFinite);
+    if(!samples.length)return null;
+    const feeders=samples.reduce((sum,ms)=>{
+      const x=Math.max(0,(ms*2.2369362921-15)/5);
+      return sum+Math.max(0,0.2431*(Math.exp(0.5216*x)-1));
+    },0)/samples.length;
+    const raw=String(hour.time||'');
+    const date=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');
+    return Number.isFinite(date)?{time:new Date(date).toISOString().slice(0,13)+':00',forecastFeeders:feeders}:null;
+   }).filter(Boolean);
+   if(rows.length){
+    window.cuHRRRHourlyFeeders=rows;
+    if(typeof window.drawForecast==='function')window.drawForecast();
+   }
+  }catch(error){console.warn('NOAA HRRR chart feed',error)}
+ }
+ window.addEventListener('load',refresh);
+ setInterval(refresh,60000);
 })();
 </script>
 </body></html>
