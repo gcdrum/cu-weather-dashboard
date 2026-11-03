@@ -1484,9 +1484,10 @@ if duplicate_start>=0 and duplicate_end>duplicate_start:
 six_anchor=" plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);"
 six_js=r"""
  // Average all available feeder-impact curves, including the two derived convective curves.
- const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[String(r.time).slice(0,16),r.forecastFeeders])));
+ const hourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null};
+ const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[hourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));
  const sixRows=times.map((t,i)=>{
-   const vals=sixSources.map(m=>m.get(String(t).slice(0,16))).concat([qImpact[i],qIntegrated[i]]);
+   const vals=sixSources.map(m=>m.get(hourKey(t))).concat([qImpact[i],qIntegrated[i]]);
    const valid=vals.filter(Number.isFinite);
    return valid.length?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
  }).filter(Boolean);
@@ -1530,6 +1531,11 @@ if six_begin<0 or six_end<six_begin:
     raise SystemExit('ERROR: installed six-curve mean missing')
 six_existing=html[six_begin:six_end]
 six_existing=six_existing.replace('return valid.length>=2?', 'return valid.length?')
+# Upgrade the actual installed renderer, not just the template for new pages.
+six_existing=six_existing.replace(
+ "const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[String(r.time).slice(0,16),r.forecastFeeders])));",
+ "const sixHourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null}; const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[sixHourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));")
+six_existing=six_existing.replace("m.get(String(t).slice(0,16))","m.get(sixHourKey(t))")
 if 'window.cuAverageSourceRows=' not in six_existing:
     six_existing=six_existing.replace(' window.cuMainModelAverage=sixRows;',
       " window.cuMainModelAverage=sixRows;\n window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))};")
