@@ -1774,7 +1774,14 @@ shade_end=html.find("const overlayInfo=document.getElementById('cu-overlay-info'
 if shade_end<0:
     raise SystemExit('ERROR: main canvas overlay anchor missing; refuse unsafe edit')
 # Idempotent installation: prior builds may have removed the legacy shade block.
-shade_begin=min(shade_candidates) if shade_candidates and min(shade_candidates)<shade_end else shade_end
+if not shade_candidates or min(shade_candidates)>=shade_end:
+    # Existing chart may already contain the installed shading under a
+    # different marker. Never append a second block with the same JS bindings.
+    existing=html.rfind(' const localShade=window.cuLocalConvectiveShadeEvidence||{};',main_begin,shade_end)
+    shade_begin=html.rfind(' // Verified local reflectivity shading,',main_begin,existing) if existing>=0 else shade_end
+    if shade_begin<main_begin:shade_begin=shade_end
+else:
+    shade_begin=min(shade_candidates)
 new_shading=r""" // Verified local reflectivity shading, exactly one cell per forecast hour.
  const localShade=window.cuLocalConvectiveShadeEvidence||{};
  const shadeCounts={local:0,unavailable:0};
