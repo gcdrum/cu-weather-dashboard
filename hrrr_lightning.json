@@ -1,6 +1,6 @@
 {
   "model": "hrrr",
-  "cycle": "2026-11-03T00:00:00+00:00",
+  "cycle": "2026-11-03T01:00:00+00:00",
   "units": "unverified native GRIB field; not yet flashes/km2/5min",
   "status": "validation_required",
   "hours": [
