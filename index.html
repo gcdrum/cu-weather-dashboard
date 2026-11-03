@@ -1123,17 +1123,17 @@ function drawForecast(){
   dcPotentialHours++;
  });
  window.cuDcapePlotHours=dcPotentialHours;
- // Local convective shading: require Springfield-area REFC for this exact hour.
- const shadeEvidence=window.cuLocalConvectiveShadeEvidence||{};
+ // Verified local reflectivity shading, exactly one cell per forecast hour.
+ const localShade=window.cuLocalConvectiveShadeEvidence||{};
  const shadeCounts={local:0,unavailable:0};
  if(window.cuShowIngredientOverlay!==false){
   times.forEach((t,i)=>{
-   const evidence=shadeEvidence[t.slice(0,13)];
-   if(!evidence||!Number.isFinite(evidence.maxDbz)||evidence.maxDbz<35)return;
-   const dx=PW/(times.length-1),left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
-   const strength=Math.min(1,Math.max(0,(evidence.maxDbz-35)/25));
-   const opacity=0.065+0.11*strength+(evidence.models.length>1?0.025:0);
-   ctx.fillStyle='rgba(255,154,54,'+opacity.toFixed(3)+')';
+   const e=localShade[t.slice(0,13)];
+   if(!e||!Number.isFinite(e.maxDbz)||e.maxDbz<35)return;
+   const dx=PW/(times.length-1);
+   const left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
+   const alpha=0.09+Math.min(0.13,Math.max(0,e.maxDbz-35)*0.004);
+   ctx.fillStyle='rgba(255,154,54,'+alpha.toFixed(3)+')';
    ctx.fillRect(left,T,right-left,PH);
    shadeCounts.local++;
   });
@@ -1347,6 +1347,7 @@ function drawForecast(){
   }
   ctx.stroke();ctx.restore();
  }
+
 
 
 
@@ -3249,7 +3250,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3284,6 +3285,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3877,6 +3879,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3904,6 +3907,33 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
