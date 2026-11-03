@@ -1468,7 +1468,7 @@ six_existing=html[six_begin:six_end]
 six_existing=six_existing.replace('return valid.length>=2?', 'return valid.length?')
 if 'window.cuAverageSourceRows=' not in six_existing:
     six_existing=six_existing.replace(' window.cuMainModelAverage=sixRows;',
-      " window.cuMainModelAverage=sixRows;\\n window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))};")
+      " window.cuMainModelAverage=sixRows;\n window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))};")
 html=html[:six_begin]+six_existing+html[six_end:]
 print('Verified one available source is sufficient for six-curve mean')
 
