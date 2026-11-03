@@ -206,14 +206,21 @@ snippet = r"""
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
    const shadeHours=[...new Set(convective.filter(x=>Number.isFinite(x.dbz)&&x.dbz>=35).map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
+   // Build the local storm timeline directly from REFC valid hours. It must not
+   // depend on gust forecast coverage, which may be incomplete for HRRR/RRFS.
    const shadeEvidence={};
    for(const item of convective){
     const key=new Date(item.time).toISOString().slice(0,13);
-    const row=shadeEvidence[key]||{maxDbz:-10,models:[]};
+    const row=shadeEvidence[key]||{maxDbz:-10,models:[],modelDbz:{}};
+    // Keep the strongest valid CU-area sample for each model at this hour.
+    row.modelDbz[item.model]=Math.max(row.modelDbz[item.model]??-10,item.dbz);
     row.maxDbz=Math.max(row.maxDbz,item.dbz);
     if(!row.models.includes(item.model))row.models.push(item.model);
     shadeEvidence[key]=row;
    }
+   window.cuIndependentConvectiveHours=Object.entries(shadeEvidence)
+     .sort(([a],[b])=>a.localeCompare(b))
+     .map(([hour,e])=>({time:hour+':00:00Z',maxDbz:e.maxDbz,models:e.models.slice(),modelDbz:{...e.modelDbz},classification:e.models.length>=2?'MULTI_MODEL':'SINGLE_MODEL'}));
    window.cuLocalConvectiveShadeEvidence=shadeEvidence;
    window.cuLocalConvectiveShadeHours=Object.keys(shadeEvidence).sort();
    if(typeof window.drawForecast==='function')window.drawForecast();
