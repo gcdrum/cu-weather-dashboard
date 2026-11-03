@@ -1385,7 +1385,7 @@ six_js=r"""
  const sixRows=times.map((t,i)=>{
    const vals=sixSources.map(m=>m.get(String(t).slice(0,16))).concat([qImpact[i],qIntegrated[i]]);
    const valid=vals.filter(Number.isFinite);
-   return valid.length>=2?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
+   return valid.length?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
  }).filter(Boolean);
  window.cuMainModelAverage=sixRows;
  window.cuSixCurveCoverage={hours:sixRows.length,qualified:qImpact.filter(Number.isFinite).length,integrated:qIntegrated.filter(Number.isFinite).length};
