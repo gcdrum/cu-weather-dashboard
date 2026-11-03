@@ -1796,7 +1796,10 @@ new_shading=r""" // Verified local reflectivity shading, exactly one cell per fo
  const shadeCounts={local:0,unavailable:0};
  if(window.cuShowIngredientOverlay!==false){
   times.forEach((t,i)=>{
-   const e=localShade[t.slice(0,13)];
+   const raw=String(t||'');
+   const parsed=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');
+   const hour=Number.isFinite(parsed)?new Date(parsed).toISOString().slice(0,13):null;
+   const e=hour?localShade[hour]:null;
    if(!e||!Number.isFinite(e.maxDbz)||e.maxDbz<35)return;
    const dx=PW/(times.length-1);
    const left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
