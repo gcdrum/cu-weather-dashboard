@@ -15,7 +15,7 @@ if chart_start>=0:
         block=html[chart_start:chart_end]
         old="const times=[...new Set([...g,...n,...h,...rrfs].map(r=>r.time).filter(t=>Date.parse(t+'Z')>=now))].sort().slice(0,144); window.cuV50MainTimes=times.slice();"
         new="""const startUTC=Math.floor(Date.now()/3600000)*3600000;
- const times=Array.from({length:169},(_,i)=>new Date(startUTC+i*3600000).toISOString().slice(0,16));
+ const times=Array.from({length:72},(_,i)=>new Date(startUTC+i*3600000).toISOString().slice(0,16));
  window.cuV50MainTimes=times.slice();"""
         if old in block:
             html=html[:chart_start]+block.replace(old,new)+html[chart_end:]
@@ -1485,7 +1485,7 @@ six_anchor=" plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);"
 six_js=r"""
  // Average all available feeder-impact curves, including the two derived convective curves.
  const hourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null};
- const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[hourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));
+ const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[hourKey(r.time),r.forecastFeeders]).filter(([k,v])=>k&&typeof v==='number'&&Number.isFinite(v))));
  const sixRows=times.map((t,i)=>{
    const vals=sixSources.map(m=>m.get(hourKey(t))).concat([qImpact[i],qIntegrated[i]]);
    const valid=vals.filter(Number.isFinite);
@@ -1542,6 +1542,8 @@ six_existing=six_existing.replace(
  "const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[hourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));",
  "const sixHourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null}; const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[sixHourKey(r.time),r.forecastFeeders]).filter(([k,v])=>k&&typeof v==='number'&&Number.isFinite(v))));")
 six_existing=six_existing.replace("m.get(hourKey(t))","m.get(sixHourKey(t))")
+# Remove false zero contributors in previously installed versions.
+six_existing=six_existing.replace("Number(r.forecastFeeders)","r.forecastFeeders")
 # A missing/null model estimate must not silently become a zero feeder input.
 six_existing=six_existing.replace("Number(r.forecastFeeders)","r.forecastFeeders")
 if 'window.cuAverageSourceRows=' not in six_existing:
