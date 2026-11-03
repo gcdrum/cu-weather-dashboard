@@ -1661,7 +1661,7 @@ elif new_source not in head:
 noaa_bridge=r"""
 <script id="cu-noaa-wind-and-local-refc-bridge">
 (()=>{
- const parse=t=>{const raw=String(t||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?ms:NaN};
+ const parse=t=>{const raw=String(t||'');const ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?ms:NaN};
  const convert=mph=>{const x=Math.max(0,(mph-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1))};
  let windSignature='',shadeSignature='',busy=false;
  async function json(file){
