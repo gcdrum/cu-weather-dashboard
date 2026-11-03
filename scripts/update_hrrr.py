@@ -178,17 +178,24 @@ def main():
     errors=[]
     chosen=None
     first=None
-    # Probe the most recent cycles using only REFC; no dependency on gust or wind fields.
-    for back in range(5):
+    # Probe newest cycles using available forecast leads, not only f00.
+    # NOAA may publish f01/f02 before the f00 REFC index becomes accessible.
+    # Prefer the newest cycle with a successfully decoded lead.
+    first_lead=None
+    for back in range(7):
         cycle=hour-timedelta(hours=back)
-        try:
-            first=process_reflectivity(cycle,0)
-            chosen=cycle
+        for lead in (0,1,2,3):
+            try:
+                first=process_reflectivity(cycle,lead)
+                chosen=cycle
+                first_lead=lead
+                break
+            except Exception as exc:
+                errors.append(f'{cycle:%HZ} f{lead:02d} REFC: {exc}')
+        if chosen is not None:
             break
-        except Exception as exc:
-            errors.append(f'{cycle:%HZ} f00 REFC: {exc}')
     if chosen is None:
-        raise RuntimeError('No HRRR REFC available: '+'; '.join(errors))
+        raise RuntimeError('No recent HRRR REFC available: '+'; '.join(errors))
 
     # Keep a separate extended-cycle lightning forecast for f19-f48.
     # The latest short-cycle lightning sample must not erase this horizon.
@@ -215,7 +222,7 @@ def main():
     if not same and candidate.get('cycle')==chosen.isoformat():
         same=candidate.get('records',[])
     bylead={int(r['lead']):r for r in same if isinstance(r.get('lead'),int)}
-    bylead[0]=first
+    bylead[first_lead]=first
     maxlead=48 if chosen.hour%6==0 else 18
     # Bound per-run work: publish the first new hours quickly, fill remaining hours next run.
     missing=[lead for lead in range(1,maxlead+1) if lead not in bylead]
