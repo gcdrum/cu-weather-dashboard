@@ -1475,7 +1475,7 @@ chart_end=html.find(' if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;',
 if chart_start<0 or chart_end<chart_start:
     raise RuntimeError('HRRR chart source boundary not found')
 chart_block=html[chart_start:chart_end]
-chart_block,count=re.subn(r'\\bconst\\s+h\\s*=', 'let h=',chart_block,count=1)
+chart_block,count=re.subn(r'\bconst\s+h\s*=', 'let h=',chart_block,count=1)
 if count!=1:
     raise RuntimeError('HRRR main chart variable declaration not found')
 chart_block += """
