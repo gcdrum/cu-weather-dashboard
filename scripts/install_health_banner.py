@@ -1536,6 +1536,14 @@ six_existing=six_existing.replace(
  "const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[String(r.time).slice(0,16),r.forecastFeeders])));",
  "const sixHourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null}; const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[sixHourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));")
 six_existing=six_existing.replace("m.get(String(t).slice(0,16))","m.get(sixHourKey(t))")
+# Earlier deployed builds use hourKey rather than sixHourKey. Keep the
+# normalization self-contained in the installed chart block on every build.
+six_existing=six_existing.replace(
+ "const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[hourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));",
+ "const sixHourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null}; const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[sixHourKey(r.time),r.forecastFeeders]).filter(([k,v])=>k&&typeof v==='number'&&Number.isFinite(v))));")
+six_existing=six_existing.replace("m.get(hourKey(t))","m.get(sixHourKey(t))")
+# A missing/null model estimate must not silently become a zero feeder input.
+six_existing=six_existing.replace("Number(r.forecastFeeders)","r.forecastFeeders")
 if 'window.cuAverageSourceRows=' not in six_existing:
     six_existing=six_existing.replace(' window.cuMainModelAverage=sixRows;',
       " window.cuMainModelAverage=sixRows;\n window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))};")
