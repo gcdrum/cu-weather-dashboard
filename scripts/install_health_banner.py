@@ -700,7 +700,7 @@ lightning_ui_bridge=r"""
   status.dataset.cuLightningLevel=level;
   status.dataset.status=level;
   status.dataset.phase=future?'upcoming':'forecast';
-  status.title=provisionalAlert?'RRFS provisional lightning signal '+provisionalPeak.value+' (scale not calibrated; intensity tier withheld)':uncertain?'RRFS lightning units unverified':strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
+  status.title=provisionalAlert?'RRFS provisional lightning signal '+Math.max(0,...provisional.map(x=>x.value))+' (scale not calibrated; intensity tier withheld)':uncertain?'RRFS lightning units unverified':strongest.model.toUpperCase()+' verified lightning density '+strongest.value+' flashes/km²/5 min';
   if(dot)dot.dataset.status=level;
   const colors={none:'#8fa4b2',possible:'#e8c35b',elevated:'#ff9b43',likely:'#ff634f',extreme:'#ed437e'};
   status.style.color=uncertain&&!provisionalAlert?'#4db8ff':colors[level];
