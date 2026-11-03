@@ -1829,7 +1829,7 @@ monitor_end=html.find('</script>',monitor_start)
 if monitor_start<0 or monitor_end<monitor_start:
     raise SystemExit('ERROR: health monitor script missing during local reflectivity fix')
 monitor=html[monitor_start:monitor_end]
-broken=r'[+-]\\\\d{2}:\\\\d{2}'
+broken=r'[+-]\\d{2}:\\d{2}'
 correct=r'[+-]\\d{2}:\\d{2}'
 fixed=monitor.count(broken)
 monitor=monitor.replace(broken,correct)
