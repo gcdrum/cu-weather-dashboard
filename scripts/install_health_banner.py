@@ -936,6 +936,29 @@ html=re.sub(r'<script id="cu-lightning-visible-bridge">.*?</script>','',html,fla
 html=html.replace('</body>',lightning_bridge+'</body>',1) if '</body>' in html else html+lightning_bridge
 
 
+# Always replace the existing main-chart shade block on subsequent updates.
+# Old shading installations no longer contain the legacy ingredient anchor.
+shade_begin=html.find(' // Shared local ≥35 dBZ reflectivity shading;',html.find('function drawForecast(){'))
+shade_end=html.find('const overlayInfo=document.getElementById',shade_begin)
+if shade_begin>=0 and shade_end>shade_begin:
+    html=html[:shade_begin]+r""" // Local convective shading: require Springfield-area REFC for this exact hour.
+ const shadeEvidence=window.cuLocalConvectiveShadeEvidence||{};
+ const shadeCounts={local:0,unavailable:0};
+ if(window.cuShowIngredientOverlay!==false){
+  times.forEach((t,i)=>{
+   const evidence=shadeEvidence[t.slice(0,13)];
+   if(!evidence||!Number.isFinite(evidence.maxDbz)||evidence.maxDbz<35)return;
+   const dx=PW/(times.length-1),left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
+   const strength=Math.min(1,Math.max(0,(evidence.maxDbz-35)/25));
+   const opacity=0.065+0.11*strength+(evidence.models.length>1?0.025:0);
+   ctx.fillStyle='rgba(255,154,54,'+opacity.toFixed(3)+')';
+   ctx.fillRect(left,T,right-left,PH);
+   shadeCounts.local++;
+  });
+ }
+ """+html[shade_end:]
+    print('Replaced already-installed shading with local hourly reflectivity evidence')
+
 # The legacy main chart shaded sounding ingredients, not the local REFC
 # intervals shown by the parallel chart. Reuse one shared valid-hour source.
 main_start=html.find('function drawForecast(){')
