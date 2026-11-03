@@ -1460,7 +1460,7 @@ if 'window.cuSixCurveCoverage=' not in html:
 # Upgrade an already-installed six-curve block in the published HTML.
 # Replacing the Python template alone does not update HTML on later runs,
 # because its installation guard detects the prior block.
-six_begin=html.find(' // Average all available feeder-impact curves, including the two derived convective curves.')
+six_begin=html.find(' const sixSources=[g,n,h,rrfs].map(',html.find('function drawForecast(){'))
 six_end=html.find(' window.cuSixCurveCoverage=',six_begin)
 if six_begin<0 or six_end<six_begin:
     raise SystemExit('ERROR: installed six-curve mean missing')
