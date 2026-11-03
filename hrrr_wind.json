@@ -1,7 +1,7 @@
 {
   "model": "hrrr",
   "cycle": "2026-11-03T15:00:00+00:00",
-  "updated": "2026-11-03T16:20:35.701106+00:00",
+  "updated": "2026-11-03T16:39:07.143213+00:00",
   "source": "NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)",
   "points": [
     {
@@ -448,7 +448,7 @@
         5.62,
         6.0
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T04:00",
@@ -480,7 +480,7 @@
         6.0,
         6.39
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T05:00",
@@ -512,7 +512,7 @@
         5.52,
         6.24
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T06:00",
@@ -544,7 +544,7 @@
         5.11,
         6.04
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T07:00",
@@ -576,7 +576,7 @@
         5.06,
         5.27
       ],
-      "source_cycle": "2026-11-03T13:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T08:00",
@@ -608,7 +608,7 @@
         5.09,
         5.79
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T09:00",
@@ -640,7 +640,7 @@
         5.21,
         5.68
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T10:00",
@@ -672,7 +672,7 @@
         4.77,
         5.21
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T11:00",
@@ -704,7 +704,7 @@
         4.01,
         4.49
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T12:00",
@@ -736,7 +736,7 @@
         3.33,
         3.95
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T13:00",
@@ -768,7 +768,7 @@
         3.64,
         3.94
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T14:00",
@@ -800,7 +800,7 @@
         4.65,
         5.2
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T15:00",
@@ -832,7 +832,7 @@
         5.34,
         5.79
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T16:00",
@@ -864,7 +864,7 @@
         5.23,
         5.72
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T17:00",
@@ -896,7 +896,7 @@
         5.17,
         5.47
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T18:00",
@@ -928,7 +928,7 @@
         5.14,
         5.39
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T19:00",
@@ -960,7 +960,7 @@
         5.27,
         5.34
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T20:00",
@@ -992,7 +992,7 @@
         5.15,
         5.53
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T21:00",
@@ -1024,7 +1024,7 @@
         4.95,
         5.13
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T22:00",
@@ -1056,7 +1056,7 @@
         4.6,
         4.84
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-04T23:00",
@@ -1088,7 +1088,7 @@
         3.7,
         3.89
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     },
     {
       "time": "2026-11-05T00:00",
@@ -1120,20 +1120,14 @@
         2.99,
         3.31
       ],
-      "source_cycle": "2026-11-03T02:00:00+00:00"
+      "source_cycle": "2026-11-03T15:00:00+00:00"
     }
   ],
   "errors": [
     "16Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t16z.wrfsfcf00.grib2.idx",
     "16Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t16z.wrfsfcf01.grib2.idx",
     "16Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t16z.wrfsfcf02.grib2.idx",
-    "16Z f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t16z.wrfsfcf03.grib2.idx",
-    "f16 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t15z.wrfsfcf16.grib2.idx",
-    "f17 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t15z.wrfsfcf17.grib2.idx",
-    "f18 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t15z.wrfsfcf18.grib2.idx",
-    "f16 wind: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t15z.wrfsfcf16.grib2.idx",
-    "f17 wind: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t15z.wrfsfcf17.grib2.idx",
-    "f18 wind: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t15z.wrfsfcf18.grib2.idx"
+    "16Z f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261103/conus/hrrr.t16z.wrfsfcf03.grib2.idx"
   ],
   "coverage_policy": "latest available value for each valid hour; source_cycle per hour"
 }
