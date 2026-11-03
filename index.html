@@ -1345,33 +1345,6 @@ const overlayInfo=document.getElementById('cu-overlay-info');
  }
 
 
- // Composite of ALL visible feeder curves (4 model + 2 derived).
- // Not an independent multi-model consensus; derived curves share HRRR inputs.
- const compositeSources=[g,n,h,rrfs,
-   times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),
-   times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))];
- const compositeRows=times.map(t=>{
-  const members=compositeSources.map(rows=>rows.find(r=>r.time===t)?.forecastFeeders);
-  const valid=members.filter(Number.isFinite);
-  return valid.length>=2?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,
-   modelCount:valid.length,values:members}:null;
- }).filter(Boolean);
- window.cuMainModelAverage=compositeRows;
- window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,
-  qualified:compositeSources[4],integrated:compositeSources[5]};
- // Draw the six-curve composite over the old four-model average.
- if(compositeRows.length){
-  ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4;ctx.setLineDash([]);
-  ctx.beginPath();let active=false,prev=-2;
-  compositeRows.forEach(r=>{
-   const i=times.indexOf(r.time);
-   if(i!==prev+1)active=false;
-   if(!active)ctx.moveTo(x(i),y(r.forecastFeeders));
-   else ctx.lineTo(x(i),y(r.forecastFeeders));
-   active=true;prev=i;
-  });
-  ctx.stroke();ctx.restore();
- }
  const qCount=qImpact.filter(Number.isFinite).length;
  const qPeak=qImpact.filter(Number.isFinite).length?Math.max(...qImpact.filter(Number.isFinite)):null;
 
@@ -1494,6 +1467,17 @@ const overlayInfo=document.getElementById('cu-overlay-info');
     ctx.save();ctx.fillStyle='#aebfc9';ctx.font='9px Segoe UI,Arial';ctx.textAlign='left';
     ctx.fillText('HRRR REFLECTIVITY UNAVAILABLE / STALE',L+8,top+laneHeight-3);ctx.restore();
    }
+  }
+  // Independent decoded NOAA wind coverage. The HRRR reflectivity forecast can
+  // end earlier; cyan top edge marks WIND hours without inventing REFC values.
+  if(id==='hrrr'){
+   const windHours=new Set(h.filter(r=>Number.isFinite(r.forecastFeeders)).map(r=>String(r.time).slice(0,13)));
+   times.forEach((t,i)=>{
+    if(!windHours.has(t.slice(0,13)))return;
+    const xx=Math.max(L,x(i)-step/2),right=Math.min(L+PW,x(i)+step/2);
+    ctx.fillStyle='#62d8f0';ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),3);
+   });
+   window.cuHRRRBarCoverage={windHours:windHours.size,reflectivityHours:(hrrrAudit?.unique||[]).length};
   }
   // A single number per contiguous colored segment keeps hourly data legible.
   for(let i=0;i<=ratings.length;i++){
@@ -3244,7 +3228,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3279,6 +3263,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3541,7 +3526,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    } catch(e){console.warn('RRFS reflectivity unavailable',e)}
    const convective=reflectivity.filter(r=>['gfs','nam','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
-     const local=Number(r.zones?.springfield_area);
+     const local=r.zones?.springfield_area==null?NaN:Number(r.zones.springfield_area);
      const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
      const dbz=Number.isFinite(local)?local:site;
      return {time,model:String(r.model).toLowerCase(),dbz};
@@ -3560,7 +3545,16 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
    const shadeHours=[...new Set(convective.filter(x=>Number.isFinite(x.dbz)&&x.dbz>=35).map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
-   window.cuLocalConvectiveShadeHours=shadeHours.map(t=>new Date(t).toISOString().slice(0,13));
+   const shadeEvidence={};
+   for(const item of convective){
+    const key=new Date(item.time).toISOString().slice(0,13);
+    const row=shadeEvidence[key]||{maxDbz:-10,models:[]};
+    row.maxDbz=Math.max(row.maxDbz,item.dbz);
+    if(!row.models.includes(item.model))row.models.push(item.model);
+    shadeEvidence[key]=row;
+   }
+   window.cuLocalConvectiveShadeEvidence=shadeEvidence;
+   window.cuLocalConvectiveShadeHours=Object.keys(shadeEvidence).sort();
    if(typeof window.drawForecast==='function')window.drawForecast();
    const convectivePanel='<div style="margin-top:12px"><strong>Convective reflectivity screening</strong><div style="font-size:12px;color:#c0d0d9">Local Springfield-area reflectivity ≥35 dBZ at the forecast valid hour. Regional storms outside the service area do not count. This flags possible convective exposure but does not yet assign additional feeder outages.</div>'+(activeWindows.length?'<div style="margin-top:6px;color:#ffbd74">Potential local convection: '+activeWindows.length+' forecast hours; '+activeWindows.filter(x=>x.convective_models.length>=2).length+' supported by 2+ models.</div>':'<div style="margin-top:6px;color:#a9c8d3">No local ≥35 dBZ convective signal in the available model forecasts.</div>')+'<div style="font-size:12px;color:#c0d0d9;margin-top:5px">Convective feeder adjustment: not calibrated (0 added). No double-counting.</div></div>';
    const convectivePoints=activeWindows.map(x=>({time:Date.parse(String(x.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?x.time:String(x.time)+'Z'),value:x.estimated_feeders,color:'#ff9a36'}));
@@ -3851,6 +3845,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3878,6 +3873,31 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
