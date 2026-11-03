@@ -1040,7 +1040,7 @@ diagnostic=r"""
    const matches=found.length===row.modelCount&&Number.isFinite(computed)&&Math.abs(computed-row.forecastFeeders)<0.001;
    return '<tr><td>'+row.time.replace('T',' ')+'Z</td>'+vals.map(v=>'<td>'+fmt(v)+'</td>').join('')+'<td>'+row.modelCount+'</td><td>'+fmt(row.forecastFeeders)+'</td><td>'+(found.length===0?'INPUTS UNAVAILABLE':matches?'MATCH':'CHECK INPUTS')+'</td></tr>';
   }).join('');
-  host.innerHTML='<summary style="cursor:pointer;font-weight:700">Model average audit · '+rows.length+' hourly points · peak '+fmt(peak.forecastFeeders)+' feeders · '+peak.modelCount+' models</summary><div style="overflow-x:auto;margin-top:8px"><table style="border-collapse:collapse;white-space:nowrap;width:100%;text-align:right"><thead><tr>'+['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean','Check'].map(h=>'<th style="padding:5px;border-bottom:1px solid #526a7a">'+h+'</th>').join('')+'</tr></thead><tbody>'+trs+'</tbody></table></div><p>Missing model hours are excluded, not zero. A CHECK INPUTS result means the diagnostic could not recover exactly the same source rows as the chart; it does not imply the mean is wrong.</p>';
+  host.innerHTML='<summary style="cursor:pointer;font-weight:700">Model average audit · '+rows.length+' hourly points · peak '+fmt(peak.forecastFeeders)+' feeders · '+peak.modelCount+' models</summary><div style="overflow-x:auto;margin-top:8px"><table style="border-collapse:collapse;white-space:nowrap;width:100%;text-align:right"><thead><tr>'+['UTC hour','GFS','NAM','HRRR','RRFS','Count','Plotted mean','Check'].map(h=>'<th style="padding:5px;border-bottom:1px solid #526a7a">'+h+'</th>').join('')+'</tr></thead><tbody>'+trs+'</tbody></table></div><p>Average = sum of available GFS, NAM, HRRR, RRFS, qualified and integrated feeder-curve values ÷ available input count. A genuine modeled zero counts, while unavailable values are excluded. Qualified and integrated curves share HRRR information, so this is a display average, not an independent-model ensemble.</p>';
  }
  setInterval(render,2500);window.addEventListener('load',render);
 })();
@@ -1503,6 +1503,24 @@ if 'window.cuAverageSourceRows=' not in six_existing:
       " window.cuMainModelAverage=sixRows;\n window.cuAverageSourceRows={gfs:g,nam:n,hrrr:h,rrfs:rrfs,qualified:times.map((t,i)=>({time:t,forecastFeeders:qImpact[i]})),integrated:times.map((t,i)=>({time:t,forecastFeeders:qIntegrated[i]}))};")
 html=html[:six_begin]+six_existing+html[six_end:]
 print('Verified one available source is sufficient for six-curve mean')
+
+# Retire the original four-model magenta paint. Its earlier drawing competed
+# with the six-input magenta line and made the result visually ambiguous.
+chart_start=html.find('function drawForecast(){')
+chart_end=html.find(' const qImpact=times.map(',chart_start)
+if chart_start<0 or chart_end<chart_start:
+    raise SystemExit('ERROR: mean chart draw boundaries missing')
+pre=html[chart_start:chart_end]
+legacy="for(const segment of segments){"
+if legacy in pre:
+    pre=pre.replace(legacy,"for(const segment of [] /* legacy four-model magenta overlay retired */){",1)
+    html=html[:chart_start]+pre+html[chart_end:]
+    print('Retired legacy wind-only magenta paint; six-curve overlay is authoritative')
+elif 'legacy four-model magenta overlay retired' not in pre:
+    raise SystemExit('ERROR: legacy four-model magenta plot not found')
+# Audit the exact six numbers used for the line, not a separate requery.
+if "window.cuSixCurveCoverage=" not in html:
+    raise SystemExit('ERROR: six-source calculation missing')
 
 # Correct audit member names, counts, and display from the actual rows.
 html=html.replace("const vals=datasets.map(([,set])=>value(set,row.time));",
