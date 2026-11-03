@@ -1329,7 +1329,7 @@ function drawForecast(){
  plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);
  // Display mean of four model curves and two derived convective curves.
  // Derived curves are correlated; this is not independent-model consensus.
- const sixHourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null}; const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[sixHourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));
+ const sixHourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null}; const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[sixHourKey(r.time),r.forecastFeeders]).filter(([k,v])=>k&&Number.isFinite(v))));
  const sixRows=times.map((t,i)=>{
    const vals=sixSources.map(m=>m.get(sixHourKey(t))).concat([qImpact[i],qIntegrated[i]]);
    const valid=vals.filter(Number.isFinite);
@@ -1350,6 +1350,7 @@ function drawForecast(){
   }
   ctx.stroke();ctx.restore();
  }
+
 
 
 
@@ -3255,7 +3256,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3290,6 +3291,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3898,6 +3900,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3925,6 +3928,33 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
