@@ -1723,7 +1723,8 @@ noaa_bridge=r"""
     const cycle=parse(r.source_cycle||r.cycle);
     const local=r.zones?.springfield_area==null?NaN:Number(r.zones.springfield_area);
     const sites=Array.isArray(r.site_dbz)?r.site_dbz.map(Number).filter(Number.isFinite):[];
-    const dbz=Number.isFinite(local)?local:(sites.length?Math.max(...sites):NaN);
+    // RRFS uses the documented CU twelve-site sample; regional maxima are not local.
+    const dbz=Number.isFinite(local)?local:(model==='rrfs'&&sites.length?Math.max(...sites):NaN);
     if(!Number.isFinite(dbz))continue;
     const key=model+'|'+new Date(valid).toISOString().slice(0,13);
     const prior=best.get(key);
@@ -1770,9 +1771,10 @@ shade_candidates=[html.find(tag,main_begin) for tag in (
  ' // Hourly model-derived environmental ingredient shading')]
 shade_candidates=[i for i in shade_candidates if i>=0]
 shade_end=html.find("const overlayInfo=document.getElementById('cu-overlay-info')",main_begin)
-if not shade_candidates or shade_end<0 or min(shade_candidates)>=shade_end:
-    raise SystemExit('ERROR: main canvas shade block missing; refuse stale shading')
-shade_begin=min(shade_candidates)
+if shade_end<0:
+    raise SystemExit('ERROR: main canvas overlay anchor missing; refuse unsafe edit')
+# Idempotent installation: prior builds may have removed the legacy shade block.
+shade_begin=min(shade_candidates) if shade_candidates and min(shade_candidates)<shade_end else shade_end
 new_shading=r""" // Verified local reflectivity shading, exactly one cell per forecast hour.
  const localShade=window.cuLocalConvectiveShadeEvidence||{};
  const shadeCounts={local:0,unavailable:0};
