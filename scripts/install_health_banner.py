@@ -1412,17 +1412,11 @@ six_js=r"""
 """
 if six_anchor not in html:
     raise SystemExit('ERROR: actual six-curve renderer anchor missing')
-# Remove the earlier six-curve block and place it at the END of the chart paint
-# sequence. Later canvas painting had been covering the initially visible lines.
-if six_js in html:
-    html=html.replace(six_js,'',1)
-late_anchor="const overlayInfo=document.getElementById"
-chart_at=html.find('function drawForecast(){')
-late_at=html.find(late_anchor,chart_at)
-if late_at<0:
-    raise SystemExit('ERROR: chart final paint anchor missing')
-html=html[:late_at]+'{\n'+six_js+'\n}\n '+html[late_at:]
-print('Installed six-curve final paint after all other chart drawing')
+if six_anchor not in html:
+    raise SystemExit('ERROR: actual six-curve renderer anchor missing')
+if 'window.cuSixCurveCoverage=' not in html:
+    html=html.replace(six_anchor,six_anchor+six_js,1)
+    print('Installed six-curve calculation after qualified curves')
 # Correct audit member names, counts, and display from the actual rows.
 html=html.replace("const vals=datasets.map(([,set])=>value(set,row.time));",
                   "const vals=Array.isArray(row.values)?row.values:datasets.map(([,set])=>value(set,row.time));")
