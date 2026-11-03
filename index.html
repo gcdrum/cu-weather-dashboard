@@ -1355,6 +1355,7 @@ function drawForecast(){
 
 
 
+
  const qCount=qImpact.filter(Number.isFinite).length;
  const qPeak=qImpact.filter(Number.isFinite).length?Math.max(...qImpact.filter(Number.isFinite)):null;
 
@@ -3250,7 +3251,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3285,6 +3286,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3555,8 +3557,10 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    const convective=reflectivity.filter(r=>['gfs','nam','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
      const local=r.zones?.springfield_area==null?NaN:Number(r.zones.springfield_area);
-     const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
-     const dbz=Number.isFinite(local)?local:site;
+     // RRFS site_dbz is sampled at the twelve documented CU-area locations.
+     // For other models do not substitute a regional maximum for missing local data.
+     const site=String(r.model).toLowerCase()==='rrfs'&&Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
+     const dbz=Number.isFinite(local)?local:(String(r.model).toLowerCase()==='rrfs'?site:NaN);
      return {time,model:String(r.model).toLowerCase(),dbz};
    }).filter(r=>Number.isFinite(r.time)&&r.time>=Date.now()-3600000&&r.dbz>=35);
    const convectiveWindows=consensus.map(row=>{
@@ -3573,14 +3577,21 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
    // Shading must use actual local reflectivity valid hours, not gust-model consensus hours.
    const shadeHours=[...new Set(convective.filter(x=>Number.isFinite(x.dbz)&&x.dbz>=35).map(x=>x.time))].sort((a,b)=>a-b);
    const shadeBands=shadeHours.map(t=>({start:t-30*60000,end:t+30*60000}));
+   // Build the local storm timeline directly from REFC valid hours. It must not
+   // depend on gust forecast coverage, which may be incomplete for HRRR/RRFS.
    const shadeEvidence={};
    for(const item of convective){
     const key=new Date(item.time).toISOString().slice(0,13);
-    const row=shadeEvidence[key]||{maxDbz:-10,models:[]};
+    const row=shadeEvidence[key]||{maxDbz:-10,models:[],modelDbz:{}};
+    // Keep the strongest valid CU-area sample for each model at this hour.
+    row.modelDbz[item.model]=Math.max(row.modelDbz[item.model]??-10,item.dbz);
     row.maxDbz=Math.max(row.maxDbz,item.dbz);
     if(!row.models.includes(item.model))row.models.push(item.model);
     shadeEvidence[key]=row;
    }
+   window.cuIndependentConvectiveHours=Object.entries(shadeEvidence)
+     .sort(([a],[b])=>a.localeCompare(b))
+     .map(([hour,e])=>({time:hour+':00:00Z',maxDbz:e.maxDbz,models:e.models.slice(),modelDbz:{...e.modelDbz},classification:e.models.length>=2?'MULTI_MODEL':'SINGLE_MODEL'}));
    window.cuLocalConvectiveShadeEvidence=shadeEvidence;
    window.cuLocalConvectiveShadeHours=Object.keys(shadeEvidence).sort();
    if(typeof window.drawForecast==='function')window.drawForecast();
@@ -3880,6 +3891,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3907,6 +3919,33 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5031,7 +5070,8 @@ window.cuLightningDensityForecasts=[];
     const cycle=parse(r.source_cycle||r.cycle);
     const local=r.zones?.springfield_area==null?NaN:Number(r.zones.springfield_area);
     const sites=Array.isArray(r.site_dbz)?r.site_dbz.map(Number).filter(Number.isFinite):[];
-    const dbz=Number.isFinite(local)?local:(sites.length?Math.max(...sites):NaN);
+    // RRFS uses the documented CU twelve-site sample; regional maxima are not local.
+    const dbz=Number.isFinite(local)?local:(model==='rrfs'&&sites.length?Math.max(...sites):NaN);
     if(!Number.isFinite(dbz))continue;
     const key=model+'|'+new Date(valid).toISOString().slice(0,13);
     const prior=best.get(key);
