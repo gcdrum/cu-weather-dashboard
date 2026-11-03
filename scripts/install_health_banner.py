@@ -1389,7 +1389,15 @@ six_js=r"""
  }).filter(Boolean);
  window.cuMainModelAverage=sixRows;
  window.cuSixCurveCoverage={hours:sixRows.length,qualified:qImpact.filter(Number.isFinite).length,integrated:qIntegrated.filter(Number.isFinite).length};
- // Paint after all six ingredients have been evaluated.
+ // Restore all individual curves on EVERY redraw after late data loads.
+ // Do not let the ensemble overlay obscure or replace the model traces.
+ if(g.length)plot(g,'#a6b3bc',[3,5]);
+ if(n.length)plot(n,'#62a7ff',[3,5]);
+ if(h.length)plot(h,'#ff9f43',[3,5]);
+ if(rrfs.length)plot(rrfs,'#d7a6ff',[3,5]);
+ plotQualifiedArray(qImpact,'#55dba0',[5,4],2.5);
+ plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],2.5);
+ // Paint the six-input average last.
  if(sixRows.length){
   ctx.save();ctx.strokeStyle='#ff35cb';ctx.lineWidth=4.5;ctx.setLineDash([]);ctx.beginPath();
   let previous=-2;
