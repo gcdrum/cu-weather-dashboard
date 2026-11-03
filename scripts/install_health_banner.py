@@ -1468,20 +1468,9 @@ html=html.replace("if($('rrfs-cycle')&&$('rrfs-hour'))links();",
 print('Patched three observed browser exception sites')
 
 
-# Feed direct NOAA HRRR hourly gust samples into the existing main chart,
-# rather than depending on the legacy API series.
-chart_start=html.find('function drawForecast(){')
-chart_end=html.find(' if(!g.length&&!h.length&&!n.length&&!rrfs.length)return;',chart_start)
-if chart_start<0 or chart_end<chart_start:
-    raise RuntimeError('HRRR chart source boundary not found')
-chart_block=html[chart_start:chart_end]
-chart_block,count=re.subn(r'\bconst\s+h\s*=', 'let h=',chart_block,count=1)
-if count!=1:
-    raise RuntimeError('HRRR main chart variable declaration not found')
-chart_block += """
- if(window.cuHRRRHourlyFeeders?.length)h=window.cuHRRRHourlyFeeders;
-"""
-html=html[:chart_start]+chart_block+html[chart_end:]
+# The legacy chart's HRRR declaration is not in the assumed boundary.
+# Do not abort all NOAA publication while investigating its actual renderer.
+# Keep the direct NOAA hourly feed available without mutating an unknown binding.
 hrrr_script=r"""
 <script id="cu-direct-hrrr-hourly-chart">
 (()=>{
