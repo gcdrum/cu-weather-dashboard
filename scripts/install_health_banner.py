@@ -186,8 +186,10 @@ snippet = r"""
    const convective=reflectivity.filter(r=>['gfs','nam','hrrr','rrfs'].includes(String(r.model).toLowerCase())).map(r=>{
      const time=Date.parse(String(r.time).match(/(?:Z|[+-]\\d{2}:\\d{2})$/i)?r.time:String(r.time)+'Z');
      const local=r.zones?.springfield_area==null?NaN:Number(r.zones.springfield_area);
-     const site=Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
-     const dbz=Number.isFinite(local)?local:site;
+     // RRFS site_dbz is sampled at the twelve documented CU-area locations.
+     // For other models do not substitute a regional maximum for missing local data.
+     const site=String(r.model).toLowerCase()==='rrfs'&&Array.isArray(r.site_dbz)?Math.max(-10,...r.site_dbz.filter(Number.isFinite)):-10;
+     const dbz=Number.isFinite(local)?local:(String(r.model).toLowerCase()==='rrfs'?site:NaN);
      return {time,model:String(r.model).toLowerCase(),dbz};
    }).filter(r=>Number.isFinite(r.time)&&r.time>=Date.now()-3600000&&r.dbz>=35);
    const convectiveWindows=consensus.map(row=>{
