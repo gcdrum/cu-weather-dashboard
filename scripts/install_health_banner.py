@@ -498,7 +498,7 @@ if 'cuMultiModelStormCorroborationV1' not in html:
     old=" set('Lightning',lightningHit,"
     html=html.replace(old," if(!lightningHit&&cuMultiModelStormCorroborationV1.lightning){const x=cuMultiModelStormCorroborationV1.lightning;lightningHit={ms:x.ms};lightningWhy=x.model.toUpperCase()+' numerical local and upstream reflectivity ≥35 dBZ with CAPE ≥500 J/kg (storm potential; not observed lightning)';}\n"+old,1)
     oldql=" set('QLCS',qlcs,'Organization-support screen: Possible when CAPE ≥500 J/kg and 0–6 km shear ≥30 kt. Reflectivity line structure is not diagnosed here, so this is environmental support rather than QLCS identification.');"
-    newql=" const modelLine=cuMultiModelStormCorroborationV1.qlcs;\n set('QLCS',qlcs||(modelLine?{ms:modelLine.ms}:null),'Organization-support screen: CAPE ≥500 J/kg and 0–6 km shear ≥30 kt. '+(modelLine?'Corroborating '+modelLine.model.toUpperCase()+' local/west/upstream ≥35 dBZ over adjacent forecast hours; possible organized convection, not confirmed QLCS.':'No corroborated multi-zone persistent line detected. Environmental support alone is not proof of QLCS.'));"
+    newql=" const modelLine=cuMultiModelStormCorroborationV1.qlcs;\n set('QLCS',null,'Organization-support screen: CAPE ≥500 J/kg and 0–6 km shear ≥30 kt. '+(modelLine?'Forecast supports possible organized convection ('+modelLine.model.toUpperCase()+'); QLCS not confirmed.':'No corroborated multi-zone persistent line detected. Environmental support alone is not proof of QLCS.'));"
     if oldql not in html:raise SystemExit('QLCS screening anchor missing')
     html=html.replace(oldql,newql,1)
 
