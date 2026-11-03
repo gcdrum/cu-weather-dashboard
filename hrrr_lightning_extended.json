@@ -5,20 +5,6 @@
   "status": "validation_required",
   "hours": [
     {
-      "time": "2026-11-03T02:00:00+00:00",
-      "peak_raw": 0.085,
-      "field": "LTNG/LITNG",
-      "grib_metadata": {
-        "shortName": "ltng",
-        "name": "Lightning",
-        "units": "dimensionless",
-        "stepType": "instant",
-        "stepRange": "32"
-      },
-      "units_verified": false,
-      "source_cycle": "2026-11-01T18:00:00+00:00"
-    },
-    {
       "time": "2026-11-03T03:00:00+00:00",
       "peak_raw": 0.099,
       "field": "LTNG/LITNG",
