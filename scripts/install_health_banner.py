@@ -1734,7 +1734,8 @@ noaa_bridge=r"""
    for(const r of best.values()){
     if(r.dbz<35)continue;
     const hour=new Date(r.time).toISOString().slice(0,13);
-    const state=evidence[hour]||{maxDbz:-10,models:[]};
+    const state=evidence[hour]||{maxDbz:-10,models:[],modelDbz:{}};
+    state.modelDbz[r.model]=Math.max(state.modelDbz[r.model]??-10,r.dbz);
     state.maxDbz=Math.max(state.maxDbz,r.dbz);
     if(!state.models.includes(r.model))state.models.push(r.model);
     evidence[hour]=state;
@@ -1744,6 +1745,8 @@ noaa_bridge=r"""
     shadeSignature=sig;
     window.cuLocalConvectiveShadeEvidence=evidence;
     window.cuLocalConvectiveShadeHours=Object.keys(evidence).sort();
+    window.cuIndependentConvectiveHours=Object.entries(evidence).sort(([a],[b])=>a.localeCompare(b))
+      .map(([hour,e])=>({time:hour+':00:00Z',maxDbz:e.maxDbz,models:e.models.slice(),modelDbz:{...e.modelDbz},classification:e.models.length>=2?'MULTI_MODEL':'SINGLE_MODEL'}));
     window.cuVerifiedLocalREFCHours=Object.keys(evidence).length;
     changed=true;
    }
