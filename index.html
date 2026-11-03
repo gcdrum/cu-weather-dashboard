@@ -1462,24 +1462,36 @@ const overlayInfo=document.getElementById('cu-overlay-info');
     ctx.beginPath();ctx.moveTo(edge,top-2);ctx.lineTo(edge,top+laneHeight+2);ctx.stroke();ctx.setLineDash([]);
     if(edge<L+PW-80){
      ctx.fillStyle='#8b9ba5';ctx.font='9px Segoe UI,Arial';ctx.textAlign='left';
-     ctx.fillText('NO HRRR REFLECTIVITY AVAILABLE',Math.min(edge+7,L+PW-150),top+laneHeight-3);
+     ctx.fillText('REFC ENDS · WIND SCREEN CONTINUES',Math.min(edge+7,L+PW-150),top+laneHeight-3);
     }
     ctx.restore();
    }else{
     ctx.save();ctx.fillStyle='#aebfc9';ctx.font='9px Segoe UI,Arial';ctx.textAlign='left';
-    ctx.fillText('HRRR REFLECTIVITY UNAVAILABLE / STALE',L+8,top+laneHeight-3);ctx.restore();
+    ctx.fillText('REFC UNKNOWN · WIND SCREEN CONTINUES',L+8,top+laneHeight-3);ctx.restore();
    }
   }
-  // Independent decoded NOAA wind coverage. The HRRR reflectivity forecast can
-  // end earlier; cyan top edge marks WIND hours without inventing REFC values.
+  // HRRR operational bar combines decoded wind with the existing REFC screen.
+  // Missing reflectivity is not missing wind. Retain strongest REFC storm signals.
   if(id==='hrrr'){
-   const windHours=new Set(h.filter(r=>Number.isFinite(r.forecastFeeders)).map(r=>String(r.time).slice(0,13)));
+   const windByHour=new Map(h.filter(r=>Number.isFinite(r.forecastFeeders)).map(r=>[String(r.time).slice(0,13),r]));
+   let gustThreatHours=0;
    times.forEach((t,i)=>{
-    if(!windHours.has(t.slice(0,13)))return;
+    const row=windByHour.get(t.slice(0,13));if(!row)return;
+    const mph=Number(row.max);
     const xx=Math.max(L,x(i)-step/2),right=Math.min(L+PW,x(i)+step/2);
+    const item=v112?.[i],existing=item?.kind;
+    if(Number.isFinite(mph)&&mph>=30){
+     // Wind grades: 30-39 possible, 40-49 elevated, 50-59 likely, 60+ extreme.
+     // Do not overwrite local-convection or west-watch reflectivity evidence.
+     if(existing!=='local-convection'&&existing!=='west-watch'){
+      ctx.fillStyle=mph>=60?'#d54a40':mph>=50?'#e78528':mph>=40?'#e0a53b':'#397c9b';
+      ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),laneHeight);
+     }
+     gustThreatHours++;
+    }
     ctx.fillStyle='#62d8f0';ctx.fillRect(xx,top,Math.max(1,right-xx+0.4),3);
    });
-   window.cuHRRRBarCoverage={windHours:windHours.size,reflectivityHours:(hrrrAudit?.unique||[]).length};
+   window.cuHRRRBarCoverage={windHours:windByHour.size,reflectivityHours:(hrrrAudit?.unique||[]).length,gustThreatHours};
   }
   // A single number per contiguous colored segment keeps hourly data legible.
   for(let i=0;i<=ratings.length;i++){
