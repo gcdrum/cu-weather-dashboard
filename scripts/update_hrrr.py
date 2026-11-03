@@ -231,6 +231,7 @@ def main():
     target_start=(hour+timedelta(days=1)).replace(hour=7)
     target_end=(hour+timedelta(days=1)).replace(hour=14)
     missing.sort(key=lambda lead:(0 if target_start<=chosen+timedelta(hours=lead)<=target_end else 1,lead))
+    # Try the prioritized leads, but do not let one unpublished hour block the cycle.
     for lead in missing[:18]:
         try:
             bylead[lead]=process_reflectivity(chosen,lead)
@@ -238,8 +239,8 @@ def main():
         except Exception as exc:
             errors.append(f'f{lead:02d} REFC: {exc}')
             print('WARNING',errors[-1],flush=True)
-            # NOAA often publishes sequentially; do not spend this run probing every later hour.
-            break
+            # Individual forecast hours can be delayed or absent; try the next lead.
+            continue
     records=[bylead[k] for k in sorted(bylead)]
     atomic_json(candidate_path,{'cycle':chosen.isoformat(),'updated':now.isoformat(),'records':records})
     # Merge atomically, preserving GFS and never replacing newer/same-cycle coverage with less.
@@ -281,15 +282,19 @@ def main():
     storm_start=(hour+timedelta(days=1)).replace(hour=7)
     storm_end=(hour+timedelta(days=1)).replace(hour=13)
     wind_leads=sorted(missing_wind,key=lambda lead:(0 if storm_start<=chosen+timedelta(hours=lead)<=storm_end else 1,lead))
-    for lead in wind_leads[:12]:
+    # Probe additional leads when a preferred storm-window hour is unavailable.
+    wind_successes=0
+    for lead in wind_leads:
         try:
             _,wind=process(chosen,lead)
             wind_hours[wind['time']]=wind
+            wind_successes+=1
             print(f'HRRR {chosen:%HZ} f{lead:02d}: 12-site wind decoded',flush=True)
+            if wind_successes>=12: break
         except Exception as exc:
             errors.append(f'f{lead:02d} wind: {exc}')
             print('WARNING',errors[-1],flush=True)
-            break
+            continue
     if wind_hours:
         atomic_json('hrrr_pending.json',{'model':'hrrr','cycle':chosen.isoformat(),
             'updated':now.isoformat(),'hours':[wind_hours[k] for k in sorted(wind_hours)]})
