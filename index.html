@@ -1356,6 +1356,7 @@ function drawForecast(){
 
 
 
+
  const qCount=qImpact.filter(Number.isFinite).length;
  const qPeak=qImpact.filter(Number.isFinite).length?Math.max(...qImpact.filter(Number.isFinite)):null;
 
@@ -3251,7 +3252,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3286,6 +3287,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3892,6 +3894,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3919,6 +3922,33 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5081,7 +5111,8 @@ window.cuLightningDensityForecasts=[];
    for(const r of best.values()){
     if(r.dbz<35)continue;
     const hour=new Date(r.time).toISOString().slice(0,13);
-    const state=evidence[hour]||{maxDbz:-10,models:[]};
+    const state=evidence[hour]||{maxDbz:-10,models:[],modelDbz:{}};
+    state.modelDbz[r.model]=Math.max(state.modelDbz[r.model]??-10,r.dbz);
     state.maxDbz=Math.max(state.maxDbz,r.dbz);
     if(!state.models.includes(r.model))state.models.push(r.model);
     evidence[hour]=state;
@@ -5091,6 +5122,8 @@ window.cuLightningDensityForecasts=[];
     shadeSignature=sig;
     window.cuLocalConvectiveShadeEvidence=evidence;
     window.cuLocalConvectiveShadeHours=Object.keys(evidence).sort();
+    window.cuIndependentConvectiveHours=Object.entries(evidence).sort(([a],[b])=>a.localeCompare(b))
+      .map(([hour,e])=>({time:hour+':00:00Z',maxDbz:e.maxDbz,models:e.models.slice(),modelDbz:{...e.modelDbz},classification:e.models.length>=2?'MULTI_MODEL':'SINGLE_MODEL'}));
     window.cuVerifiedLocalREFCHours=Object.keys(evidence).length;
     changed=true;
    }
