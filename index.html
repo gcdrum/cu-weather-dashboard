@@ -1128,7 +1128,10 @@ function drawForecast(){
  const shadeCounts={local:0,unavailable:0};
  if(window.cuShowIngredientOverlay!==false){
   times.forEach((t,i)=>{
-   const e=localShade[t.slice(0,13)];
+   const raw=String(t||'');
+   const parsed=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');
+   const hour=Number.isFinite(parsed)?new Date(parsed).toISOString().slice(0,13):null;
+   const e=hour?localShade[hour]:null;
    if(!e||!Number.isFinite(e.maxDbz)||e.maxDbz<35)return;
    const dx=PW/(times.length-1);
    const left=Math.max(L,x(i)-dx/2),right=Math.min(W-R,x(i)+dx/2);
@@ -1326,9 +1329,9 @@ function drawForecast(){
  plotQualifiedArray(qIntegrated,'#ff9f43',[8,4],3.5);
  // Display mean of four model curves and two derived convective curves.
  // Derived curves are correlated; this is not independent-model consensus.
- const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[String(r.time).slice(0,16),r.forecastFeeders])));
+ const sixHourKey=v=>{const raw=String(v||'');const ms=Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?new Date(ms).toISOString().slice(0,13):null}; const sixSources=[g,n,h,rrfs].map(rows=>new Map(rows.map(r=>[sixHourKey(r.time),Number(r.forecastFeeders)]).filter(([k,v])=>k&&Number.isFinite(v))));
  const sixRows=times.map((t,i)=>{
-   const vals=sixSources.map(m=>m.get(String(t).slice(0,16))).concat([qImpact[i],qIntegrated[i]]);
+   const vals=sixSources.map(m=>m.get(sixHourKey(t))).concat([qImpact[i],qIntegrated[i]]);
    const valid=vals.filter(Number.isFinite);
    return valid.length?{time:t,forecastFeeders:valid.reduce((a,b)=>a+b,0)/valid.length,modelCount:valid.length,values:vals}:null;
  }).filter(Boolean);
