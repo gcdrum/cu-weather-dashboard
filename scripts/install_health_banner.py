@@ -1642,5 +1642,114 @@ hrrr_script=r"""
 html=re.sub(r'<script id="cu-direct-hrrr-hourly-chart">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',hrrr_script+'</body>',1)
 
+# NOAA GFS/NAM are published in model_winds.json. The browser's earlier
+# Open-Meteo cache may be empty even after render; wire decoded data directly.
+chart_begin=html.find('function drawForecast(){')
+chart_boundary=html.find(' const hourKey=v=>',chart_begin)
+old_source="const g=cache.gfs?.rows||[],h=(window.cuNOAAHRRRFeeders?.length?window.cuNOAAHRRRFeeders:cache.hrrr?.rows||[]),n=cache.nam?.rows||[];"
+new_source="const g=(window.cuNOAAGFSFeeders?.length?window.cuNOAAGFSFeeders:cache.gfs?.rows||[]),h=(window.cuNOAAHRRRFeeders?.length?window.cuNOAAHRRRFeeders:cache.hrrr?.rows||[]),n=(window.cuNOAANAMFeeders?.length?window.cuNOAANAMFeeders:cache.nam?.rows||[]);"
+if chart_begin<0 or chart_boundary<chart_begin:
+    raise SystemExit('ERROR: NOAA source chart boundary missing')
+head=html[chart_begin:chart_boundary]
+if old_source in head:
+    html=html[:chart_begin]+head.replace(old_source,new_source,1)+html[chart_boundary:]
+elif new_source not in head:
+    raise SystemExit('ERROR: unexpected GFS/NAM chart source; refusing unsafe edit')
+
+# Independently refresh the model-sourced GFS/NAM feeder rows and the local
+# reflectivity evidence. Keep the previous successfully decoded rows on errors.
+noaa_bridge=r"""
+<script id="cu-noaa-wind-and-local-refc-bridge">
+(()=>{
+ const parse=t=>{const raw=String(t||'');const ms=Date.parse(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw)?raw:raw+'Z');return Number.isFinite(ms)?ms:NaN};
+ const convert=mph=>{const x=Math.max(0,(mph-15)/5);return Math.max(0,0.2431*(Math.exp(0.5216*x)-1))};
+ let windSignature='',shadeSignature='',busy=false;
+ async function json(file){
+   const response=await fetch('./'+file+'?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)throw Error(file+' HTTP '+response.status);
+   return response.json();
+ }
+ async function refresh(){
+  if(busy)return;busy=true;let changed=false;
+  try{
+   const data=await json('model_winds.json');
+   const signatures=[];
+   for(const [key,prop] of [['gfs','cuNOAAGFSFeeders'],['nam','cuNOAANAMFeeders']]){
+    const model=data?.models?.[key];
+    if(!Array.isArray(model?.hours)||!model.hours.length)continue;
+    const rows=model.hours.map(hour=>{
+     const ms=parse(hour.time);
+     const mph=Array.isArray(hour.gust_mph)?hour.gust_mph.map(Number).filter(Number.isFinite):[];
+     if(!Number.isFinite(ms)||mph.length<6)return null;
+     return {time:new Date(ms).toISOString().slice(0,13)+':00',
+       forecastFeeders:mph.reduce((sum,v)=>sum+convert(v),0)/mph.length,
+       max:Math.max(...mph),mean:mph.reduce((a,b)=>a+b,0)/mph.length,
+       count:mph.length,source:'NOAA '+key.toUpperCase(),cycle:model.cycle};
+    }).filter(Boolean);
+    if(!rows.length)continue;
+    const sig=key+'|'+String(model.cycle)+'|'+rows.length+'|'+rows.map(r=>r.time+':'+r.forecastFeeders.toFixed(3)).join(',');
+    signatures.push(sig);
+    if(window[prop]?.length!==rows.length||window['__'+prop+'Signature']!==sig){
+      window[prop]=rows;
+      window['__'+prop+'Signature']=sig;
+      changed=true;
+    }
+   }
+   windSignature=signatures.join('|');
+  }catch(e){console.warn('NOAA GFS/NAM chart source',e)}
+  try{
+   const raw=await json('reflectivity.json');
+   const reflectivity=Array.isArray(raw)?raw:[];
+   try{
+    const rrfs=await json('rrfs_reflectivity.json');
+    if(Array.isArray(rrfs?.hours))for(const hour of rrfs.hours){
+     reflectivity.push({...hour,model:'rrfs'});
+    }
+   }catch(e){console.warn('RRFS local REFC',e)}
+   const best=new Map();
+   for(const r of reflectivity){
+    const model=String(r.model||'').toLowerCase();
+    if(!['gfs','nam','hrrr','rrfs'].includes(model))continue;
+    const valid=parse(r.time);if(!Number.isFinite(valid))continue;
+    const cycle=parse(r.source_cycle||r.cycle);
+    const local=r.zones?.springfield_area==null?NaN:Number(r.zones.springfield_area);
+    const sites=Array.isArray(r.site_dbz)?r.site_dbz.map(Number).filter(Number.isFinite):[];
+    const dbz=Number.isFinite(local)?local:(sites.length?Math.max(...sites):NaN);
+    if(!Number.isFinite(dbz))continue;
+    const key=model+'|'+new Date(valid).toISOString().slice(0,13);
+    const prior=best.get(key);
+    if(!prior||(Number.isFinite(cycle)&&cycle>prior.cycle))best.set(key,{time:valid,cycle:Number.isFinite(cycle)?cycle:-1,model,dbz});
+   }
+   const evidence={};
+   for(const r of best.values()){
+    if(r.dbz<35)continue;
+    const hour=new Date(r.time).toISOString().slice(0,13);
+    const state=evidence[hour]||{maxDbz:-10,models:[]};
+    state.maxDbz=Math.max(state.maxDbz,r.dbz);
+    if(!state.models.includes(r.model))state.models.push(r.model);
+    evidence[hour]=state;
+   }
+   const sig=JSON.stringify(evidence);
+   if(sig!==shadeSignature){
+    shadeSignature=sig;
+    window.cuLocalConvectiveShadeEvidence=evidence;
+    window.cuLocalConvectiveShadeHours=Object.keys(evidence).sort();
+    window.cuVerifiedLocalREFCHours=Object.keys(evidence).length;
+    changed=true;
+   }
+  }catch(e){console.warn('Local REFC chart source',e)}
+  busy=false;
+  if(changed&&typeof window.drawForecast==='function'){
+   try{window.drawForecast()}catch(e){console.warn('NOAA chart redraw',e)}
+  }
+ }
+ window.addEventListener('load',refresh);
+ setInterval(refresh,60000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-noaa-wind-and-local-refc-bridge">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',noaa_bridge+'</body>',1)
+print('Installed direct NOAA GFS/NAM and local-REFC feeder chart bridge')
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
