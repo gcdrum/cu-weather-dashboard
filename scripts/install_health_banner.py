@@ -1842,3 +1842,62 @@ print('Corrected',fixed,'UTC offset decoder patterns in existing local storm mon
 
 path.write_text(html,encoding='utf-8')
 print('Installed model health cards and independent gust chart')
+
+
+# Ambient freezing light: current observed/analysed 2-m temperature, independent
+# of model wind/reflectivity threat classifications. Fail closed on missing data.
+freezing_light=r"""
+<script id="cu-freezing-temperature-light">
+(()=>{
+ const KEY='Ambient below 32°F';
+ let current=null,updated=0,source='';
+ function render(){
+  const anchor=document.querySelector('[data-threat-key="Extreme heat"]') ||
+               document.querySelector('[data-threat-key="Lightning"]');
+  if(!anchor)return;
+  const host=anchor.closest('.threat-row');
+  if(!host)return;
+  let row=document.getElementById('cu-freezing-temp-row');
+  if(!row){
+   row=host.cloneNode(true);
+   row.id='cu-freezing-temp-row';
+   row.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+   const heading=row.querySelector('[data-threat-key]') ||
+     [...row.querySelectorAll('*')].find(el=>el.children.length===0&&el.textContent.trim()===anchor.textContent.trim());
+   if(!heading)return;
+   heading.textContent=KEY;
+   heading.setAttribute('data-threat-key',KEY);
+   host.parentElement.insertBefore(row,host.nextSibling);
+  }
+  const status=row.querySelector('.threat-time'),dot=row.querySelector('.threat-dot');
+  const fresh=Number.isFinite(current)&&Date.now()-updated<30*60000;
+  const freezing=fresh&&current<32;
+  const label=!fresh?'WAITING':freezing?'BELOW 32°F':'BELOW THRESHOLD';
+  const color=!fresh?'#4db8ff':freezing?'#ff9b43':'#8fa4b2';
+  if(status){
+   status.textContent=label+(fresh?' · '+current.toFixed(1)+'°F':'');
+   status.dataset.status=!fresh?'waiting':freezing?'elevated':'none';
+   status.title=fresh?source+'; current 2-m air temperature at central Springfield; updated '+new Date(updated).toLocaleTimeString():'Current temperature unavailable or stale';
+   status.style.color=color;
+  }
+  if(dot){dot.dataset.status=!fresh?'waiting':freezing?'elevated':'none';dot.style.backgroundColor=color;}
+ }
+ async function update(){
+  try{
+   const url='https://api.open-meteo.com/v1/forecast?latitude=37.209&longitude=-93.292&current=temperature_2m&temperature_unit=fahrenheit&timezone=America%2FChicago';
+   const response=await fetch(url,{cache:'no-store'});
+   if(!response.ok)throw Error('temperature HTTP '+response.status);
+   const data=await response.json();
+   const value=Number(data.current?.temperature_2m);
+   if(!Number.isFinite(value)||data.current_units?.temperature_2m!=='°F')throw Error('temperature or units unavailable');
+   const validTime=Date.parse(String(data.current.time).replace(' ','T')+'-06:00');
+   current=value;updated=Date.now();source='Open-Meteo current temperature (model-derived, not station observation)';
+  }catch(e){console.warn('Ambient freezing light',e)}
+  render();
+ }
+ render();update();setInterval(update,10*60000);setInterval(render,5000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-freezing-temperature-light">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',freezing_light+'</body>',1) if '</body>' in html else html+freezing_light
