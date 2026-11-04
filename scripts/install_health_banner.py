@@ -1875,7 +1875,7 @@ freezing_light=r"""
   const extreme=fresh&&current<10;
   const severe=fresh&&current<20;
   const label=!fresh?'WAITING':extreme?'EXTREME':severe?'LIKELY':freezing?'BELOW 32°F':'BELOW THRESHOLD';
-  const color=!fresh?'#4db8ff':extreme?'#a855f7':severe?'#ef4444':freezing?'#ff9b43':'#8fa4b2';
+  const color=!fresh?'#4db8ff':extreme?'#a855f7':severe?'#ef4444':freezing?'#ff9b43':'#22c55e';
   if(status){
    status.textContent=label+(fresh?' · '+current.toFixed(1)+'°F':'');
    status.dataset.status=!fresh?'waiting':extreme?'extreme':severe?'likely':freezing?'elevated':'none';
