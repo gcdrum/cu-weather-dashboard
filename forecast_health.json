@@ -1,14 +1,14 @@
 {
-  "checked_at": "2026-11-04T02:15:35.366485+00:00",
+  "checked_at": "2026-11-04T02:24:29.970855+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
       "cycle": "2026-11-04T01:00:00+00:00",
-      "updated": "2026-11-04T02:11:57.920877+00:00",
-      "age_minutes": 3.6,
-      "hours": 12,
+      "updated": "2026-11-04T02:22:06.224328+00:00",
+      "age_minutes": 2.4,
+      "hours": 17,
       "expected_hours": 19,
-      "percent_complete": 63.2,
+      "percent_complete": 89.5,
       "state": "partial",
       "complete": false,
       "errors": [
@@ -19,11 +19,11 @@
     },
     "rrfs": {
       "cycle": "2026-11-04T00:00:00+00:00",
-      "updated": "2026-11-04T02:14:36.736250+00:00",
-      "age_minutes": 1.0,
-      "hours": 15,
+      "updated": "2026-11-04T02:24:05.829351+00:00",
+      "age_minutes": 0.4,
+      "hours": 42,
       "expected_hours": 60,
-      "percent_complete": 25.0,
+      "percent_complete": 70.0,
       "state": "partial",
       "complete": false,
       "errors": []

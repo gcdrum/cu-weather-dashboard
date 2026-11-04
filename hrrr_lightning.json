@@ -213,7 +213,12 @@
     8,
     9,
     10,
-    11
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }

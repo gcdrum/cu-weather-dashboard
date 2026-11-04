@@ -1,7 +1,7 @@
 {
   "model": "hrrr",
   "cycle": "2026-11-04T01:00:00+00:00",
-  "updated": "2026-11-04T02:11:57.920877+00:00",
+  "updated": "2026-11-04T02:22:06.224328+00:00",
   "source": "NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)",
   "points": [
     {
@@ -448,7 +448,7 @@
         3.64,
         3.94
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T14:00",
@@ -480,7 +480,7 @@
         4.65,
         5.2
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T15:00",
@@ -512,7 +512,7 @@
         5.34,
         5.79
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T16:00",
@@ -544,7 +544,7 @@
         5.23,
         5.72
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T17:00",
@@ -576,7 +576,7 @@
         5.17,
         5.47
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T18:00",
@@ -608,7 +608,7 @@
         5.14,
         5.39
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T19:00",
@@ -640,7 +640,7 @@
         5.27,
         5.34
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T20:00",
@@ -672,7 +672,7 @@
         5.15,
         5.53
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T21:00",
@@ -704,7 +704,7 @@
         4.95,
         5.13
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T22:00",
@@ -736,7 +736,7 @@
         4.6,
         4.84
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-04T23:00",
@@ -768,7 +768,7 @@
         3.7,
         3.89
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     },
     {
       "time": "2026-11-05T00:00",
@@ -800,7 +800,7 @@
         2.99,
         3.31
       ],
-      "source_cycle": "2026-11-03T15:00:00+00:00"
+      "source_cycle": "2026-11-04T01:00:00+00:00"
     }
   ],
   "errors": [
@@ -808,11 +808,6 @@
     "02Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t02z.wrfsfcf01.grib2.idx",
     "02Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t02z.wrfsfcf02.grib2.idx",
     "02Z f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t02z.wrfsfcf03.grib2.idx",
-    "f12 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t01z.wrfsfcf12.grib2.idx",
-    "f13 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t01z.wrfsfcf13.grib2.idx",
-    "f14 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t01z.wrfsfcf14.grib2.idx",
-    "f15 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t01z.wrfsfcf15.grib2.idx",
-    "f16 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t01z.wrfsfcf16.grib2.idx",
     "f17 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t01z.wrfsfcf17.grib2.idx",
     "f18 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261104/conus/hrrr.t01z.wrfsfcf18.grib2.idx",
     "extended f31 wind: No valid regional REFC grid cells"
