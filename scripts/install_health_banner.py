@@ -1872,15 +1872,17 @@ freezing_light=r"""
   const status=row.querySelector('.threat-time'),dot=row.querySelector('.threat-dot');
   const fresh=Number.isFinite(current)&&Date.now()-updated<30*60000;
   const freezing=fresh&&current<32;
-  const label=!fresh?'WAITING':freezing?'BELOW 32°F':'BELOW THRESHOLD';
-  const color=!fresh?'#4db8ff':freezing?'#ff9b43':'#8fa4b2';
+  const extreme=fresh&&current<10;
+  const severe=fresh&&current<20;
+  const label=!fresh?'WAITING':extreme?'EXTREME':severe?'LIKELY':freezing?'BELOW 32°F':'BELOW THRESHOLD';
+  const color=!fresh?'#4db8ff':extreme?'#a855f7':severe?'#ef4444':freezing?'#ff9b43':'#8fa4b2';
   if(status){
    status.textContent=label+(fresh?' · '+current.toFixed(1)+'°F':'');
-   status.dataset.status=!fresh?'waiting':freezing?'elevated':'none';
+   status.dataset.status=!fresh?'waiting':extreme?'extreme':severe?'likely':freezing?'elevated':'none';
    status.title=fresh?source+'; current 2-m air temperature at central Springfield; updated '+new Date(updated).toLocaleTimeString():'Current temperature unavailable or stale';
    status.style.color=color;
   }
-  if(dot){dot.dataset.status=!fresh?'waiting':freezing?'elevated':'none';dot.style.backgroundColor=color;}
+  if(dot){dot.dataset.status=!fresh?'waiting':extreme?'extreme':severe?'likely':freezing?'elevated':'none';dot.style.backgroundColor=color;}
  }
  async function update(){
   try{
