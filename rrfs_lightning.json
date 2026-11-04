@@ -123,7 +123,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-03T18:00:00+00:00"
+      "source_cycle": "2026-11-04T00:00:00+00:00"
     },
     {
       "time": "2026-11-04T17:00:00+00:00",
@@ -131,7 +131,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-03T18:00:00+00:00"
+      "source_cycle": "2026-11-04T00:00:00+00:00"
     },
     {
       "time": "2026-11-04T18:00:00+00:00",
@@ -139,7 +139,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-03T18:00:00+00:00"
+      "source_cycle": "2026-11-04T00:00:00+00:00"
     },
     {
       "time": "2026-11-04T19:00:00+00:00",
@@ -147,7 +147,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-03T18:00:00+00:00"
+      "source_cycle": "2026-11-04T00:00:00+00:00"
     },
     {
       "time": "2026-11-04T20:00:00+00:00",
@@ -155,7 +155,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-03T18:00:00+00:00"
+      "source_cycle": "2026-11-04T00:00:00+00:00"
     },
     {
       "time": "2026-11-04T21:00:00+00:00",
@@ -163,7 +163,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-03T18:00:00+00:00"
+      "source_cycle": "2026-11-04T00:00:00+00:00"
     },
     {
       "time": "2026-11-04T22:00:00+00:00",
@@ -179,7 +179,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-03T18:00:00+00:00"
+      "source_cycle": "2026-11-04T00:00:00+00:00"
     },
     {
       "time": "2026-11-05T00:00:00+00:00",
