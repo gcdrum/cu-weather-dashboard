@@ -1378,6 +1378,7 @@ function drawForecast(){
 
 
 
+
  const qCount=qImpact.filter(Number.isFinite).length;
  const qPeak=qImpact.filter(Number.isFinite).length?Math.max(...qImpact.filter(Number.isFinite)):null;
 
@@ -3273,7 +3274,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3308,6 +3309,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -3952,6 +3954,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -3979,6 +3982,33 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
