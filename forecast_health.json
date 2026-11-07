@@ -1,29 +1,29 @@
 {
-  "checked_at": "2026-11-07T10:26:44.669123+00:00",
+  "checked_at": "2026-11-07T16:38:44.902045+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-07T09:00:00+00:00",
-      "updated": "2026-11-07T10:25:17.773163+00:00",
-      "age_minutes": 1.4,
-      "hours": 12,
+      "cycle": "2026-11-07T15:00:00+00:00",
+      "updated": "2026-11-07T16:37:00.477083+00:00",
+      "age_minutes": 1.7,
+      "hours": 3,
       "expected_hours": 19,
-      "percent_complete": 63.2,
+      "percent_complete": 15.8,
       "state": "partial",
       "complete": false,
       "errors": [
-        "10Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t10z.wrfsfcf00.grib2.idx",
-        "10Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t10z.wrfsfcf01.grib2.idx",
-        "10Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t10z.wrfsfcf02.grib2.idx"
+        "16Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t16z.wrfsfcf00.grib2.idx",
+        "16Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t16z.wrfsfcf01.grib2.idx",
+        "16Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t16z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-07T09:00:00+00:00",
-      "updated": "2026-11-07T10:26:26.405708+00:00",
-      "age_minutes": 0.3,
-      "hours": 6,
+      "cycle": "2026-11-07T15:00:00+00:00",
+      "updated": "2026-11-07T16:38:06.132017+00:00",
+      "age_minutes": 0.6,
+      "hours": 12,
       "expected_hours": 18,
-      "percent_complete": 33.3,
+      "percent_complete": 66.7,
       "state": "partial",
       "complete": false,
       "errors": []
