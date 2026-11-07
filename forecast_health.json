@@ -1,29 +1,29 @@
 {
-  "checked_at": "2026-11-07T03:14:04.131451+00:00",
+  "checked_at": "2026-11-07T10:26:44.669123+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-07T02:00:00+00:00",
-      "updated": "2026-11-07T03:08:20.630194+00:00",
-      "age_minutes": 5.7,
-      "hours": 9,
+      "cycle": "2026-11-07T09:00:00+00:00",
+      "updated": "2026-11-07T10:25:17.773163+00:00",
+      "age_minutes": 1.4,
+      "hours": 12,
       "expected_hours": 19,
-      "percent_complete": 47.4,
+      "percent_complete": 63.2,
       "state": "partial",
       "complete": false,
       "errors": [
-        "03Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t03z.wrfsfcf00.grib2.idx",
-        "03Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t03z.wrfsfcf01.grib2.idx",
-        "03Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t03z.wrfsfcf02.grib2.idx"
+        "10Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t10z.wrfsfcf00.grib2.idx",
+        "10Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t10z.wrfsfcf01.grib2.idx",
+        "10Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261107/conus/hrrr.t10z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-07T00:00:00+00:00",
-      "updated": "2026-11-07T03:11:25.424427+00:00",
-      "age_minutes": 2.6,
-      "hours": 36,
-      "expected_hours": 60,
-      "percent_complete": 60.0,
+      "cycle": "2026-11-07T09:00:00+00:00",
+      "updated": "2026-11-07T10:26:26.405708+00:00",
+      "age_minutes": 0.3,
+      "hours": 6,
+      "expected_hours": 18,
+      "percent_complete": 33.3,
       "state": "partial",
       "complete": false,
       "errors": []
