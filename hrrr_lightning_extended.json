@@ -1,11 +1,53 @@
 {
   "model": "hrrr",
-  "cycle": "2026-11-06T18:00:00+00:00",
+  "cycle": "2026-11-08T18:00:00+00:00",
   "units": "unverified native GRIB field; not yet flashes/km2/5min",
   "status": "validation_required",
   "hours": [
     {
-      "time": "2026-11-07T16:00:00+00:00",
+      "time": "2026-11-09T13:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "19"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-08T18:00:00+00:00"
+    },
+    {
+      "time": "2026-11-09T14:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "20"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-08T18:00:00+00:00"
+    },
+    {
+      "time": "2026-11-09T15:00:00+00:00",
+      "peak_raw": 0.0,
+      "field": "LTNG/LITNG",
+      "grib_metadata": {
+        "shortName": "ltng",
+        "name": "Lightning",
+        "units": "dimensionless",
+        "stepType": "instant",
+        "stepRange": "21"
+      },
+      "units_verified": false,
+      "source_cycle": "2026-11-08T18:00:00+00:00"
+    },
+    {
+      "time": "2026-11-09T16:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -16,10 +58,10 @@
         "stepRange": "22"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-07T17:00:00+00:00",
+      "time": "2026-11-09T17:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -30,10 +72,10 @@
         "stepRange": "23"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-07T18:00:00+00:00",
+      "time": "2026-11-09T18:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -44,10 +86,10 @@
         "stepRange": "24"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-07T19:00:00+00:00",
+      "time": "2026-11-09T19:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -58,10 +100,10 @@
         "stepRange": "25"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-07T20:00:00+00:00",
+      "time": "2026-11-09T20:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -72,10 +114,10 @@
         "stepRange": "26"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-07T21:00:00+00:00",
+      "time": "2026-11-09T21:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -86,10 +128,10 @@
         "stepRange": "27"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-07T22:00:00+00:00",
+      "time": "2026-11-09T22:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -100,10 +142,10 @@
         "stepRange": "28"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-07T23:00:00+00:00",
+      "time": "2026-11-09T23:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -114,10 +156,10 @@
         "stepRange": "29"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T00:00:00+00:00",
+      "time": "2026-11-10T00:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -128,10 +170,10 @@
         "stepRange": "30"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T01:00:00+00:00",
+      "time": "2026-11-10T01:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -142,10 +184,10 @@
         "stepRange": "31"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T02:00:00+00:00",
+      "time": "2026-11-10T02:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -156,10 +198,10 @@
         "stepRange": "32"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T03:00:00+00:00",
+      "time": "2026-11-10T03:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -170,10 +212,10 @@
         "stepRange": "33"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T04:00:00+00:00",
+      "time": "2026-11-10T04:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -184,10 +226,10 @@
         "stepRange": "34"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T05:00:00+00:00",
+      "time": "2026-11-10T05:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -198,10 +240,10 @@
         "stepRange": "35"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T06:00:00+00:00",
+      "time": "2026-11-10T06:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -212,10 +254,10 @@
         "stepRange": "36"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T07:00:00+00:00",
+      "time": "2026-11-10T07:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -226,10 +268,10 @@
         "stepRange": "37"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T08:00:00+00:00",
+      "time": "2026-11-10T08:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -240,10 +282,10 @@
         "stepRange": "38"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T09:00:00+00:00",
+      "time": "2026-11-10T09:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -254,10 +296,10 @@
         "stepRange": "39"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T10:00:00+00:00",
+      "time": "2026-11-10T10:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -268,10 +310,10 @@
         "stepRange": "40"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T11:00:00+00:00",
+      "time": "2026-11-10T11:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -282,10 +324,10 @@
         "stepRange": "41"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     },
     {
-      "time": "2026-11-08T12:00:00+00:00",
+      "time": "2026-11-10T12:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -296,7 +338,7 @@
         "stepRange": "42"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-06T18:00:00+00:00"
+      "source_cycle": "2026-11-08T18:00:00+00:00"
     }
   ],
   "checked_leads": [
