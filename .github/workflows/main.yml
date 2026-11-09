@@ -37,7 +37,7 @@ jobs:
         run: |
           if [ $((10#$(date -u +%H) % 3)) -eq 0 ] && [ "$(date -u +%M)" -lt "20" ]; then python scripts/update_reflectivity.py || echo "GFS refresh failed; retaining previously published GFS data and continuing"; else echo "GFS skipped (3-hour cadence)"; fi
       - name: Refresh HRRR incrementally (latest REFC first)
-        run: python scripts/update_hrrr.py
+        run: python scripts/update_hrrr.py || echo 'HRRR refresh failed; retaining previous published HRRR data and continuing'
       - name: Refresh NOAA NAM composite reflectivity (non-blocking)
         run: python scripts/update_nam_reflectivity.py || echo 'NAM reflectivity unavailable; preserving previous records'
       - name: Refresh RRFS independently (non-blocking)
