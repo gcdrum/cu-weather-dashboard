@@ -114,14 +114,14 @@ def read_field_metadata(root,span):
             finally: codes_release(handle)
 
 def reflectivity(lat,lon,v):
-    valid=(lat>=35.5)&(lat<=39)&(lon>=-95.5)&(lon<=-91.5)&np.isfinite(v)&(v>=0)&(v<=90)
-    if not np.any(valid):raise ValueError('No valid regional REFC grid cells')
+    valid=(lat>=35.5)&(lat<=39)&(lon>=-95.5)&(lon<=-91.5)&np.isfinite(v)&(v>=-35)&(v<=90)
+    # Negative dBZ denotes weak/no echoes, not a missing GRIB grid.\n    if not np.any(valid):raise ValueError('No valid regional REFC grid cells')
     ids=np.flatnonzero(valid);peak=ids[int(np.argmax(v[valid]))]
     zones={}
     for name,(w,e,s,n) in ZONES.items():
         m=valid&(lon>=w)&(lon<=e)&(lat>=s)&(lat<=n)
-        zones[name]=round(float(np.max(v[m])),1) if np.any(m) else None
-    return {'dbz':round(float(np.max(v[valid])),1),'zones':zones,'peak':{'lat':round(float(lat[peak]),3),'lon':round(float(lon[peak]),3)},'site_dbz':sample(lat,lon,v)}
+        zones[name]=round(max(0.0,float(np.max(v[m]))),1) if np.any(m) else None
+    return {'dbz':round(max(0.0,float(np.max(v[valid]))),1),'zones':zones,'peak':{'lat':round(float(lat[peak]),3),'lon':round(float(lon[peak]),3)},'site_dbz':sample(lat,lon,v)}
 
 def sample(lat,lon,v):
     out=[]
