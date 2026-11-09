@@ -205,28 +205,11 @@ jobs:
           }
           console.log('PASS all Lightning threat classifications; synthetic data never written to forecast JSON');
           JSLIGHT
-      - name: Browser smoke test lightning feed and threat classification
-        run: |
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
-          node scripts/test_lightning_browser.cjs
-      - name: Diagnose generated HTML runtime error locations
-        if: failure()
-        run: |
-          python - <<'PYDIAG'
-          from pathlib import Path
-          lines=Path('index.html').read_text(encoding='utf-8').splitlines()
-          for target in (378,1987,3246,3272):
-              print(f'::group::Generated HTML near line {target}')
-              for n in range(max(1,target-12),min(len(lines),target+12)+1):
-                  print(f'{n:5}: {lines[n-1][:240]}')
-              print('::endgroup::')
-          PYDIAG
-      - name: Commit published model data
+      - name: Publish validated forecast JSON independently of browser integration test
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_pending.json hrrr_reflectivity_pending.json hrrr_status.json hrrr_lightning.json hrrr_lightning_extended.json rrfs_wind.json rrfs_reflectivity.json rrfs_pending.json rrfs_status.json rrfs_lightning.json forecast_health.json model_winds.json index.html; do
+          for f in reflectivity.json reflectivity_status.json hrrr_wind.json hrrr_pending.json hrrr_reflectivity_pending.json hrrr_status.json hrrr_lightning.json hrrr_lightning_extended.json rrfs_wind.json rrfs_reflectivity.json rrfs_pending.json rrfs_status.json rrfs_lightning.json forecast_health.json model_winds.json; do
             if [ -f "$f" ]; then git add "$f"; fi
           done
           if ! git diff --cached --quiet; then
@@ -239,3 +222,35 @@ jobs:
               sleep 3
             done
           fi
+      - name: Browser smoke test lightning feed and threat classification
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          node scripts/test_lightning_browser.cjs
+      - name: Publish validated dashboard HTML after browser smoke test
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish browser-tested dashboard HTML'
+            for attempt in 1 2 3 4 5; do
+              if git push; then break; fi
+              git fetch origin main
+              git rebase -X ours origin/main || { git rebase --abort; exit 1; }
+              if [ "$attempt" -eq 5 ]; then echo 'Dashboard publish push retries exhausted'; exit 1; fi
+              sleep 3
+            done
+          fi
+      - name: Diagnose generated HTML runtime error locations
+        if: failure()
+        run: |
+          python - <<'PYDIAG'
+          from pathlib import Path
+          lines=Path('index.html').read_text(encoding='utf-8').splitlines()
+          for target in (378,1987,3246,3272):
+              print(f'::group::Generated HTML near line {target}')
+              for n in range(max(1,target-12),min(len(lines),target+12)+1):
+                  print(f'{n:5}: {lines[n-1][:240]}')
+              print('::endgroup::')
+          PYDIAG
