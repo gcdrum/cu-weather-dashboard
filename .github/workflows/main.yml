@@ -12,7 +12,7 @@ on:
   schedule:
     # Off-hour, quarter-hour cadence to reduce GitHub scheduler congestion.
     # GitHub scheduled Actions are best-effort and may still be delayed or skipped.
-    - cron: '7,22,37,52 * * * *'
+    - cron: '17 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -40,7 +40,7 @@ jobs:
       - name: Refresh GFS every 3 hours (retain previous output on failure)
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          if [ $((10#$(date -u +%H) % 3)) -eq 0 ] && [ "$(date -u +%M)" -lt "20" ]; then python scripts/update_reflectivity.py || echo "GFS refresh failed; retaining previously published GFS data and continuing"; else echo "GFS skipped (3-hour cadence)"; fi
+          if [ $((10#$(date -u +%H) % 3)) -eq 0 ]; then python scripts/update_reflectivity.py || echo "GFS refresh failed; retaining previously published GFS data and continuing"; else echo "GFS skipped (3-hour cadence)"; fi
       - name: Refresh HRRR incrementally (latest REFC first)
         run: python scripts/update_hrrr.py || echo 'HRRR refresh failed; retaining previous published HRRR data and continuing'
       - name: Refresh NOAA NAM composite reflectivity (non-blocking)
@@ -228,6 +228,7 @@ jobs:
             done
           fi
       - name: Browser smoke test lightning feed and threat classification
+        if: github.event_name != 'schedule'
         run: |
           set -e
           timeout 90s npm install --no-save playwright
@@ -236,6 +237,7 @@ jobs:
           timeout 120s npx playwright install chromium
           timeout 90s node scripts/test_lightning_browser.cjs
       - name: Publish validated dashboard HTML after browser smoke test
+        if: github.event_name != 'schedule'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
