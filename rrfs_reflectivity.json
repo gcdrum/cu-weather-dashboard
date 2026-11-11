@@ -1,7 +1,7 @@
 {
   "model": "rrfs",
-  "cycle": "2026-11-11T06:00:00+00:00",
-  "updated": "2026-11-11T09:35:57.223969+00:00",
+  "cycle": "2026-11-11T12:00:00+00:00",
+  "updated": "2026-11-11T15:02:30.849834+00:00",
   "coverage_policy": "per-valid-hour replacement; no synthetic zero",
   "points": [
     {
@@ -68,132 +68,6 @@
   "hours": [
     {
       "model": "rrfs",
-      "time": "2026-11-11T09:00",
-      "dbz": -20.0,
-      "site_dbz": [
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0
-      ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
-      "source": "RRFS REFC 3km, CU 12-point maximum"
-    },
-    {
-      "model": "rrfs",
-      "time": "2026-11-11T10:00",
-      "dbz": -20.0,
-      "site_dbz": [
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0
-      ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
-      "source": "RRFS REFC 3km, CU 12-point maximum"
-    },
-    {
-      "model": "rrfs",
-      "time": "2026-11-11T11:00",
-      "dbz": -20.0,
-      "site_dbz": [
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0
-      ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
-      "source": "RRFS REFC 3km, CU 12-point maximum"
-    },
-    {
-      "model": "rrfs",
-      "time": "2026-11-11T12:00",
-      "dbz": -20.0,
-      "site_dbz": [
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0
-      ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
-      "source": "RRFS REFC 3km, CU 12-point maximum"
-    },
-    {
-      "model": "rrfs",
-      "time": "2026-11-11T13:00",
-      "dbz": -20.0,
-      "site_dbz": [
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0
-      ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
-      "source": "RRFS REFC 3km, CU 12-point maximum"
-    },
-    {
-      "model": "rrfs",
-      "time": "2026-11-11T14:00",
-      "dbz": -20.0,
-      "site_dbz": [
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0
-      ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
-      "source": "RRFS REFC 3km, CU 12-point maximum"
-    },
-    {
-      "model": "rrfs",
       "time": "2026-11-11T15:00",
       "dbz": -20.0,
       "site_dbz": [
@@ -210,7 +84,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -231,7 +105,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -252,7 +126,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -273,7 +147,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -294,7 +168,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -315,7 +189,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -336,7 +210,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -357,7 +231,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -378,7 +252,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -399,7 +273,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -420,7 +294,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -441,7 +315,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -462,7 +336,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -483,7 +357,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -504,7 +378,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -525,7 +399,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -546,7 +420,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -567,7 +441,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -588,7 +462,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -609,7 +483,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -630,7 +504,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -651,7 +525,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -672,7 +546,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -693,7 +567,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -714,7 +588,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -735,7 +609,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -756,7 +630,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -777,7 +651,133 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T06:00:00+00:00",
+      "source_cycle": "2026-11-11T12:00:00+00:00",
+      "source": "RRFS REFC 3km, CU 12-point maximum"
+    },
+    {
+      "model": "rrfs",
+      "time": "2026-11-12T19:00",
+      "dbz": -13.33,
+      "site_dbz": [
+        -20.0,
+        -13.33,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0
+      ],
+      "source_cycle": "2026-11-11T12:00:00+00:00",
+      "source": "RRFS REFC 3km, CU 12-point maximum"
+    },
+    {
+      "model": "rrfs",
+      "time": "2026-11-12T20:00",
+      "dbz": -9.99,
+      "site_dbz": [
+        -20.0,
+        -16.81,
+        -12.56,
+        -20.0,
+        -13.53,
+        -16.04,
+        -20.0,
+        -10.28,
+        -20.0,
+        -11.29,
+        -9.99,
+        -11.12
+      ],
+      "source_cycle": "2026-11-11T12:00:00+00:00",
+      "source": "RRFS REFC 3km, CU 12-point maximum"
+    },
+    {
+      "model": "rrfs",
+      "time": "2026-11-12T21:00",
+      "dbz": -20.0,
+      "site_dbz": [
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0
+      ],
+      "source_cycle": "2026-11-11T12:00:00+00:00",
+      "source": "RRFS REFC 3km, CU 12-point maximum"
+    },
+    {
+      "model": "rrfs",
+      "time": "2026-11-12T22:00",
+      "dbz": -20.0,
+      "site_dbz": [
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0
+      ],
+      "source_cycle": "2026-11-11T12:00:00+00:00",
+      "source": "RRFS REFC 3km, CU 12-point maximum"
+    },
+    {
+      "model": "rrfs",
+      "time": "2026-11-12T23:00",
+      "dbz": -20.0,
+      "site_dbz": [
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0
+      ],
+      "source_cycle": "2026-11-11T12:00:00+00:00",
+      "source": "RRFS REFC 3km, CU 12-point maximum"
+    },
+    {
+      "model": "rrfs",
+      "time": "2026-11-13T00:00",
+      "dbz": -20.0,
+      "site_dbz": [
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0,
+        -20.0
+      ],
+      "source_cycle": "2026-11-11T12:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     }
   ]
