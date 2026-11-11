@@ -1,7 +1,7 @@
 {
   "model": "rrfs",
   "cycle": "2026-11-11T15:00:00+00:00",
-  "updated": "2026-11-11T18:40:46.824832+00:00",
+  "updated": "2026-11-11T19:10:52.519324+00:00",
   "coverage_policy": "per-valid-hour replacement; no synthetic zero",
   "points": [
     {
@@ -66,27 +66,6 @@
     }
   ],
   "hours": [
-    {
-      "model": "rrfs",
-      "time": "2026-11-11T18:00",
-      "dbz": -20.0,
-      "site_dbz": [
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0,
-        -20.0
-      ],
-      "source_cycle": "2026-11-11T15:00:00+00:00",
-      "source": "RRFS REFC 3km, CU 12-point maximum"
-    },
     {
       "model": "rrfs",
       "time": "2026-11-11T19:00",
