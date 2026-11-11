@@ -29,9 +29,24 @@ jobs:
           python-version: '3.11'
       - name: Install GRIB decoder and Python dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libeccodes-dev
-          python -m pip install requests numpy eccodes
+          set -e
+          # Avoid Ubuntu Azure mirror DNS stalls; cap each attempt.
+          sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true
+          for attempt in 1 2; do
+            echo "Ubuntu packages attempt $attempt/2"
+            if timeout 90s sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 update &&
+               timeout 120s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install -y libeccodes-dev; then
+              installed=1
+              break
+            fi
+            echo "::warning::Ubuntu mirror attempt $attempt failed or timed out"
+            sleep 5
+          done
+          if [ "${installed:-0}" != 1 ]; then
+            echo "::error::GRIB decoder installation unavailable after bounded retries"
+            exit 1
+          fi
+          timeout 120s python -m pip install --retries 2 --timeout 15 requests numpy eccodes
       - name: Refresh GFS every 3 hours (retain previous output on failure)
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
