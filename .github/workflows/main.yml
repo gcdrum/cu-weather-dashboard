@@ -229,9 +229,12 @@ jobs:
           fi
       - name: Browser smoke test lightning feed and threat classification
         run: |
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
-          node scripts/test_lightning_browser.cjs
+          set -e
+          timeout 90s npm install --no-save playwright
+          # Chromium browser download only. --with-deps invokes apt and can hang
+          # when the hosted runner's Ubuntu Azure mirror is unavailable.
+          timeout 120s npx playwright install chromium
+          timeout 90s node scripts/test_lightning_browser.cjs
       - name: Publish validated dashboard HTML after browser smoke test
         run: |
           git config user.name 'github-actions[bot]'
