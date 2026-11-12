@@ -329,7 +329,7 @@ snippet = r"""
   showRRFSBar();
   const c=canvas?.__cuTimeCursor,rows=window.cuParallelOverlayRows||[];
   const rrfs=window.cuRRFSFeederCurve||[];
-  if(!canvas||!c||(!rows.length&&!rrfs.length)||window.cuChartMode!=='live')return;
+  if(!canvas||!c||window.cuChartMode!=='live')return;
   const ctx=canvas.getContext('2d'),dpr=Math.max(1,window.devicePixelRatio||1);
   const W=c.logicalWidth,H=675,L=108,R=87,T=76,B=259,PH=H-T-B;
   const y=v=>{v=Math.max(0,Math.min(80,v));return T+PH-((v<=10?2*v:20+(v-10))/90)*PH};
@@ -345,7 +345,17 @@ snippet = r"""
   // These are comparison traces; the existing operational response logic is unchanged.
   const modelColors={hrrr:'#4db8ff',rrfs:'#e7c36c',gfs:'#8de58a',nam:'#da9bff'};
   const toFeeders=mph=>mph<30?0:mph<40?(mph-30)*.5:mph<55?5+(mph-40)*2/3:mph<60?15+(mph-55):Math.min(170,20+(mph-60)*2);
-  Object.entries(window.cuFourModelForecast||{}).forEach(([name,model])=>{
+  // GFS must appear on the top chart even when the four-model comparison
+  // initializes later. Reuse the main chart's GFS rows as a fallback;
+  // never invent zero-valued points for missing forecasts.
+  const forecastModels={...(window.cuFourModelForecast||{})};
+  const gfsRows=window.cuSurfaceWindCache?.gfs?.rows||[];
+  if(!(forecastModels.gfs?.points?.length>=2)&&gfsRows.length>=2){
+    const points=gfsRows.map(r=>({time:r.time,gust_mph:Number(r.gust_mph??r.gust??r.mph)}))
+      .filter(p=>Number.isFinite(Date.parse(p.time))&&Number.isFinite(p.gust_mph));
+    if(points.length>=2)forecastModels.gfs={points,source:'Open-Meteo GFS'};
+  }
+  Object.entries(forecastModels).forEach(([name,model])=>{
     const data=(model.points||[]).map(p=>({t:Date.parse(p.time),v:toFeeders(Number(p.gust_mph))})).filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.v)&&p.t>=first&&p.t<=last).sort((a,b)=>a.t-b.t);
     if(data.length<2||!modelColors[name])return;
     ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.beginPath();ctx.rect(L,T,W-L-R,PH);ctx.clip();
