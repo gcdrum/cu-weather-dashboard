@@ -1,34 +1,32 @@
 {
-  "checked_at": "2026-11-12T02:09:21.428627+00:00",
+  "checked_at": "2026-11-12T09:53:23.565460+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-12T01:00:00+00:00",
-      "updated": "2026-11-12T02:07:05.961534+00:00",
-      "age_minutes": 2.3,
-      "hours": 9,
+      "cycle": "2026-11-12T08:00:00+00:00",
+      "updated": "2026-11-12T09:49:48.340101+00:00",
+      "age_minutes": 3.6,
+      "hours": 19,
       "expected_hours": 19,
-      "percent_complete": 47.4,
+      "percent_complete": 63.2,
       "state": "partial",
       "complete": false,
       "errors": [
-        "02Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t02z.wrfsfcf00.grib2.idx",
-        "02Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t02z.wrfsfcf01.grib2.idx",
-        "02Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t02z.wrfsfcf02.grib2.idx"
+        "09Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t09z.wrfsfcf00.grib2.idx",
+        "09Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t09z.wrfsfcf01.grib2.idx",
+        "09Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t09z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-12T00:00:00+00:00",
-      "updated": "2026-11-12T02:08:59.884361+00:00",
-      "age_minutes": 0.4,
-      "hours": 48,
+      "cycle": "2026-11-12T06:00:00+00:00",
+      "updated": "2026-11-12T09:51:07.884260+00:00",
+      "age_minutes": 2.3,
+      "hours": 36,
       "expected_hours": 60,
-      "percent_complete": 80.0,
+      "percent_complete": 60.0,
       "state": "partial",
       "complete": false,
-      "errors": [
-        "No newly published RRFS hours in current probe window"
-      ]
+      "errors": []
     }
   }
 }
