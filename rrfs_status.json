@@ -1,10 +1,12 @@
 {
   "status": "partial",
   "cycle": "2026-11-12T00:00:00+00:00",
-  "updated": "2026-11-12T01:58:18.510659+00:00",
-  "hours": 3,
+  "updated": "2026-11-12T02:08:59.884361+00:00",
+  "hours": 48,
   "expected_hours": 60,
-  "percent_complete": 5.0,
+  "percent_complete": 80.0,
   "complete": false,
-  "errors": []
+  "errors": [
+    "No newly published RRFS hours in current probe window"
+  ]
 }
