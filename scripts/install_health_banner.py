@@ -68,12 +68,25 @@ snippet = r"""
    const health=await get('forecast_health.json');
    const reportAge=Math.round((Date.now()-Date.parse(health.checked_at))/60000);
    const modelEntries=['hrrr','rrfs'].map(name=>({name,m:health.models?.[name]||{}}));
+   // GFS wind status is sourced from the published model-winds file.
+   // It is Open-Meteo-backed, so never label its cycle as verified NOAA.
+   let gfsStatus={name:'gfs',m:{state:'unavailable',hours:0,expected_hours:0,percent_complete:0,updated:null,cycle:null}};
+   try{
+    const wind=(await get('model_winds.json')).models?.gfs;
+    if(wind){
+     const hours=(wind.hours||[]).filter(h=>Array.isArray(h.gust_mph)&&h.gust_mph.some(Number.isFinite)).length;
+     const expected=(wind.hours||[]).length;
+     const age=Date.now()-Date.parse(wind.updated||'');
+     gfsStatus={name:'gfs',m:{state:hours>0&&age>=0&&age<8*3600000?'current':'stale',hours,expected_hours:expected,percent_complete:expected?100*hours/expected:0,updated:wind.updated,cycle:wind.cycle,source:wind.source||'Open-Meteo',cycle_verified:wind.cycle_verified}};
+    }
+   }catch(e){}
+   modelEntries.push(gfsStatus);
    const cards=modelEntries.map(({name,m})=>{
     const age=Math.round((Date.now()-Date.parse(m.updated))/60000);
-    const stale=m.state!=='current'||!Number.isFinite(age)||age>90||reportAge>90;
+    const stale=m.state!=='current'||!Number.isFinite(age)||age>(name==='gfs'?480:90)||(name!=='gfs'&&reportAge>90);
     const pct=Math.max(0,Math.min(100,Number(m.percent_complete)||0));
-    const cycle=m.cycle?new Date(m.cycle).getUTCHours().toString().padStart(2,'0')+'Z':'?';
-    return '<div style="flex:1;min-width:220px;background:#22343e;padding:12px;border-radius:9px;border:1px solid '+(stale?'#e4a064':'#526f76')+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><strong style="font-size:16px">'+name.toUpperCase()+' · '+cycle+'</strong><strong style="color:'+(stale?'#ffb08a':'#85dfb5')+'">'+(stale?'STALE':'CURRENT')+'</strong></div><div style="font-size:24px;font-weight:700;margin:8px 0 5px">'+pct.toFixed(1)+'% <span style="font-size:13px;font-weight:400;color:#c0d0d9">'+esc(m.hours)+' / '+esc(m.expected_hours)+' hours</span></div><div style="height:10px;background:#455762;border-radius:10px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(stale?'#d78d4a':'#3cb58a')+'"></div></div><div style="font-size:12px;margin-top:7px;color:#c0d0d9">'+(Number.isFinite(age)?age+' min old':'Update unknown')+'</div></div>';
+    const cycle=m.cycle&&m.cycle_verified!==false?new Date(m.cycle).getUTCHours().toString().padStart(2,'0')+'Z':'—';
+    return '<div style="flex:1;min-width:220px;background:#22343e;padding:12px;border-radius:9px;border:1px solid '+(stale?'#e4a064':'#526f76')+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><strong style="font-size:16px">'+name.toUpperCase()+' · '+cycle+'</strong><strong style="color:'+(stale?'#ffb08a':'#85dfb5')+'">'+(stale?'STALE':'CURRENT')+'</strong></div><div style="font-size:24px;font-weight:700;margin:8px 0 5px">'+pct.toFixed(1)+'% <span style="font-size:13px;font-weight:400;color:#c0d0d9">'+esc(m.hours)+' / '+esc(m.expected_hours)+' hours</span></div><div style="height:10px;background:#455762;border-radius:10px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(stale?'#d78d4a':'#3cb58a')+'"></div></div><div style="font-size:12px;margin-top:7px;color:#c0d0d9">'+(Number.isFinite(age)?age+' min old':'Update unknown')+(name==='gfs'?' · '+esc(m.source||'Open-Meteo')+' (cycle unverified)':'')+'</div></div>';
    }).join('');
    const bad=reportAge>90||modelEntries.some(({m})=>m.state!=='current'||Date.now()-Date.parse(m.updated)>5400000);
    el.innerHTML='<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><strong style="font-size:17px">NOAA model status</strong><strong style="color:'+(bad?'#ffb08a':'#85dfb5')+'">'+(bad?'⚠ DATA FRESHNESS WARNING':'✓ Data recently updated')+'</strong></div><div style="display:flex;gap:10px;flex-wrap:wrap">'+cards+'</div><div id="cu-decoded-gust-chart" style="margin-top:14px"><strong>Decoded NOAA gust comparison (mph)</strong><div style="font-size:12px;color:#c0d0d9">Independent model comparison · not yet integrated into outage prediction graph</div><div style="padding:10px">Loading gust data…</div></div><div style="font-size:12px;color:#b7c8d2;margin-top:7px">Health report '+reportAge+' min old · Freshness and forecast completeness are different measures</div>';
