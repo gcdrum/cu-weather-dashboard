@@ -1,7 +1,7 @@
 {
   "model": "rrfs",
-  "cycle": "2026-11-11T21:00:00+00:00",
-  "updated": "2026-11-12T01:34:00.886366+00:00",
+  "cycle": "2026-11-12T00:00:00+00:00",
+  "updated": "2026-11-12T01:58:18.510659+00:00",
   "coverage_policy": "per-valid-hour replacement; no synthetic zero",
   "points": [
     {
@@ -84,7 +84,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T21:00:00+00:00",
+      "source_cycle": "2026-11-12T00:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -105,7 +105,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T21:00:00+00:00",
+      "source_cycle": "2026-11-12T00:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {
@@ -126,7 +126,7 @@
         -20.0,
         -20.0
       ],
-      "source_cycle": "2026-11-11T21:00:00+00:00",
+      "source_cycle": "2026-11-12T00:00:00+00:00",
       "source": "RRFS REFC 3km, CU 12-point maximum"
     },
     {

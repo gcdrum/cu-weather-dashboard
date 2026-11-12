@@ -1,6 +1,6 @@
 {
   "model": "rrfs",
-  "cycle": "2026-11-11T21:00:00+00:00",
+  "cycle": "2026-11-12T00:00:00+00:00",
   "status": "retained_previous_cycle",
   "units": "flashes/km\u00b2/5 min",
   "units_verified": false,
@@ -11,7 +11,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-11T21:00:00+00:00"
+      "source_cycle": "2026-11-12T00:00:00+00:00"
     },
     {
       "time": "2026-11-12T02:00:00+00:00",
@@ -19,7 +19,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-11T21:00:00+00:00"
+      "source_cycle": "2026-11-12T00:00:00+00:00"
     },
     {
       "time": "2026-11-12T03:00:00+00:00",
@@ -27,7 +27,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-11T21:00:00+00:00"
+      "source_cycle": "2026-11-12T00:00:00+00:00"
     },
     {
       "time": "2026-11-12T04:00:00+00:00",
@@ -35,7 +35,7 @@
       "units_verified": false,
       "native_index": true,
       "metric": "five_minute_equivalent_of_one_hour_maximum_rate",
-      "source_cycle": "2026-11-11T21:00:00+00:00"
+      "source_cycle": "2026-11-12T00:00:00+00:00"
     },
     {
       "time": "2026-11-12T05:00:00+00:00",
@@ -442,152 +442,40 @@
   "index_matches": [
     {
       "lead": 1,
-      "line": "28:21718760:d=2026111121:LTNGSD:1 m above ground:0-1 hour max fcst:"
+      "line": "28:22260730:d=2026111200:LTNGSD:1 m above ground:0-1 hour max fcst:"
     },
     {
       "lead": 1,
-      "line": "29:21720492:d=2026111121:LTNGSD:2 m above ground:0-1 hour max fcst:"
+      "line": "29:22264081:d=2026111200:LTNGSD:2 m above ground:0-1 hour max fcst:"
     },
     {
       "lead": 2,
-      "line": "28:22257223:d=2026111121:LTNGSD:1 m above ground:1-2 hour max fcst:"
+      "line": "28:23342712:d=2026111200:LTNGSD:1 m above ground:1-2 hour max fcst:"
     },
     {
       "lead": 2,
-      "line": "29:22260091:d=2026111121:LTNGSD:2 m above ground:1-2 hour max fcst:"
+      "line": "29:23347571:d=2026111200:LTNGSD:2 m above ground:1-2 hour max fcst:"
     },
     {
       "lead": 3,
-      "line": "28:23085689:d=2026111121:LTNGSD:1 m above ground:2-3 hour max fcst:"
+      "line": "28:22808142:d=2026111200:LTNGSD:1 m above ground:2-3 hour max fcst:"
     },
     {
       "lead": 3,
-      "line": "29:23089086:d=2026111121:LTNGSD:2 m above ground:2-3 hour max fcst:"
+      "line": "29:22813301:d=2026111200:LTNGSD:2 m above ground:2-3 hour max fcst:"
     },
     {
       "lead": 4,
-      "line": "28:23369945:d=2026111121:LTNGSD:1 m above ground:3-4 hour max fcst:"
+      "line": "28:23057644:d=2026111200:LTNGSD:1 m above ground:3-4 hour max fcst:"
     },
     {
       "lead": 4,
-      "line": "29:23373661:d=2026111121:LTNGSD:2 m above ground:3-4 hour max fcst:"
-    },
-    {
-      "lead": 5,
-      "line": "28:23511880:d=2026111121:LTNGSD:1 m above ground:4-5 hour max fcst:"
-    },
-    {
-      "lead": 5,
-      "line": "29:23515774:d=2026111121:LTNGSD:2 m above ground:4-5 hour max fcst:"
-    },
-    {
-      "lead": 6,
-      "line": "28:23110592:d=2026111121:LTNGSD:1 m above ground:5-6 hour max fcst:"
-    },
-    {
-      "lead": 6,
-      "line": "29:23114683:d=2026111121:LTNGSD:2 m above ground:5-6 hour max fcst:"
-    },
-    {
-      "lead": 7,
-      "line": "28:23215061:d=2026111121:LTNGSD:1 m above ground:6-7 hour max fcst:"
-    },
-    {
-      "lead": 7,
-      "line": "29:23218952:d=2026111121:LTNGSD:2 m above ground:6-7 hour max fcst:"
-    },
-    {
-      "lead": 8,
-      "line": "28:24002864:d=2026111121:LTNGSD:1 m above ground:7-8 hour max fcst:"
-    },
-    {
-      "lead": 8,
-      "line": "29:24007192:d=2026111121:LTNGSD:2 m above ground:7-8 hour max fcst:"
-    },
-    {
-      "lead": 9,
-      "line": "28:23520256:d=2026111121:LTNGSD:1 m above ground:8-9 hour max fcst:"
-    },
-    {
-      "lead": 9,
-      "line": "29:23525357:d=2026111121:LTNGSD:2 m above ground:8-9 hour max fcst:"
-    },
-    {
-      "lead": 10,
-      "line": "28:23696563:d=2026111121:LTNGSD:1 m above ground:9-10 hour max fcst:"
-    },
-    {
-      "lead": 10,
-      "line": "29:23702215:d=2026111121:LTNGSD:2 m above ground:9-10 hour max fcst:"
-    },
-    {
-      "lead": 11,
-      "line": "28:23800387:d=2026111121:LTNGSD:1 m above ground:10-11 hour max fcst:"
-    },
-    {
-      "lead": 11,
-      "line": "29:23805961:d=2026111121:LTNGSD:2 m above ground:10-11 hour max fcst:"
-    },
-    {
-      "lead": 12,
-      "line": "28:23840812:d=2026111121:LTNGSD:1 m above ground:11-12 hour max fcst:"
-    },
-    {
-      "lead": 12,
-      "line": "29:23846787:d=2026111121:LTNGSD:2 m above ground:11-12 hour max fcst:"
-    },
-    {
-      "lead": 13,
-      "line": "28:23980113:d=2026111121:LTNGSD:1 m above ground:12-13 hour max fcst:"
-    },
-    {
-      "lead": 13,
-      "line": "29:23985410:d=2026111121:LTNGSD:2 m above ground:12-13 hour max fcst:"
-    },
-    {
-      "lead": 14,
-      "line": "28:24399569:d=2026111121:LTNGSD:1 m above ground:13-14 hour max fcst:"
-    },
-    {
-      "lead": 14,
-      "line": "29:24403724:d=2026111121:LTNGSD:2 m above ground:13-14 hour max fcst:"
-    },
-    {
-      "lead": 15,
-      "line": "28:24340153:d=2026111121:LTNGSD:1 m above ground:14-15 hour max fcst:"
-    },
-    {
-      "lead": 15,
-      "line": "29:24343688:d=2026111121:LTNGSD:2 m above ground:14-15 hour max fcst:"
-    },
-    {
-      "lead": 16,
-      "line": "28:24237689:d=2026111121:LTNGSD:1 m above ground:15-16 hour max fcst:"
-    },
-    {
-      "lead": 16,
-      "line": "29:24240410:d=2026111121:LTNGSD:2 m above ground:15-16 hour max fcst:"
-    },
-    {
-      "lead": 17,
-      "line": "28:24205061:d=2026111121:LTNGSD:1 m above ground:16-17 hour max fcst:"
-    },
-    {
-      "lead": 17,
-      "line": "29:24207513:d=2026111121:LTNGSD:2 m above ground:16-17 hour max fcst:"
-    },
-    {
-      "lead": 18,
-      "line": "28:24549864:d=2026111121:LTNGSD:1 m above ground:17-18 hour max fcst:"
-    },
-    {
-      "lead": 18,
-      "line": "29:24552649:d=2026111121:LTNGSD:2 m above ground:17-18 hour max fcst:"
+      "line": "29:23061979:d=2026111200:LTNGSD:2 m above ground:3-4 hour max fcst:"
     }
   ],
   "field_variants": [
     {
-      "index": "28:21718760:d=2026111121:LTNGSD:1 m above ground:0-1 hour max fcst:",
+      "index": "28:22260730:d=2026111200:LTNGSD:1 m above ground:0-1 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -604,7 +492,7 @@
       }
     },
     {
-      "index": "28:22257223:d=2026111121:LTNGSD:1 m above ground:1-2 hour max fcst:",
+      "index": "28:23342712:d=2026111200:LTNGSD:1 m above ground:1-2 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -621,7 +509,7 @@
       }
     },
     {
-      "index": "28:23085689:d=2026111121:LTNGSD:1 m above ground:2-3 hour max fcst:",
+      "index": "28:22808142:d=2026111200:LTNGSD:1 m above ground:2-3 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
@@ -638,251 +526,13 @@
       }
     },
     {
-      "index": "28:23369945:d=2026111121:LTNGSD:1 m above ground:3-4 hour max fcst:",
+      "index": "28:23057644:d=2026111200:LTNGSD:1 m above ground:3-4 hour max fcst:",
       "metadata": {
         "shortName": "unknown",
         "name": "unknown",
         "units": "unknown",
         "stepType": "max",
         "stepRange": "3-4",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23511880:d=2026111121:LTNGSD:1 m above ground:4-5 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "4-5",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23110592:d=2026111121:LTNGSD:1 m above ground:5-6 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "5-6",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23215061:d=2026111121:LTNGSD:1 m above ground:6-7 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "6-7",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:24002864:d=2026111121:LTNGSD:1 m above ground:7-8 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "7-8",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23520256:d=2026111121:LTNGSD:1 m above ground:8-9 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "8-9",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23696563:d=2026111121:LTNGSD:1 m above ground:9-10 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "9-10",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23800387:d=2026111121:LTNGSD:1 m above ground:10-11 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "10-11",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23840812:d=2026111121:LTNGSD:1 m above ground:11-12 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "11-12",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:23980113:d=2026111121:LTNGSD:1 m above ground:12-13 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "12-13",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:24399569:d=2026111121:LTNGSD:1 m above ground:13-14 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "13-14",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:24340153:d=2026111121:LTNGSD:1 m above ground:14-15 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "14-15",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:24237689:d=2026111121:LTNGSD:1 m above ground:15-16 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "15-16",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:24205061:d=2026111121:LTNGSD:1 m above ground:16-17 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "16-17",
-        "typeOfLevel": "heightAboveGround",
-        "level": "1",
-        "discipline": "0",
-        "parameterCategory": "17",
-        "parameterNumber": "0",
-        "tablesVersion": "2",
-        "localTablesVersion": "1"
-      }
-    },
-    {
-      "index": "28:24549864:d=2026111121:LTNGSD:1 m above ground:17-18 hour max fcst:",
-      "metadata": {
-        "shortName": "unknown",
-        "name": "unknown",
-        "units": "unknown",
-        "stepType": "max",
-        "stepRange": "17-18",
         "typeOfLevel": "heightAboveGround",
         "level": "1",
         "discipline": "0",
@@ -918,90 +568,6 @@
       "level": "1",
       "nonnegative_in_area": 1225,
       "native_peak": 0.0
-    },
-    {
-      "lead": 5,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 6,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 7,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 8,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 9,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 10,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 11,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 12,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 13,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 14,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 15,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 16,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 17,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
-    },
-    {
-      "lead": 18,
-      "level": "1",
-      "nonnegative_in_area": 1225,
-      "native_peak": 0.0
     }
   ],
   "grib_metadata": {
@@ -1009,7 +575,7 @@
     "name": "unknown",
     "units": "unknown",
     "stepType": "max",
-    "stepRange": "17-18",
+    "stepRange": "3-4",
     "typeOfLevel": "heightAboveGround",
     "level": "1",
     "discipline": "0",
@@ -1033,6 +599,6 @@
   "time_statistic": "one-hour maximum rate expressed as five-minute equivalent; not accumulated flashes",
   "coverage_policy": "per-valid-hour replacement; older cycle retained until replaced",
   "native_index_provisional": true,
-  "matched_fields": 36,
+  "matched_fields": 8,
   "valid_hours": 54
 }
