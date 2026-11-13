@@ -1,10 +1,10 @@
 {
   "status": "partial",
   "cycle": "2026-11-13T21:00:00+00:00",
-  "updated": "2026-11-13T22:37:38.582580+00:00",
-  "hours": 14,
+  "updated": "2026-11-13T23:31:44.082508+00:00",
+  "hours": 18,
   "expected_hours": 18,
-  "percent_complete": 77.8,
-  "complete": false,
+  "percent_complete": 100.0,
+  "complete": true,
   "errors": []
 }
