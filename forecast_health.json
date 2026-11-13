@@ -1,29 +1,29 @@
 {
-  "checked_at": "2026-11-13T08:01:26.116489+00:00",
+  "checked_at": "2026-11-13T16:22:34.890439+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-13T07:00:00+00:00",
-      "updated": "2026-11-13T07:55:46.309870+00:00",
-      "age_minutes": 5.7,
-      "hours": 3,
+      "cycle": "2026-11-13T15:00:00+00:00",
+      "updated": "2026-11-13T16:20:45.636955+00:00",
+      "age_minutes": 1.8,
+      "hours": 16,
       "expected_hours": 19,
-      "percent_complete": 15.8,
+      "percent_complete": 63.2,
       "state": "partial",
       "complete": false,
       "errors": [
-        "f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t07z.wrfsfcf03.grib2.idx",
-        "f04 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t07z.wrfsfcf04.grib2.idx",
-        "f05 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t07z.wrfsfcf05.grib2.idx"
+        "16Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t16z.wrfsfcf00.grib2.idx",
+        "16Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t16z.wrfsfcf01.grib2.idx",
+        "16Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t16z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-13T06:00:00+00:00",
-      "updated": "2026-11-13T07:59:23.519131+00:00",
-      "age_minutes": 2.0,
-      "hours": 36,
-      "expected_hours": 60,
-      "percent_complete": 60.0,
+      "cycle": "2026-11-13T15:00:00+00:00",
+      "updated": "2026-11-13T16:22:23.651079+00:00",
+      "age_minutes": 0.2,
+      "hours": 2,
+      "expected_hours": 18,
+      "percent_complete": 11.1,
       "state": "partial",
       "complete": false,
       "errors": []
