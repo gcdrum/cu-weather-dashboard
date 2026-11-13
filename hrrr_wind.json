@@ -1,7 +1,7 @@
 {
   "model": "hrrr",
   "cycle": "2026-11-13T22:00:00+00:00",
-  "updated": "2026-11-13T23:38:36.746627+00:00",
+  "updated": "2026-11-13T23:46:16.764702+00:00",
   "source": "NOAA HRRR wrfsfc GRIB2, 10-m U/V and surface gust (m/s)",
   "points": [
     {
