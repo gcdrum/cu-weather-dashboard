@@ -1931,9 +1931,9 @@ joke_lights=r"""
 <script id="cu-joke-threat-lights">
 (()=>{
  const jokes=[
-  {id:'cu-joke-office365',name:'Office 365',label:'ELEVATED · JUST KIDDING',color:'#ff9b43',level:'elevated'},
-  {id:'cu-joke-workday',name:'Workday',label:'ELEVATED · JUST KIDDING',color:'#ff9b43',level:'elevated'},
-  {id:'cu-joke-faa',name:'FAA',label:'EXTREME · JUST KIDDING',color:'#a855f7',level:'extreme'}
+  {id:'cu-joke-office365',name:'Office 365',label:'ELEVATED',color:'#ff9b43',level:'elevated'},
+  {id:'cu-joke-workday',name:'Workday',label:'ELEVATED',color:'#ff9b43',level:'elevated'},
+  {id:'cu-joke-faa',name:'FAA',label:'EXTREME',color:'#a855f7',level:'extreme'}
  ];
  function render(){
   const heading=document.querySelector('[data-threat-key="Lightning"]')||
@@ -1949,14 +1949,14 @@ joke_lights=r"""
     row.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
     const title=row.querySelector('[data-threat-key]');
     if(!title)continue;
-    title.textContent=item.name+' (JOKE)';
+    title.textContent=item.name;
     title.removeAttribute('data-threat-key');
     row.dataset.cuParody='true';
     previous.insertAdjacentElement('afterend',row);
    }
    const status=row.querySelector('.threat-time'),dot=row.querySelector('.threat-dot');
    if(status){status.textContent=item.label;status.style.color=item.color;status.dataset.status=item.level;
-     status.title='Parody indicator only. Not an actual service status or FAA safety alert.';}
+     status.title='Simulated indicator for demonstration; not live service status.';}
    if(dot){dot.style.backgroundColor=item.color;dot.dataset.status=item.level;}
    previous=row;
   }
