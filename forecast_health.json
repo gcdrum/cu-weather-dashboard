@@ -1,31 +1,31 @@
 {
-  "checked_at": "2026-11-12T22:33:44.598846+00:00",
+  "checked_at": "2026-11-13T00:26:50.570614+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-12T21:00:00+00:00",
-      "updated": "2026-11-12T22:32:04.186910+00:00",
-      "age_minutes": 1.7,
-      "hours": 19,
+      "cycle": "2026-11-12T23:00:00+00:00",
+      "updated": "2026-11-13T00:21:14.969201+00:00",
+      "age_minutes": 5.6,
+      "hours": 5,
       "expected_hours": 19,
-      "percent_complete": 63.2,
+      "percent_complete": 26.3,
       "state": "partial",
       "complete": false,
       "errors": [
-        "22Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t22z.wrfsfcf00.grib2.idx",
-        "22Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t22z.wrfsfcf01.grib2.idx",
-        "22Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261112/conus/hrrr.t22z.wrfsfcf02.grib2.idx"
+        "00Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t00z.wrfsfcf00.grib2.idx",
+        "00Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t00z.wrfsfcf01.grib2.idx",
+        "00Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t00z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
       "cycle": "2026-11-12T21:00:00+00:00",
-      "updated": "2026-11-12T22:33:18.573105+00:00",
-      "age_minutes": 0.4,
-      "hours": 9,
+      "updated": "2026-11-13T00:25:20.562735+00:00",
+      "age_minutes": 1.5,
+      "hours": 18,
       "expected_hours": 18,
-      "percent_complete": 50.0,
-      "state": "partial",
-      "complete": false,
+      "percent_complete": 100.0,
+      "state": "current",
+      "complete": true,
       "errors": []
     }
   }

@@ -1,11 +1,11 @@
 {
   "model": "hrrr",
-  "cycle": "2026-11-12T21:00:00+00:00",
+  "cycle": "2026-11-12T23:00:00+00:00",
   "units": "unverified native GRIB field; not yet flashes/km2/5min",
   "status": "validation_required",
   "hours": [
     {
-      "time": "2026-11-12T22:00:00+00:00",
+      "time": "2026-11-13T00:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -16,35 +16,7 @@
         "stepRange": "1"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-12T21:00:00+00:00"
-    },
-    {
-      "time": "2026-11-12T23:00:00+00:00",
-      "peak_raw": 0.0,
-      "field": "LTNG/LITNG",
-      "grib_metadata": {
-        "shortName": "ltng",
-        "name": "Lightning",
-        "units": "dimensionless",
-        "stepType": "instant",
-        "stepRange": "2"
-      },
-      "units_verified": false,
-      "source_cycle": "2026-11-12T21:00:00+00:00"
-    },
-    {
-      "time": "2026-11-13T00:00:00+00:00",
-      "peak_raw": 0.0,
-      "field": "LTNG/LITNG",
-      "grib_metadata": {
-        "shortName": "ltng",
-        "name": "Lightning",
-        "units": "dimensionless",
-        "stepType": "instant",
-        "stepRange": "3"
-      },
-      "units_verified": false,
-      "source_cycle": "2026-11-12T21:00:00+00:00"
+      "source_cycle": "2026-11-12T23:00:00+00:00"
     },
     {
       "time": "2026-11-13T01:00:00+00:00",
@@ -55,10 +27,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "4"
+        "stepRange": "2"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-12T21:00:00+00:00"
+      "source_cycle": "2026-11-12T23:00:00+00:00"
     },
     {
       "time": "2026-11-13T02:00:00+00:00",
@@ -69,10 +41,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "5"
+        "stepRange": "3"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-12T21:00:00+00:00"
+      "source_cycle": "2026-11-12T23:00:00+00:00"
     },
     {
       "time": "2026-11-13T03:00:00+00:00",
@@ -83,10 +55,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "6"
+        "stepRange": "4"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-12T21:00:00+00:00"
+      "source_cycle": "2026-11-12T23:00:00+00:00"
     },
     {
       "time": "2026-11-13T04:00:00+00:00",
@@ -262,21 +234,7 @@
     1,
     2,
     3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18
+    4
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }
