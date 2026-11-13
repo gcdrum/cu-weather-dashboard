@@ -1863,8 +1863,7 @@ if broken in monitor:
     raise SystemExit('ERROR: broken UTC offset regex persists in local reflectivity screening')
 print('Corrected',fixed,'UTC offset decoder patterns in existing local storm monitor')
 
-path.write_text(html,encoding='utf-8')
-print('Installed model health cards and independent gust chart')
+# Final HTML write happens after all injected threat lights.
 
 
 # Ambient freezing light: current observed/analysed 2-m temperature, independent
@@ -1926,3 +1925,49 @@ freezing_light=r"""
 """
 html=re.sub(r'<script id="cu-freezing-temperature-light">.*?</script>','',html,flags=re.S)
 html=html.replace('</body>',freezing_light+'</body>',1) if '</body>' in html else html+freezing_light
+
+# Static parody indicators. These are intentionally NOT live service health checks.
+joke_lights=r"""
+<script id="cu-joke-threat-lights">
+(()=>{
+ const jokes=[
+  {id:'cu-joke-office365',name:'Office 365',label:'ELEVATED · JUST KIDDING',color:'#ff9b43',level:'elevated'},
+  {id:'cu-joke-workday',name:'Workday',label:'ELEVATED · JUST KIDDING',color:'#ff9b43',level:'elevated'},
+  {id:'cu-joke-faa',name:'FAA',label:'EXTREME · JUST KIDDING',color:'#a855f7',level:'extreme'}
+ ];
+ function render(){
+  const heading=document.querySelector('[data-threat-key="Lightning"]')||
+                document.querySelector('[data-threat-key="Downburst"]');
+  const anchor=heading?.closest('.threat-row');
+  if(!anchor)return;
+  let previous=anchor;
+  for(const item of jokes){
+   let row=document.getElementById(item.id);
+   if(!row){
+    row=anchor.cloneNode(true);
+    row.id=item.id;
+    row.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    const title=row.querySelector('[data-threat-key]');
+    if(!title)continue;
+    title.textContent=item.name+' (JOKE)';
+    title.removeAttribute('data-threat-key');
+    row.dataset.cuParody='true';
+    previous.insertAdjacentElement('afterend',row);
+   }
+   const status=row.querySelector('.threat-time'),dot=row.querySelector('.threat-dot');
+   if(status){status.textContent=item.label;status.style.color=item.color;status.dataset.status=item.level;
+     status.title='Parody indicator only. Not an actual service status or FAA safety alert.';}
+   if(dot){dot.style.backgroundColor=item.color;dot.dataset.status=item.level;}
+   previous=row;
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);
+ else render();
+ setInterval(render,5000);
+})();
+</script>
+"""
+html=re.sub(r'<script id="cu-joke-threat-lights">.*?</script>','',html,flags=re.S)
+html=html.replace('</body>',joke_lights+'</body>',1) if '</body>' in html else html+joke_lights
+path.write_text(html,encoding='utf-8')
+print('Installed model health cards and threat panel lights')
