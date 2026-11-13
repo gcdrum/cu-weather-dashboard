@@ -1897,7 +1897,7 @@ freezing_light=r"""
   const level=min===null?'waiting':extreme?'extreme':severe?'likely':freezing?'elevated':'none';
   const color=min===null?'#4db8ff':extreme?'#a855f7':severe?'#ef4444':freezing?'#ff9b43':'#22c55e';
   const upcoming=freezing&&(actual===null||actual>=32);
-  const state=min===null?'WAITING':upcoming?(extreme?'UPCOMING EXTREME COLD':severe?'UPCOMING HARD FREEZE':'UPCOMING FREEZE'):extreme?'EXTREME':severe?'LIKELY':freezing?'FREEZING NOW':'BELOW THRESHOLD';
+  const state=min===null?'WAITING':upcoming?(extreme?'UPCOMING EXTREME COLD':severe?'UPCOMING HARD':'UPCOMING'):extreme?'EXTREME':severe?'LIKELY':freezing?'FREEZING NOW':'BELOW THRESHOLD';
   const detail='Current: '+(actual===null?'unavailable':actual.toFixed(1)+'°F')+
     ' | Forecast low through 8 AM: '+(forecast===null?'unavailable':forecast.toFixed(1)+'°F'+(lowTime?' at '+lowTime:''))+
     ' | Source: '+source+' | Thresholds: below 32°F elevated, below 20°F likely, below 10°F extreme. Forecast is not an observed temperature.';
