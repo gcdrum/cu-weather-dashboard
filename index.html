@@ -1415,6 +1415,7 @@ function drawForecast(){
 
 
 
+
  const qCount=qImpact.filter(Number.isFinite).length;
  const qPeak=qImpact.filter(Number.isFinite).length?Math.max(...qImpact.filter(Number.isFinite)):null;
 
@@ -3310,7 +3311,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  }
  function render(panel,rows,cycle,status){
   const note=panel.querySelector('.rrfs-note'),canvas=panel.querySelector('canvas');if(!note||!canvas)return;const ctx=canvas?.getContext('2d');if(!ctx)return;
-  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
+  if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;if(!ctx)return;const valid=rows.filter(r=>Number.isFinite(r.gust));
   if(!valid.length){note.textContent='RRFS data unavailable';return}
   const label=new Date(cycle).toISOString().slice(11,13)+'Z';
   note.textContent='Cycle '+label+' · '+(Number(status.percent_complete)||0).toFixed(1)+'% complete · '+valid.length+' hours · max '+Math.max(...valid.map(r=>r.gust)).toFixed(1)+' mph';
@@ -3345,6 +3346,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
  document.addEventListener('DOMContentLoaded',()=>{update();setTimeout(update,1500)});
 })();
 </script>
+
 
 
 
@@ -4086,6 +4088,7 @@ if(btn)btn.addEventListener('click',()=>setTimeout(loadRRFS95,400));
 
 
 
+
 \n<script>
 window.cuHRRRLightningLevel=function(v){
  if(typeof v!=='number'||!Number.isFinite(v)||v<0)return {level:'waiting',band:null};
@@ -4113,6 +4116,33 @@ window.cuLightningDensityForecasts=[];
  try{window.cuUpdateThreats?.()}catch(e){console.warn('Lightning threat refresh',e)}
 })();
 </script>\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6811,6 +6841,99 @@ window.cuLightningDensityForecasts=[];
  }
  window.addEventListener('load',refresh);
  setInterval(refresh,60000);
+})();
+</script>
+
+<script id="cu-freezing-temperature-light">
+(()=>{
+ const KEY='Ambient below 32°F';
+ let current=null,updated=0,source='';
+ function render(){
+  const anchor=document.querySelector('[data-threat-key="Extreme heat"]') ||
+               document.querySelector('[data-threat-key="Lightning"]');
+  if(!anchor)return;
+  const host=anchor.closest('.threat-row');
+  if(!host)return;
+  let row=document.getElementById('cu-freezing-temp-row');
+  if(!row){
+   row=host.cloneNode(true);
+   row.id='cu-freezing-temp-row';
+   row.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+   const heading=row.querySelector('[data-threat-key]') ||
+     [...row.querySelectorAll('*')].find(el=>el.children.length===0&&el.textContent.trim()===anchor.textContent.trim());
+   if(!heading)return;
+   heading.textContent=KEY;
+   heading.setAttribute('data-threat-key',KEY);
+   host.parentElement.insertBefore(row,host.nextSibling);
+  }
+  const status=row.querySelector('.threat-time'),dot=row.querySelector('.threat-dot');
+  const fresh=Number.isFinite(current)&&Date.now()-updated<30*60000;
+  const freezing=fresh&&current<32;
+  const extreme=fresh&&current<10;
+  const severe=fresh&&current<20;
+  const label=!fresh?'WAITING':extreme?'EXTREME':severe?'LIKELY':freezing?'BELOW 32°F':'BELOW THRESHOLD';
+  const color=!fresh?'#4db8ff':extreme?'#a855f7':severe?'#ef4444':freezing?'#ff9b43':'#22c55e';
+  if(status){
+   status.textContent=label+(fresh?' · '+current.toFixed(1)+'°F':'');
+   status.dataset.status=!fresh?'waiting':extreme?'extreme':severe?'likely':freezing?'elevated':'none';
+   status.title=fresh?source+'; current 2-m air temperature at central Springfield; updated '+new Date(updated).toLocaleTimeString():'Current temperature unavailable or stale';
+   status.style.color=color;
+  }
+  if(dot){dot.dataset.status=!fresh?'waiting':extreme?'extreme':severe?'likely':freezing?'elevated':'none';dot.style.backgroundColor=color;}
+ }
+ async function update(){
+  try{
+   const url='https://api.open-meteo.com/v1/forecast?latitude=37.209&longitude=-93.292&current=temperature_2m&temperature_unit=fahrenheit&timezone=America%2FChicago';
+   const response=await fetch(url,{cache:'no-store'});
+   if(!response.ok)throw Error('temperature HTTP '+response.status);
+   const data=await response.json();
+   const value=Number(data.current?.temperature_2m);
+   if(!Number.isFinite(value)||data.current_units?.temperature_2m!=='°F')throw Error('temperature or units unavailable');
+   const validTime=Date.parse(String(data.current.time).replace(' ','T')+'-06:00');
+   current=value;updated=Date.now();source='Open-Meteo current temperature (model-derived, not station observation)';
+  }catch(e){console.warn('Ambient freezing light',e)}
+  render();
+ }
+ render();update();setInterval(update,10*60000);setInterval(render,5000);
+})();
+</script>
+
+<script id="cu-joke-threat-lights">
+(()=>{
+ const jokes=[
+  {id:'cu-joke-office365',name:'Office 365',label:'ELEVATED',color:'#ff9b43',level:'elevated'},
+  {id:'cu-joke-workday',name:'Workday',label:'ELEVATED',color:'#ff9b43',level:'elevated'},
+  {id:'cu-joke-faa',name:'FAA',label:'EXTREME',color:'#a855f7',level:'extreme'}
+ ];
+ function render(){
+  const heading=document.querySelector('[data-threat-key="Lightning"]')||
+                document.querySelector('[data-threat-key="Downburst"]');
+  const anchor=heading?.closest('.threat-row');
+  if(!anchor)return;
+  let previous=anchor;
+  for(const item of jokes){
+   let row=document.getElementById(item.id);
+   if(!row){
+    row=anchor.cloneNode(true);
+    row.id=item.id;
+    row.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    const title=row.querySelector('[data-threat-key]');
+    if(!title)continue;
+    title.textContent=item.name;
+    title.removeAttribute('data-threat-key');
+    row.dataset.cuParody='true';
+    previous.insertAdjacentElement('afterend',row);
+   }
+   const status=row.querySelector('.threat-time'),dot=row.querySelector('.threat-dot');
+   if(status){status.textContent=item.label;status.style.color=item.color;status.dataset.status=item.level;
+     status.title='Simulated indicator for demonstration; not live service status.';}
+   if(dot){dot.style.backgroundColor=item.color;dot.dataset.status=item.level;}
+   previous=row;
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);
+ else render();
+ setInterval(render,5000);
 })();
 </script>
 </body></html>
