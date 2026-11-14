@@ -1,31 +1,31 @@
 {
-  "checked_at": "2026-11-14T00:03:08.986188+00:00",
+  "checked_at": "2026-11-14T03:17:56.398123+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-13T23:00:00+00:00",
-      "updated": "2026-11-13T23:58:04.673943+00:00",
-      "age_minutes": 5.1,
-      "hours": 5,
+      "cycle": "2026-11-14T02:00:00+00:00",
+      "updated": "2026-11-14T03:13:52.777970+00:00",
+      "age_minutes": 4.1,
+      "hours": 13,
       "expected_hours": 19,
-      "percent_complete": 26.3,
+      "percent_complete": 63.2,
       "state": "partial",
       "complete": false,
       "errors": [
-        "f08 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t23z.wrfsfcf08.grib2.idx",
-        "f09 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t23z.wrfsfcf09.grib2.idx",
-        "f10 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261113/conus/hrrr.t23z.wrfsfcf10.grib2.idx"
+        "03Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t03z.wrfsfcf00.grib2.idx",
+        "03Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t03z.wrfsfcf01.grib2.idx",
+        "03Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t03z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-13T21:00:00+00:00",
-      "updated": "2026-11-14T00:01:37.281084+00:00",
-      "age_minutes": 1.5,
-      "hours": 18,
-      "expected_hours": 18,
-      "percent_complete": 100.0,
-      "state": "current",
-      "complete": true,
+      "cycle": "2026-11-14T00:00:00+00:00",
+      "updated": "2026-11-14T03:15:49.738046+00:00",
+      "age_minutes": 2.1,
+      "hours": 36,
+      "expected_hours": 60,
+      "percent_complete": 60.0,
+      "state": "partial",
+      "complete": false,
       "errors": []
     }
   }

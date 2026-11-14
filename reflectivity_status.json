@@ -1,9 +1,9 @@
 {
   "status": "error",
   "errors": [
-    "2026-11-12T18:00:00+00:00 f000: No valid dBZ values in requested region",
-    "2026-11-12T12:00:00+00:00 f000: No valid dBZ values in requested region",
-    "2026-11-12T06:00:00+00:00 f000: No valid dBZ values in requested region"
+    "2026-11-13T18:00:00+00:00 f000: No valid dBZ values in requested region",
+    "2026-11-13T12:00:00+00:00 f000: No valid dBZ values in requested region",
+    "2026-11-13T06:00:00+00:00 f000: No valid dBZ values in requested region"
   ],
-  "updated": "2026-11-13T00:21:14.010630+00:00"
+  "updated": "2026-11-14T03:13:51.868959+00:00"
 }
