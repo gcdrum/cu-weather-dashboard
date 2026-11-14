@@ -1,31 +1,31 @@
 {
-  "checked_at": "2026-11-14T17:09:09.125213+00:00",
+  "checked_at": "2026-11-14T19:59:09.901658+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-14T16:00:00+00:00",
-      "updated": "2026-11-14T17:06:09.244511+00:00",
-      "age_minutes": 3.0,
-      "hours": 9,
+      "cycle": "2026-11-14T19:00:00+00:00",
+      "updated": "2026-11-14T19:53:19.061092+00:00",
+      "age_minutes": 5.8,
+      "hours": 2,
       "expected_hours": 19,
-      "percent_complete": 47.4,
+      "percent_complete": 10.5,
       "state": "partial",
       "complete": false,
       "errors": [
-        "17Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t17z.wrfsfcf00.grib2.idx",
-        "17Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t17z.wrfsfcf01.grib2.idx",
-        "17Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t17z.wrfsfcf02.grib2.idx"
+        "f12 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t19z.wrfsfcf12.grib2.idx",
+        "f13 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t19z.wrfsfcf13.grib2.idx",
+        "f14 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t19z.wrfsfcf14.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-14T15:00:00+00:00",
-      "updated": "2026-11-14T17:09:00.543879+00:00",
-      "age_minutes": 0.1,
-      "hours": 18,
-      "expected_hours": 18,
-      "percent_complete": 100.0,
-      "state": "current",
-      "complete": true,
+      "cycle": "2026-11-14T18:00:00+00:00",
+      "updated": "2026-11-14T19:57:04.083518+00:00",
+      "age_minutes": 2.1,
+      "hours": 35,
+      "expected_hours": 60,
+      "percent_complete": 58.3,
+      "state": "partial",
+      "complete": false,
       "errors": []
     }
   }
