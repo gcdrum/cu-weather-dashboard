@@ -1,28 +1,28 @@
 {
-  "checked_at": "2026-11-14T21:32:26.830422+00:00",
+  "checked_at": "2026-11-15T01:09:40.932231+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-14T20:00:00+00:00",
-      "updated": "2026-11-14T21:29:16.305497+00:00",
-      "age_minutes": 3.2,
-      "hours": 19,
-      "expected_hours": 19,
-      "percent_complete": 63.2,
+      "cycle": "2026-11-15T00:00:00+00:00",
+      "updated": "2026-11-15T01:01:48.577241+00:00",
+      "age_minutes": 7.9,
+      "hours": 9,
+      "expected_hours": 49,
+      "percent_complete": 18.4,
       "state": "partial",
       "complete": false,
       "errors": [
-        "21Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t21z.wrfsfcf00.grib2.idx",
-        "21Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t21z.wrfsfcf01.grib2.idx",
-        "21Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261114/conus/hrrr.t21z.wrfsfcf02.grib2.idx"
+        "01Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261115/conus/hrrr.t01z.wrfsfcf00.grib2.idx",
+        "01Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261115/conus/hrrr.t01z.wrfsfcf01.grib2.idx",
+        "01Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261115/conus/hrrr.t01z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-14T18:00:00+00:00",
-      "updated": "2026-11-14T21:30:30.500154+00:00",
-      "age_minutes": 1.9,
-      "hours": 60,
-      "expected_hours": 60,
+      "cycle": "2026-11-14T21:00:00+00:00",
+      "updated": "2026-11-15T01:08:11.039115+00:00",
+      "age_minutes": 1.5,
+      "hours": 18,
+      "expected_hours": 18,
       "percent_complete": 100.0,
       "state": "current",
       "complete": true,
