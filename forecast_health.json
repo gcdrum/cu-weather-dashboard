@@ -1,31 +1,31 @@
 {
-  "checked_at": "2026-11-15T22:40:08.032731+00:00",
+  "checked_at": "2026-11-16T01:37:30.619961+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-15T21:00:00+00:00",
-      "updated": "2026-11-15T22:37:48.857105+00:00",
-      "age_minutes": 2.3,
+      "cycle": "2026-11-16T00:00:00+00:00",
+      "updated": "2026-11-16T01:34:45.804114+00:00",
+      "age_minutes": 2.7,
       "hours": 19,
-      "expected_hours": 19,
-      "percent_complete": 63.2,
+      "expected_hours": 49,
+      "percent_complete": 24.5,
       "state": "partial",
       "complete": false,
       "errors": [
-        "22Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261115/conus/hrrr.t22z.wrfsfcf00.grib2.idx",
-        "22Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261115/conus/hrrr.t22z.wrfsfcf01.grib2.idx",
-        "22Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261115/conus/hrrr.t22z.wrfsfcf02.grib2.idx"
+        "01Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261116/conus/hrrr.t01z.wrfsfcf00.grib2.idx",
+        "01Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261116/conus/hrrr.t01z.wrfsfcf01.grib2.idx",
+        "01Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261116/conus/hrrr.t01z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
       "cycle": "2026-11-15T21:00:00+00:00",
-      "updated": "2026-11-15T22:39:20.931128+00:00",
-      "age_minutes": 0.8,
-      "hours": 15,
+      "updated": "2026-11-16T01:36:17.434633+00:00",
+      "age_minutes": 1.2,
+      "hours": 18,
       "expected_hours": 18,
-      "percent_complete": 83.3,
-      "state": "partial",
-      "complete": false,
+      "percent_complete": 100.0,
+      "state": "current",
+      "complete": true,
       "errors": []
     }
   }
