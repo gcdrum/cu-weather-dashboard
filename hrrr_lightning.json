@@ -1,11 +1,11 @@
 {
   "model": "hrrr",
-  "cycle": "2026-11-17T11:00:00+00:00",
+  "cycle": "2026-11-17T12:00:00+00:00",
   "units": "unverified native GRIB field; not yet flashes/km2/5min",
   "status": "validation_required",
   "hours": [
     {
-      "time": "2026-11-17T12:00:00+00:00",
+      "time": "2026-11-17T13:00:00+00:00",
       "peak_raw": 0.0,
       "field": "LTNG/LITNG",
       "grib_metadata": {
@@ -16,21 +16,7 @@
         "stepRange": "1"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
-    },
-    {
-      "time": "2026-11-17T13:00:00+00:00",
-      "peak_raw": 0.0,
-      "field": "LTNG/LITNG",
-      "grib_metadata": {
-        "shortName": "ltng",
-        "name": "Lightning",
-        "units": "dimensionless",
-        "stepType": "instant",
-        "stepRange": "2"
-      },
-      "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T14:00:00+00:00",
@@ -41,10 +27,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "3"
+        "stepRange": "2"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T15:00:00+00:00",
@@ -55,10 +41,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "4"
+        "stepRange": "3"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T16:00:00+00:00",
@@ -69,10 +55,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "5"
+        "stepRange": "4"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T17:00:00+00:00",
@@ -83,10 +69,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "6"
+        "stepRange": "5"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T18:00:00+00:00",
@@ -97,10 +83,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "7"
+        "stepRange": "6"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T19:00:00+00:00",
@@ -111,10 +97,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "8"
+        "stepRange": "7"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T20:00:00+00:00",
@@ -125,10 +111,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "9"
+        "stepRange": "8"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T21:00:00+00:00",
@@ -139,10 +125,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "10"
+        "stepRange": "9"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T22:00:00+00:00",
@@ -153,10 +139,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "11"
+        "stepRange": "10"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T11:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-17T23:00:00+00:00",
@@ -265,10 +251,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "31"
+        "stepRange": "19"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T00:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-18T08:00:00+00:00",
@@ -279,10 +265,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "32"
+        "stepRange": "20"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T00:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-18T09:00:00+00:00",
@@ -293,10 +279,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "33"
+        "stepRange": "21"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T00:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-18T10:00:00+00:00",
@@ -307,10 +293,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "34"
+        "stepRange": "22"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T00:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-18T11:00:00+00:00",
@@ -321,10 +307,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "35"
+        "stepRange": "23"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T00:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-18T12:00:00+00:00",
@@ -349,10 +335,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "37"
+        "stepRange": "25"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T00:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     },
     {
       "time": "2026-11-18T14:00:00+00:00",
@@ -363,10 +349,10 @@
         "name": "Lightning",
         "units": "dimensionless",
         "stepType": "instant",
-        "stepRange": "38"
+        "stepRange": "26"
       },
       "units_verified": false,
-      "source_cycle": "2026-11-17T00:00:00+00:00"
+      "source_cycle": "2026-11-17T12:00:00+00:00"
     }
   ],
   "checked_leads": [
@@ -381,14 +367,13 @@
     8,
     9,
     10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18
+    19,
+    20,
+    21,
+    22,
+    23,
+    25,
+    26
   ],
   "note": "Do not use raw values for operational threat classification until field and units are verified."
 }
