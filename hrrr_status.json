@@ -1,22 +1,20 @@
 {
-  "cycle": "2026-11-18T03:00:00+00:00",
-  "updated": "2026-11-18T04:18:19.095927+00:00",
-  "hours": 15,
-  "expected_hours": 19,
-  "last_lead": 14,
+  "cycle": "2026-11-18T12:00:00+00:00",
+  "updated": "2026-11-18T13:22:47.470037+00:00",
+  "hours": 17,
+  "expected_hours": 49,
+  "last_lead": 24,
   "wind_hours": 12,
   "complete": false,
   "reflectivity_complete": false,
   "wind_complete": false,
-  "percent_complete": 63.2,
+  "percent_complete": 24.5,
   "errors": [
-    "04Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t04z.wrfsfcf00.grib2.idx",
-    "04Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t04z.wrfsfcf01.grib2.idx",
-    "04Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t04z.wrfsfcf02.grib2.idx",
-    "04Z f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t04z.wrfsfcf03.grib2.idx",
-    "f15 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t03z.wrfsfcf15.grib2.idx",
-    "f16 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t03z.wrfsfcf16.grib2.idx",
-    "f17 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t03z.wrfsfcf17.grib2.idx",
-    "f18 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t03z.wrfsfcf18.grib2.idx"
+    "13Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t13z.wrfsfcf00.grib2.idx",
+    "13Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t13z.wrfsfcf01.grib2.idx",
+    "13Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t13z.wrfsfcf02.grib2.idx",
+    "13Z f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t13z.wrfsfcf03.grib2.idx",
+    "f25 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t12z.wrfsfcf25.grib2.idx",
+    "f26 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261118/conus/hrrr.t12z.wrfsfcf26.grib2.idx"
   ]
 }
