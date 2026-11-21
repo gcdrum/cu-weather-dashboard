@@ -1,31 +1,31 @@
 {
-  "checked_at": "2026-11-21T22:20:35.940083+00:00",
+  "checked_at": "2026-11-21T23:16:56.835260+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-21T21:00:00+00:00",
-      "updated": "2026-11-21T22:18:46.966554+00:00",
-      "age_minutes": 1.8,
-      "hours": 15,
+      "cycle": "2026-11-21T22:00:00+00:00",
+      "updated": "2026-11-21T23:14:34.259789+00:00",
+      "age_minutes": 2.4,
+      "hours": 13,
       "expected_hours": 19,
       "percent_complete": 63.2,
       "state": "partial",
       "complete": false,
       "errors": [
-        "22Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261121/conus/hrrr.t22z.wrfsfcf00.grib2.idx",
-        "22Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261121/conus/hrrr.t22z.wrfsfcf01.grib2.idx",
-        "22Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261121/conus/hrrr.t22z.wrfsfcf02.grib2.idx"
+        "23Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261121/conus/hrrr.t23z.wrfsfcf00.grib2.idx",
+        "23Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261121/conus/hrrr.t23z.wrfsfcf01.grib2.idx",
+        "23Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261121/conus/hrrr.t23z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
       "cycle": "2026-11-21T21:00:00+00:00",
-      "updated": "2026-11-21T22:20:29.540925+00:00",
-      "age_minutes": 0.1,
-      "hours": 1,
+      "updated": "2026-11-21T23:16:44.937206+00:00",
+      "age_minutes": 0.2,
+      "hours": 18,
       "expected_hours": 18,
-      "percent_complete": 5.6,
-      "state": "partial",
-      "complete": false,
+      "percent_complete": 100.0,
+      "state": "current",
+      "complete": true,
       "errors": []
     }
   }
