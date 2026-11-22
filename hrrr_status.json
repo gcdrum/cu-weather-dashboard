@@ -1,21 +1,18 @@
 {
-  "cycle": "2026-11-22T10:00:00+00:00",
-  "updated": "2026-11-22T11:21:25.488872+00:00",
-  "hours": 16,
-  "expected_hours": 19,
-  "last_lead": 15,
+  "cycle": "2026-11-22T18:00:00+00:00",
+  "updated": "2026-11-22T19:36:57.098113+00:00",
+  "hours": 19,
+  "expected_hours": 49,
+  "last_lead": 20,
   "wind_hours": 12,
   "complete": false,
   "reflectivity_complete": false,
   "wind_complete": false,
-  "percent_complete": 63.2,
+  "percent_complete": 24.5,
   "errors": [
-    "11Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t11z.wrfsfcf00.grib2.idx",
-    "11Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t11z.wrfsfcf01.grib2.idx",
-    "11Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t11z.wrfsfcf02.grib2.idx",
-    "11Z f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t11z.wrfsfcf03.grib2.idx",
-    "f16 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t10z.wrfsfcf16.grib2.idx",
-    "f17 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t10z.wrfsfcf17.grib2.idx",
-    "f18 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t10z.wrfsfcf18.grib2.idx"
+    "19Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t19z.wrfsfcf00.grib2.idx",
+    "19Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t19z.wrfsfcf01.grib2.idx",
+    "19Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t19z.wrfsfcf02.grib2.idx",
+    "19Z f03 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261122/conus/hrrr.t19z.wrfsfcf03.grib2.idx"
   ]
 }
