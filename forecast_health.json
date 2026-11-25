@@ -1,31 +1,31 @@
 {
-  "checked_at": "2026-11-25T13:00:30.039625+00:00",
+  "checked_at": "2026-11-25T22:31:44.658420+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-25T12:00:00+00:00",
-      "updated": "2026-11-25T12:51:41.383532+00:00",
-      "age_minutes": 8.8,
-      "hours": 2,
-      "expected_hours": 49,
-      "percent_complete": 4.1,
+      "cycle": "2026-11-25T21:00:00+00:00",
+      "updated": "2026-11-25T22:30:04.132894+00:00",
+      "age_minutes": 1.7,
+      "hours": 18,
+      "expected_hours": 19,
+      "percent_complete": 63.2,
       "state": "partial",
       "complete": false,
       "errors": [
-        "f19 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261125/conus/hrrr.t12z.wrfsfcf19.grib2.idx",
-        "f20 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261125/conus/hrrr.t12z.wrfsfcf20.grib2.idx",
-        "f21 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261125/conus/hrrr.t12z.wrfsfcf21.grib2.idx"
+        "22Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261125/conus/hrrr.t22z.wrfsfcf00.grib2.idx",
+        "22Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261125/conus/hrrr.t22z.wrfsfcf01.grib2.idx",
+        "22Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261125/conus/hrrr.t22z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-25T09:00:00+00:00",
-      "updated": "2026-11-25T12:58:32.402717+00:00",
-      "age_minutes": 2.0,
-      "hours": 18,
+      "cycle": "2026-11-25T21:00:00+00:00",
+      "updated": "2026-11-25T22:31:26.103413+00:00",
+      "age_minutes": 0.3,
+      "hours": 6,
       "expected_hours": 18,
-      "percent_complete": 100.0,
-      "state": "current",
-      "complete": true,
+      "percent_complete": 33.3,
+      "state": "partial",
+      "complete": false,
       "errors": []
     }
   }
