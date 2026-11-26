@@ -1,31 +1,31 @@
 {
-  "checked_at": "2026-11-26T05:05:45.448470+00:00",
+  "checked_at": "2026-11-26T15:17:59.189461+00:00",
   "overall": "partial",
   "models": {
     "hrrr": {
-      "cycle": "2026-11-26T04:00:00+00:00",
-      "updated": "2026-11-26T05:01:43.216450+00:00",
-      "age_minutes": 4.0,
-      "hours": 6,
+      "cycle": "2026-11-26T14:00:00+00:00",
+      "updated": "2026-11-26T15:12:36.502667+00:00",
+      "age_minutes": 5.4,
+      "hours": 10,
       "expected_hours": 19,
-      "percent_complete": 31.6,
+      "percent_complete": 52.6,
       "state": "partial",
       "complete": false,
       "errors": [
-        "05Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261126/conus/hrrr.t05z.wrfsfcf00.grib2.idx",
-        "05Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261126/conus/hrrr.t05z.wrfsfcf01.grib2.idx",
-        "05Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261126/conus/hrrr.t05z.wrfsfcf02.grib2.idx"
+        "15Z f00 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261126/conus/hrrr.t15z.wrfsfcf00.grib2.idx",
+        "15Z f01 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261126/conus/hrrr.t15z.wrfsfcf01.grib2.idx",
+        "15Z f02 REFC: 404 Client Error: Not Found for url: https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.20261126/conus/hrrr.t15z.wrfsfcf02.grib2.idx"
       ]
     },
     "rrfs": {
-      "cycle": "2026-11-26T03:00:00+00:00",
-      "updated": "2026-11-26T05:05:14.272007+00:00",
-      "age_minutes": 0.5,
-      "hours": 18,
-      "expected_hours": 18,
-      "percent_complete": 100.0,
-      "state": "current",
-      "complete": true,
+      "cycle": "2026-11-26T12:00:00+00:00",
+      "updated": "2026-11-26T15:15:38.354803+00:00",
+      "age_minutes": 2.3,
+      "hours": 36,
+      "expected_hours": 60,
+      "percent_complete": 60.0,
+      "state": "partial",
+      "complete": false,
       "errors": []
     }
   }
